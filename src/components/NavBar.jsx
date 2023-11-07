@@ -29,6 +29,7 @@ function NavBar (){
 
     } else if (eventKey === "#wikidata") {
       setLabel("Wikidata");
+      console.log("Wikidata selected");
       //setEndpointURL("https://query.wikidata.org/sparql");
     }
   }

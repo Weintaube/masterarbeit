@@ -26,7 +26,6 @@ const Test = () => {
     ]
   });
   const [endpointURL, , ] = store.useState("endpointURL");
-  const [prefixes, , ] = store.useState("endpointPrefixes");
   const [endpointLabel, , ] = store.useState("endpointLabel");
 
   const fetchSPARQLData = async () => {
@@ -34,22 +33,19 @@ const Test = () => {
     try {
       
       console.log("before fetch");
-      //const response = await fetch(url);
-      const response = await fetch('https://orkg.org/api/statements/');
+      const response = await fetch('https://orkg.org/api/predicates/');
       //const response = await fetch('https://wikidata.org/w/rest.php/wikibase/v0/entities/properties');
-      const data = await response.json();
-      
-      console.log(data);
-
       console.log("after fetch");
 
-      console.log("EIG RESPONSE ERHALTEN");
       if(response.ok){ //Anfrage erfolgreich Statuscode 200
         console.log("Response (OK)",  response)
         const result = await response.json();
         console.log(result);
+        console.log(result.totalElements);
+        console.log("content");
+        console.log(result.content);
         
-        const allpropsValue = parseInt(10);
+        const allpropsValue = result.totalElements;
         const propsWith = parseInt(20);
         setAllProps(allpropsValue);
           //setData([{name:"Properties with a description", value: propsWith}, {name:"Properties without a description", value: 50}]);
@@ -76,7 +72,7 @@ const Test = () => {
           });
  
       }else{
-        throw new Error("Error while requesting SPARQL data.")
+        throw new Error("Error while requesting the REST API data.")
       }
      } catch (error) {
       console.error(error);
@@ -87,25 +83,10 @@ const Test = () => {
   useEffect(() => {
     console.log("FIRST USE EFFECT");    
     console.log("Label ", endpointLabel);
-    if(endpointLabel === "ORKG"){
-      //orkgp:description
-      setProperty(`orkgc:Predicate`);
-      setDescription(`orkgp:description`);
-    }else if(endpointLabel === "Wikidata"){
-      //schema:description
-      setProperty(`wikibase:Property`);
-      setDescription(`schema:description`);
-    }
-  }, [endpointLabel]);
-
-  useEffect(() => {
-    console.log("SECOND USE EFFECT");
-    console.log("Property", property);
-    console.log("Description", description);
-      
+        
     fetchSPARQLData(); 
-  }, [property]);
-  
+  }, [endpointLabel]);
+ 
 
   //console.log(data.results.bindings[0].allprops.value);
 

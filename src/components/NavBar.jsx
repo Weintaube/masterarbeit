@@ -7,29 +7,51 @@ import StatePool from 'state-pool';
 import store from './storing';
 
 
-store.setState("testendpoint", "ORKGbla");
-store.setState("endpointURL", "https://orkg.org/api/");
-store.setState("endpointLabel", "ORKG");
+store.setState("testendpoint", "wikibla");
+store.setState("endpointURL", "https://query.wikidata.org/sparql");
+store.setState("endpointPrefixes", null);
+store.setState("endpointLabel", "Wikidata");
 
 function NavBar (){
 
   const [testendpoint, setTest, updateTest] = store.useState("testendpoint");
+  console.log(testendpoint);
+
   const [endpointURL, setEndpointURL, ] = store.useState("endpointURL");
+  const [endpointPrefixes, setEndpointPrefixes, ] = store.useState("endpointPrefixes");
   const [endpointLabel, setLabel, ] = store.useState("endpointLabel");
+
+  setEndpointPrefixes(`
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    PREFIX orkgr: <http://orkg.org/orkg/resource/>
+    PREFIX orkgc: <http://orkg.org/orkg/class/>
+    PREFIX orkgp: <http://orkg.org/orkg/predicate/>
+
+    PREFIX dbp: <http://dbpedia.org/>
+
+    PREFIX wikidata: <http://www.wikidata.org/entity/>
+    PREFIX wikibase: <http://wikiba.se/ontology#>
+  `);
 
   const handleSelect = (eventKey) => {
     //setEndpointURL(eventKey);
+    
     if (eventKey === "#orkg") {
       setLabel("ORKG");
-      setEndpointURL("https://orkg.org/api/");
+      setEndpointURL("https://orkg.org/triplestore");
 
     } else if (eventKey === "#dbpedia") {
       setLabel("DBpedia");
-      //setEndpointURL("http://dbpedia.org");
+      setEndpointURL("http://dbpedia.org");
 
     } else if (eventKey === "#wikidata") {
       setLabel("Wikidata");
-      //setEndpointURL("https://query.wikidata.org/sparql");
+      setEndpointURL("https://query.wikidata.org/sparql");
     }
   }
 

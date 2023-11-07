@@ -1,30 +1,16 @@
-//import logo from './logo.svg';
-import './App.css';
-import NavBar from './components/NavBar';
+//import TestComponent from './TestComponent';
+//import PropertyStats from './PropertyStats';
+import PieChart from './components/PieChart';
+import Navbar from './components/Navbar';
 
-import "bootstrap/dist/css/bootstrap.min.css"; 
+import "bootstrap/dist/css/bootstrap.min.css"; //still required in react-bootstrap
 
-function App() {
+
+export default function App() {
   return (
-    <NavBar/>
+    <div>
+      <Navbar/>  
+      <PieChart/>
+    </div>                                                    
   );
 }
-
-export default App;
-
-/*<div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>*/

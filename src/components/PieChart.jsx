@@ -25,6 +25,9 @@ const Test = () => {
       }
     ]
   });
+  const [property, setProperty] = useState(`wikibase:Property`);
+  const [description, setDescription] = useState(`schema:description`); //TODO change default values to orkg and check if data even available
+
   const [endpointURL, , ] = store.useState("endpointURL");
   const [prefixes, , ] = store.useState("endpointPrefixes");
   const [endpointLabel, , ] = store.useState("endpointLabel");
@@ -32,7 +35,22 @@ const Test = () => {
   const fetchSPARQLData = async () => {
     console.log("Fetch sparql data");
     try {
+      const query = encodeURIComponent(`
+        ${prefixes}  
+        SELECT (COUNT(DISTINCT ?p) AS ?allprops) (COUNT(DISTINCT ?descrexist) AS ?propsWithDescription)
+          WHERE {
+            ?p rdf:type ${property}.
+            OPTIONAL {?p ${description} ?d}
+            BIND (IF (BOUND (?d), ?p, 0) AS ?descrexist)
+        }    
+      `);
+      //console.log("Endpoint URL", endpointURL);
+      //console.log("Query", query);
+
+      //const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
       
+      //const url2 = `https://orkg.org/triplestore?query=`+query;    
+      //console.log("URL", url);
       console.log("before fetch");
       //const response = await fetch(url);
       const response = await fetch('https://orkg.org/api/statements/');
@@ -46,12 +64,11 @@ const Test = () => {
       console.log("EIG RESPONSE ERHALTEN");
       if(response.ok){ //Anfrage erfolgreich Statuscode 200
         console.log("Response (OK)",  response)
-        const result = await response.json();
-        console.log(result);
-        
-        const allpropsValue = parseInt(10);
-        const propsWith = parseInt(20);
-        setAllProps(allpropsValue);
+          const result = await response.json();
+          console.log(result);
+          const allpropsValue = parseInt(result.results.bindings[0].allprops.value);
+          const propsWith = parseInt(result.results.bindings[0].propsWithDescription.value);
+          setAllProps(allpropsValue);
           //setData([{name:"Properties with a description", value: propsWith}, {name:"Properties without a description", value: 50}]);
           //console.log([{name:"Properties with a description", value: propsWith}, {name:"Properties without a description", value: 50}]);
 

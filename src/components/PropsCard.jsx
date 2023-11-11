@@ -3,6 +3,9 @@ import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import { ListGroupItem } from "react-bootstrap";
@@ -106,16 +109,19 @@ function PropsCard(){
     }, [endpointLabel]);
 
     return(
-        <Card style={{ width: '18rem' }}>
-        <Card.Body>
-            <Card.Title>Properties</Card.Title>
-            <Card.Text>
-            {propsWithoutDescr}% of the properties are missing a description.
-            </Card.Text>
-            <Button onClick={handleClick}variant="primary">Show undescribed properties</Button>
-            
-        </Card.Body>
-        {showComponent? <PropsList/>: null}
+        <Card className="custom-card">
+                <Col md={6}>
+                    <Card.Body>
+                        <Card.Title>Properties</Card.Title>
+                        <Card.Text>
+                        {propsWithoutDescr}% of the properties are missing a description.
+                        </Card.Text>
+                        <Button onClick={handleClick}variant="primary">Show undescribed properties</Button>
+                    </Card.Body>
+                </Col>
+                    <Col md={6}>
+                        {showComponent? <PropsList/>: null}
+                    </Col>
         </Card>  
     );
 }
@@ -140,6 +146,7 @@ function PropsList(){
                 ?p rdf:type ${property}.
                 FILTER(NOT EXISTS{?p ${description} ?d})
             }  
+            LIMIT 5
             `);
 
             console.log("before fetch");
@@ -177,10 +184,10 @@ function PropsList(){
 
     //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
     return(
-        <>
+        <div>
         <ListGroup>
             {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.key}</ListGroup.Item>): null}
         </ListGroup>
-        </>
+        </div>
     );
 }

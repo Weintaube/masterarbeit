@@ -5,7 +5,7 @@ import { Pie} from "react-chartjs-2";
 import { CategoryScale } from "chart.js";
 import Chart from "chart.js/auto";
 
-Chart.register(CategoryScale);
+/*Chart.register(CategoryScale);
 
 const Test = () => {
   console.log("Start rendering Test");
@@ -33,7 +33,9 @@ const Test = () => {
     try {
       
       console.log("before fetch");
-      const response = await fetch('https://orkg.org/api/predicates/');
+      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const response = await fetch(url);
+      //const response = await fetch('https://orkg.org/api/predicates/');
       //const response = await fetch('https://wikidata.org/w/rest.php/wikibase/v0/entities/properties');
       console.log("after fetch");
 
@@ -123,4 +125,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default Test;*/

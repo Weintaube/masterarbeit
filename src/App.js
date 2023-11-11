@@ -1,17 +1,26 @@
 //import logo from './logo.svg';
 import './App.css';
-import NavBar from './components/NavBar';
-import Test from './components/Properties';
-
 import "bootstrap/dist/css/bootstrap.min.css"; 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+import NavBar from './components/NavBar';
 import PropsCard from './components/PropsCard';
+import ClassCard from './components/ClassCard';
+import ResourcesCard from './components/ResourcesCard';
 
 function App() {
   return (
     <>
+    <Container>
       <NavBar/>
-      <Test/>
-      <PropsCard/>
+      <Row>
+        <Col><PropsCard/></Col>
+        <Col><ClassCard/></Col>
+        <Col><ResourcesCard/></Col>
+      </Row>
+      </Container>
     </>
   );
 }

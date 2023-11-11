@@ -8,20 +8,39 @@ import store from './storing';
 
 
 store.setState("testendpoint", "ORKGbla");
-store.setState("endpointURL", "https://orkg.org/api/");
+store.setState("endpointURL", "https://orkg.org/triplestore"); //https://orkg.org/api/
 store.setState("endpointLabel", "ORKG");
+store.setState("endpointPrefixes", null);
 
 function NavBar (){
 
   const [testendpoint, setTest, updateTest] = store.useState("testendpoint");
   const [endpointURL, setEndpointURL, ] = store.useState("endpointURL");
   const [endpointLabel, setLabel, ] = store.useState("endpointLabel");
+  const [endpointPrefixes, setEndpointPrefixes, ] = store.useState("endpointPrefixes");
+
+  setEndpointPrefixes(`
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX owl: <http://www.w3.org/2002/07/owl#>
+  PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+  PREFIX orkgr: <http://orkg.org/orkg/resource/>
+  PREFIX orkgc: <http://orkg.org/orkg/class/>
+  PREFIX orkgp: <http://orkg.org/orkg/predicate/>
+
+  PREFIX dbp: <http://dbpedia.org/>
+
+  PREFIX wikidata: <http://www.wikidata.org/entity/>
+  PREFIX wikibase: <http://wikiba.se/ontology#>
+`);
 
   const handleSelect = (eventKey) => {
     //setEndpointURL(eventKey);
     if (eventKey === "#orkg") {
       setLabel("ORKG");
-      setEndpointURL("https://orkg.org/api/");
+      //setEndpointURL("https://orkg.org/api/");
 
     } else if (eventKey === "#dbpedia") {
       setLabel("DBpedia");

@@ -1,14 +1,21 @@
-import {React, useEffect} from "react";
+import {React, useEffect, useState} from "react";
 import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 import "bootstrap/dist/css/bootstrap.min.css"; 
+import { ListGroupItem } from "react-bootstrap";
 
 function PropsCard(){
     
     const [endpointURL, , ] = store.useState("endpointURL");
     const [endpointLabel, , ] = store.useState("endpointLabel");
+    const [propsWithoutDescr, setPropsWithout] = useState(0);
+    const [property, setProperty] = useState(`orkgc:Predicate`);
+    const [description, setDescription] = useState(`orkgp:description`); //TODO change default values to orkg and check if data even available
+    const [prefixes, , ] = store.useState("endpointPrefixes");
+    const [showComponent, setShowComponent] = useState(false);
 
     const getPage = async function(pageno=1){
         const results = await fetch(endpointURL+`/predicates/?page=${pageno}&limit=20`).
@@ -32,31 +39,70 @@ function PropsCard(){
         //485 pages
     }
 
-    const fetchData = async() => {
+    function handleClick(){
+        setShowComponent(!showComponent);
+    }
 
+    const fetchSPARQLData = async () => {
+        console.log("Fetch sparql data");
         try {
-            const response = await fetch('https://orkg.org/api/predicates/?page=2');
+          const query = encodeURIComponent(`
+            ${prefixes}  
+            SELECT (COUNT(DISTINCT ?p) AS ?allprops) (COUNT(DISTINCT ?descrexist) AS ?propsWithDescription)
+              WHERE {
+                ?p rdf:type ${property}.
+                OPTIONAL {?p ${description} ?d}
+                BIND (IF (BOUND (?d), ?p, 0) AS ?descrexist)
+            }  
+            `);
 
-            if(response.ok){ //Anfrage erfolgreich Statuscode 200
-            console.log("Response (OK)",  response)
-            const result = await response.json();
-            console.log(result.content);
+            console.log("before fetch");
 
-            console.log(result.pageable);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        
+      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      //const url2 = `https://orkg.org/triplestore?query=`+query;  
+      const response = await fetch(url);
+      //const response = await fetch('https://orkg.org/api/statements/');
+      //const response = await fetch('https://wikidata.org/w/rest.php/wikibase/v0/entities/properties');
+      //console.log(response);
 
+      console.log("after fetch");
+
+      console.log("EIG RESPONSE ERHALTEN");
+      if(response.ok){ //Anfrage erfolgreich Statuscode 200
+        console.log("Response (OK)",  response)
+          const result = await response.json();
+          console.log(result);
+          const allpropsValue = parseInt(result.results.bindings[0].allprops.value);
+          const propsWith = parseInt(result.results.bindings[0].propsWithDescription.value);
+          console.log("allprops", allpropsValue);
+          console.log("propswith", propsWith);
+          const propsWithoutAkku = allpropsValue - propsWith;
+          setPropsWithout((propsWithoutAkku/allpropsValue * 100).toFixed(2));
+          //setData([{name:"Properties with a description", value: propsWith}, {name:"Properties without a description", value: 50}]);
+          //console.log([{name:"Properties with a description", value: propsWith}, {name:"Properties without a description", value: 50}]);
+ 
+      }else{
+        throw new Error("Error while requesting SPARQL data.")
+      }
+     } catch (error) {
+      console.error(error);
+     }
+     //console.log("Render finsished Test")
+  };
+        
 
     useEffect(() => {
         console.log("FIRST USE EFFECT");    
+        console.log("Label ", endpointLabel); 
         console.log("Label ", endpointLabel);
-            
+        if(endpointLabel === "ORKG"){
+            console.log(endpointLabel);
+        }
         //fetchData();
-        console.log(getEntireList()); 
+        //console.log(getEntireList()); 
         //console.log(getEntireList().size);
+        fetchSPARQLData();
     }, [endpointLabel]);
 
     return(
@@ -64,12 +110,77 @@ function PropsCard(){
         <Card.Body>
             <Card.Title>Properties</Card.Title>
             <Card.Text>
-            {}% of the properties are missing a description.
+            {propsWithoutDescr}% of the properties are missing a description.
             </Card.Text>
-            <Button variant="primary">Go somewhere</Button>
+            <Button onClick={handleClick}variant="primary">Show undescribed properties</Button>
+            
         </Card.Body>
+        {showComponent? <PropsList/>: null}
         </Card>  
     );
 }
 
 export default PropsCard;
+
+
+function PropsList(){
+    
+    const [endpointURL, , ] = store.useState("endpointURL");    
+    const [prefixes, , ] = store.useState("endpointPrefixes");
+    const [property, setProperty] = useState(`orkgc:Predicate`);
+    const [description, setDescription] = useState(`orkgp:description`);
+    const [propertiesList, setProperties] = useState(null);
+
+    const fetchSPARQLData = async () => {
+        try {
+          const query = encodeURIComponent(`
+            ${prefixes}  
+            SELECT distinct ?p
+              WHERE {
+                ?p rdf:type ${property}.
+                FILTER(NOT EXISTS{?p ${description} ?d})
+            }  
+            `);
+
+            console.log("before fetch");
+        
+        const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+        const response = await fetch(url);
+        if(response.ok){ //Anfrage erfolgreich Statuscode 200
+            console.log("Response (OK)",  response)
+            const result = await response.json();
+            console.log("List of properties without description");
+            //console.log(result.results.bindings[0].p);
+            const uriList = [];
+            console.log("size result", result.results.bindings.length);
+            for(var i=0;i<result.results.bindings.length;i++){
+                var item = result.results.bindings[i].p.value;
+                uriList.push({
+                    key: item.substring(item.lastIndexOf('/')+1),
+                    value: item.replace("predicate", "property") //TODO had to modify the link
+                });
+            }
+            console.log(uriList);
+            setProperties(uriList); //TODO liste formatie
+            
+        }else{
+            throw new Error("Error while requesting SPARQL data.")
+        }
+        } catch (error) {
+        console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchSPARQLData();
+    }, []);
+
+    //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
+    return(
+        <>
+        <ListGroup>
+            {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.key}</ListGroup.Item>): null}
+        </ListGroup>
+        </>
+    );
+}

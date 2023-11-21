@@ -9,6 +9,8 @@ import NavBar from './components/NavBar';
 import PropsCard from './components/PropsCard';
 import ClassCard from './components/ClassCard';
 import ResourcesCard from './components/ResourcesCard';
+import Contributors from './components/Contributors';
+import Templates from './components/Templates';
 
 function App() {
   return (
@@ -19,6 +21,10 @@ function App() {
         <Col><PropsCard/></Col>
         <Col><ClassCard/></Col>
         <Col><ResourcesCard/></Col>
+      </Row>
+      <Row>
+        {/*<Col><Contributors/></Col>*/}
+        <Col><Templates/></Col>
       </Row>
       </Container>
     </>

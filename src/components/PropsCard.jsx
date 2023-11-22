@@ -19,6 +19,7 @@ function PropsCard(){
     const [description, setDescription] = useState(`orkgp:description`); //TODO change default values to orkg and check if data even available
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const [showComponent, setShowComponent] = useState(false);
+    const [showHideText, setShowHideText] = useState("Show");
 
     const getPage = async function(pageno=1){
         const results = await fetch(endpointURL+`/predicates/?page=${pageno}&limit=20`).
@@ -44,6 +45,11 @@ function PropsCard(){
 
     function handleClick(){
         setShowComponent(!showComponent);
+        if(showHideText == "Show"){
+            setShowHideText("Hide");
+        }else{
+            setShowHideText("Show");
+        }
     }
 
     const fetchSPARQLData = async () => {
@@ -109,19 +115,21 @@ function PropsCard(){
     }, [endpointLabel]);
 
     return(
-        <Card className="custom-card">
-                <Col md={6}>
-                    <Card.Body>
-                        <Card.Title>Properties</Card.Title>
-                        <Card.Text>
-                        {propsWithoutDescr}% of the properties are missing a description.
-                        </Card.Text>
-                        <Button onClick={handleClick}variant="primary">Show undescribed properties</Button>
-                    </Card.Body>
-                </Col>
-                    <Col md={6}>
-                        {showComponent? <PropsList/>: null}
-                    </Col>
+        
+        <Card style={{display: 'flex', flexDirection: 'row' }}>
+            <Card.Body style={{ width: showComponent ? '50%' : '18rem', display: 'flex', flexDirection: 'column' }}>
+                <Card.Title>Properties</Card.Title>
+                <Card.Text>
+                {propsWithoutDescr}% of the properties are missing a description.
+                </Card.Text>
+                <Button onClick={handleClick}variant="primary">{showHideText} undescribed properties</Button>
+            </Card.Body>
+            {showComponent ? (
+                <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10px' }}>
+                <PropsList style={{ width: '50%' }} /> {/* Anpassen der Breite */}
+                {/* Weitere Inhalte, die neben der Liste gerendert werden sollen */}
+                </div>
+          ) : null}
         </Card>  
     );
 }
@@ -184,10 +192,8 @@ function PropsList(){
 
     //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
     return(
-        <div>
         <ListGroup>
             {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.key}</ListGroup.Item>): null}
         </ListGroup>
-        </div>
     );
 }

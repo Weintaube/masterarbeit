@@ -55,6 +55,7 @@ function Templates(){
     }
 
     const handlePageIncrement = () => {
+        console.log("page increment");
         setCurrentPage(prevPage => prevPage + 1);
     };
 

@@ -116,7 +116,7 @@ function PropsCard(){
 
     return(
         
-        <Card style={{display: 'flex', flexDirection: 'row' }}>
+        <Card style={{display: 'flex', flexDirection: 'row' , padding:'10px', gap:'10px'}}>
             <Card.Body style={{ width: showComponent ? '50%' : '18rem', display: 'flex', flexDirection: 'column' }}>
                 <Card.Title>Properties</Card.Title>
                 <Card.Text>
@@ -125,7 +125,7 @@ function PropsCard(){
                 <Button onClick={handleClick}variant="primary">{showHideText} undescribed properties</Button>
             </Card.Body>
             {showComponent ? (
-                <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row'}}>
                 <PropsList style={{ width: '50%' }} /> {/* Anpassen der Breite */}
                 {/* Weitere Inhalte, die neben der Liste gerendert werden sollen */}
                 </div>
@@ -149,12 +149,12 @@ function PropsList(){
         try {
           const query = encodeURIComponent(`
             ${prefixes}  
-            SELECT distinct ?p
+            SELECT distinct ?p ?label
               WHERE {
                 ?p rdf:type ${property}.
+                ?p rdfs:label ?label.
                 FILTER(NOT EXISTS{?p ${description} ?d})
             }  
-            LIMIT 5
             `);
 
             console.log("before fetch");
@@ -168,11 +168,14 @@ function PropsList(){
             //console.log(result.results.bindings[0].p);
             const uriList = [];
             console.log("size result", result.results.bindings.length);
+            console.log(result.results.bindings[0]);
             for(var i=0;i<result.results.bindings.length;i++){
+                var itemlabel = result.results.bindings[i].label.value;
                 var item = result.results.bindings[i].p.value;
                 uriList.push({
                     key: item.substring(item.lastIndexOf('/')+1),
-                    value: item.replace("predicate", "property") //TODO had to modify the link
+                    value: item.replace("predicate", "property"), //TODO had to modify the link
+                    label: itemlabel
                 });
             }
             console.log(uriList);
@@ -192,8 +195,8 @@ function PropsList(){
 
     //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
     return(
-        <ListGroup>
-            {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.key}</ListGroup.Item>): null}
+        <ListGroup className="listgroupstyle">
+            {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.label}</ListGroup.Item>): null}
         </ListGroup>
     );
 }

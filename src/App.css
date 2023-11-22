@@ -7,6 +7,12 @@
   pointer-events: none;
 }
 
+.listgroupstyle{
+  max-height: 204px;
+  max-width: 250px;
+  overflow: auto;
+}
+
 .custom-card.card{
   display: flex;
   flex-direction: row;

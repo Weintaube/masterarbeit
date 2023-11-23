@@ -2,6 +2,8 @@ import {React, useEffect, useState} from "react";
 import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
+import { ListGroupItem } from "react-bootstrap";
 
 import "bootstrap/dist/css/bootstrap.min.css"; 
 
@@ -13,7 +15,18 @@ function ResourcesCard(){
     const [type, setType] = useState(`orkgc:Resource`);
     const [description, setDescription] = useState(`orkgp:description`); //TODO change default values to orkg and check if data even available
     const [prefixes, , ] = store.useState("endpointPrefixes");
+    const [showComponent, setShowComponent] = useState(false);
+    const [showHideText, setShowHideText] = useState("Show");
 
+    function handleClick(){
+      setShowComponent(!showComponent);
+      if(showHideText == "Show"){
+          setShowHideText("Hide");
+      }else{
+          setShowHideText("Show");
+      }
+    }
+    
     const fetchSPARQLData = async () => {
         try {
           const query = encodeURIComponent(`
@@ -70,16 +83,86 @@ function ResourcesCard(){
     }, [endpointLabel]);
 
     return(
-        <Card style={{ width: '18rem' }}>
-        <Card.Body>
+        <Card style={{ display: 'flex', flexDirection: 'row', padding: '10px', gap: '10px', flex: '1' }}>
+        <Card.Body style={{ flex: showComponent ? '1' : '0 0 18rem', display: 'flex', flexDirection: 'column' }}>
             <Card.Title>Resources</Card.Title>
             <Card.Text>
             {resourcesWithoutDescr}% of the Resources are missing a description.
             </Card.Text>
-            <Button variant="primary">Go somewhere</Button>
+            <Button onClick={handleClick}variant="primary">{showHideText} undescribed resources</Button>
         </Card.Body>
+        {showComponent ? (
+                <div style={{ display: 'flex', flexDirection: 'row'}}>
+                <ResourcesList style={{ flex: '1' }} /> {/* Anpassen der Breite */}
+                {/* Weitere Inhalte, die neben der Liste gerendert werden sollen */}
+                </div>
+          ) : null}
         </Card>  
     );
 }
 
 export default ResourcesCard;
+
+function ResourcesList(){
+    
+  const [endpointURL, , ] = store.useState("endpointURL");    
+  const [prefixes, , ] = store.useState("endpointPrefixes");
+  const [property, setProperty] = useState(`orkgc:Resources`);
+  const [description, setDescription] = useState(`orkgp:description`);
+  const [resourcesList, setClasses] = useState(null);
+
+  const fetchSPARQLData = async () => {
+      try {
+        const query = encodeURIComponent(`
+          ${prefixes}  
+          SELECT distinct ?p ?label
+            WHERE {
+              ?p rdf:type ${property}.
+              ?p rdfs:label ?label.
+              FILTER(NOT EXISTS{?p ${description} ?d})
+          }  
+          `);
+
+          console.log("before fetch");
+      
+      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const response = await fetch(url);
+      if(response.ok){ //Anfrage erfolgreich Statuscode 200
+          console.log("Response (OK)",  response)
+          const result = await response.json();
+          console.log("List of properties without description");
+          //console.log(result.results.bindings[0].p);
+          const uriList = [];
+          console.log("size result", result.results.bindings.length);
+          console.log(result.results.bindings[0]);
+          for(var i=0;i<result.results.bindings.length;i++){
+              var itemlabel = result.results.bindings[i].label.value;
+              var item = result.results.bindings[i].p.value;
+              uriList.push({
+                  key: item.substring(item.lastIndexOf('/')+1),
+                  value: item,
+                  label: itemlabel
+              });
+          }
+          console.log(uriList);
+          setClasses(uriList); //TODO liste formatie
+          
+      }else{
+          throw new Error("Error while requesting SPARQL data.")
+      }
+      } catch (error) {
+      console.error(error);
+      }
+  };
+
+  useEffect(() => {
+      fetchSPARQLData();
+  }, []);
+
+  //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
+  return(
+      <ListGroup className="listgroupstyle">
+          {resourcesList? resourcesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.label}</ListGroup.Item>): null}
+      </ListGroup>
+  );
+}

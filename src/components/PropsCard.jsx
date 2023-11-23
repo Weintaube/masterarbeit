@@ -116,8 +116,8 @@ function PropsCard(){
 
     return(
         
-        <Card style={{display: 'flex', flexDirection: 'row' , padding:'10px', gap:'10px'}}>
-            <Card.Body style={{ width: showComponent ? '50%' : '18rem', display: 'flex', flexDirection: 'column' }}>
+        <Card style={{ display: 'flex', flexDirection: 'row', padding: '10px', gap: '10px', flex: '1' }}>
+            <Card.Body style={{ flex: showComponent ? '1' : '0 0 18rem', display: 'flex', flexDirection: 'column' }}>
                 <Card.Title>Properties</Card.Title>
                 <Card.Text>
                 {propsWithoutDescr}% of the properties are missing a description.
@@ -125,8 +125,8 @@ function PropsCard(){
                 <Button onClick={handleClick}variant="primary">{showHideText} undescribed properties</Button>
             </Card.Body>
             {showComponent ? (
-                <div style={{ display: 'flex', flexDirection: 'row'}}>
-                <PropsList style={{ width: '50%' }} /> {/* Anpassen der Breite */}
+                <div style={{ display: 'flex', flexDirection: 'row', flex: '1' }}>
+                <PropsList style={{ flex: '1' }} /> {/* Anpassen der Breite */}
                 {/* Weitere Inhalte, die neben der Liste gerendert werden sollen */}
                 </div>
           ) : null}

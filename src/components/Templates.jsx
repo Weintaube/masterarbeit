@@ -34,7 +34,7 @@ function Templates(){
                         if (instances.ok) {
                             let resourcesInstances = await instances.json();
                             let numberinstances = resourcesInstances.totalElements;
-                            updatedResults.push({label: item.label, created_by: item.created_by, numberOfInstances: numberinstances});
+                            updatedResults.push({label: item.label, uri: `https://orkg.org/class/${item.id}` , created_by: item.created_by, numberOfInstances: numberinstances});
 
                         } else {
                             console.error(`Fehler beim Abrufen der Ressource für ID ${item.id}: ${response.status}`);
@@ -57,6 +57,13 @@ function Templates(){
     const handlePageIncrement = () => {
         console.log("page increment");
         setCurrentPage(prevPage => prevPage + 1);
+        setResults([]);
+    };
+
+    const handlePageDecrement = () => {
+        console.log("page increment");
+        setCurrentPage(prevPage => prevPage - 1);
+        setResults([]);
     };
 
     return(
@@ -72,7 +79,7 @@ function Templates(){
         <tbody>
             {results.map((item, index) => (
             <tr key={index}>
-                <td>{item.label}</td>
+                <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a></td>
                 <td>{item.created_by}</td>
                 <td>{item.numberOfInstances}</td>
             </tr>
@@ -83,8 +90,8 @@ function Templates(){
             <Col>Currently page x from y</Col>
             <Col>
                 <Pagination>
-                    <Pagination.Prev onClick={handlePageIncrement}/>
-                    <Pagination.Next />
+                    <Pagination.Prev onClick={handlePageDecrement}/>
+                    <Pagination.Next onClick={handlePageIncrement}/>
                 </Pagination>     
             </Col>
         </Row>

@@ -88,7 +88,7 @@ function SameProps(){
                 <Col>
                 {selectedItem.label}
                     <ListGroup className="duplicateList">
-                        {selectedItem.ids.map(id => <ListGroup.Item key={id}>{id}</ListGroup.Item>)}
+                        {selectedItem.ids.map(id => <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>{id}</ListGroup.Item>)}
                     </ListGroup>    
                 </Col>
             :null}

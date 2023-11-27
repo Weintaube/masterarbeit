@@ -134,6 +134,7 @@ function ResourcesList(){
           //console.log(result.results.bindings[0].p);
           const uriList = [];
           console.log("size result", result.results.bindings.length);
+          console.log("results resources", result.results.bindings);
           console.log(result.results.bindings[0]);
           for(var i=0;i<result.results.bindings.length;i++){
               var itemlabel = result.results.bindings[i].label.value;

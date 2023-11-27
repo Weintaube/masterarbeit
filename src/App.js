@@ -15,6 +15,7 @@ import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import SameProps from './components/SameProps';
+import UndesiredResources from './components/UndesiredResources';
 
 function App() {
   return (

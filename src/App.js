@@ -11,23 +11,43 @@ import ClassCard from './components/ClassCard';
 import ResourcesCard from './components/ResourcesCard';
 import Contributors from './components/Contributors';
 import Templates from './components/Templates';
+import Nav from 'react-bootstrap/Nav';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import SameProps from './components/SameProps';
 
 function App() {
   return (
-    <>
+    <div  data-bs-theme="dark">
     <Container>
       <NavBar/>
-      <Row>
-        <Col><PropsCard/></Col>
-        <Col><ClassCard/></Col>
-        <Col><ResourcesCard/></Col>
-      </Row>
-      <Row>
-        {/*<Col><Contributors/></Col>*/}
-        <Col><Templates/></Col>
-      </Row>
+      <Tabs
+      defaultActiveKey="overview"
+      id="uncontrolled-tab-example"
+      className="mb-3">
+      <Tab eventKey="overview" title="Overview">
+        <Row>
+          <Col><PropsCard/></Col>
+          <Col><ClassCard/></Col>
+          <Col><ResourcesCard/></Col>
+        </Row>
+        <Row>
+          <SameProps></SameProps>
+        </Row>
+      </Tab>
+      <Tab eventKey="templates" title="Templates">
+        <Row>
+          {/*<Col><Contributors/></Col>*/}
+          <Col><Templates/></Col>
+        </Row>
+      </Tab>
+      <Tab eventKey="visitors" title="ORKG Visitors"> 
+      </Tab>
+      </Tabs>
+      
+      
       </Container>
-    </>
+    </div>
   );
 }
 

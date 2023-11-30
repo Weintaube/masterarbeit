@@ -2,12 +2,6 @@
   text-align: center;
 }
 
-.body{
-  --bs-body-bg: black !important;
-  background-color: black;
-}
-
-
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -17,6 +11,12 @@
   max-height: 245px;
   max-width: 250px;
   overflow: auto;
+}
+
+.popover-stick{ 
+  position: absolute;
+  top:0;
+
 }
 
 .duplicateList{

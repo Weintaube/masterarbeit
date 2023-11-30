@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ListGroup } from "react-bootstrap";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 import "bootstrap/dist/css/bootstrap.min.css"; 
 
@@ -10,8 +12,7 @@ function SameProps(){
 
     const [allPredicates, setAllPredicates] = useState([]);
     const [duplicatePredicates, setDuplicates] = useState([]);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [isItemSelected, setIsItemSelected] = useState(false);
+    const [popoverContent, setPopoverContent] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,30 +70,60 @@ function SameProps(){
         return duplicatePredicates;
       };   
 
-    function handleCellClick(searchLabel){
-        console.log("handle cell click", searchLabel);
-        setSelectedItem(duplicatePredicates.find(item => item.label == searchLabel));
-        setIsItemSelected(true);
-    }
+    const handleCellClick = (item) => {
+        const content = (
+          <Popover id={`popover-${item.label}`}>
+            <Popover.Header as="h3">{item.label}</Popover.Header>
+            <Popover.Body>
+              <ListGroup>
+                {item.ids.map(id => (
+                  <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
+                    {id}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            </Popover.Body>
+          </Popover>
+        );
+    
+        setPopoverContent(content);
+      };
+
 
     return(
         <>
         <Row>
             <Col>
-                Duplicate Predicates ({duplicatePredicates.length})
-                <ListGroup className="duplicateList">
-                    {duplicatePredicates.map(item => <ListGroup.Item className="listgroupcursor" key={item.label} onClick={() => handleCellClick(item.label)}>{item.label} ({item.ids.length})</ListGroup.Item>)}
-                </ListGroup>
+            Duplicate Predicates ({duplicatePredicates.length})
+            <ListGroup className="duplicateList">
+                {duplicatePredicates.map(item => (
+                <OverlayTrigger
+                    className="listgroupstyle"
+                    key={item.label}
+                    trigger="click"
+                    placement="right-start"
+                    overlay={
+                    <Popover className="popover-stick" data-bs-theme="dark" id={`popover-${item.label}`}>
+                        <Popover.Header>{item.label}</Popover.Header>
+                        <Popover.Body>
+                            <ListGroup className="listgroupstyle">
+                                {item.ids.map(id => (
+                                <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
+                                    {id}
+                                </ListGroup.Item>
+                                ))}
+                            </ListGroup>
+                        </Popover.Body>
+                    </Popover>
+                    }
+                >
+                    <ListGroup.Item className="listgroupcursor" onClick={() => handleCellClick(item)}>
+                    {item.label} ({item.ids.length})
+                    </ListGroup.Item>
+                </OverlayTrigger>
+                ))}
+            </ListGroup>
             </Col>
-            {isItemSelected?
-                <Col>
-                {selectedItem.label}
-                    <ListGroup className="duplicateList">
-                        {selectedItem.ids.map(id => <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>{id}</ListGroup.Item>)}
-                    </ListGroup>    
-                </Col>
-            :null}
-
         </Row>
         </>
     );

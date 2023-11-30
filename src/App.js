@@ -33,7 +33,7 @@ function App() {
           <Col><ResourcesCard/></Col>
         </Row>
         <Row>
-          <SameProps></SameProps>
+          <SameProps ></SameProps>
         </Row>
       </Tab>
       <Tab eventKey="templates" title="Templates">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ListGroup } from "react-bootstrap";
+import { CloseButton, ListGroup } from "react-bootstrap";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -13,6 +13,7 @@ function SameProps(){
     const [allPredicates, setAllPredicates] = useState([]);
     const [duplicatePredicates, setDuplicates] = useState([]);
     const [popoverContent, setPopoverContent] = useState(null);
+    const [popoverHidden, setPopoverHidden] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -89,10 +90,50 @@ function SameProps(){
         setPopoverContent(content);
       };
 
+    const handlePopoverClose = () => {
+      console.log("fired on click");
+      setPopoverContent(null);
+    };
+
+    const handleOverlayClose = () => {
+      console.log("fired overlay hidden");
+      setPopoverHidden(false);
+    };
+
 
     return(
         <>
         <Row>
+            <Col>
+                Duplicate Predicates ({duplicatePredicates.length})
+                <OverlayTrigger
+                    trigger="click"
+                    placement="right-start"
+                    overlay={popoverContent}
+                    rootClose
+                    onHide={handlePopoverClose}
+                >
+                    <ListGroup className="duplicateList">
+                        {duplicatePredicates.map(item => (
+                            <ListGroup.Item
+                                key={item.label}
+                                className="listgroupcursor"
+                                onClick={() => handleCellClick(item)}
+                            >
+                                {item.label} ({item.ids.length})
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                </OverlayTrigger>
+            </Col>
+        </Row>       
+        </>
+    );
+}
+
+export default SameProps;
+
+ /*<Row>
             <Col>
             Duplicate Predicates ({duplicatePredicates.length})
             <ListGroup className="duplicateList">
@@ -101,10 +142,12 @@ function SameProps(){
                     className="listgroupstyle"
                     key={item.label}
                     trigger="click"
+                    rootClose
+                    onHide={handleOverlayClose}
                     placement="right-start"
                     overlay={
                     <Popover className="popover-stick" data-bs-theme="dark" id={`popover-${item.label}`}>
-                        <Popover.Header>{item.label}</Popover.Header>
+                        <Popover.Header>{item.label} <CloseButton onClick={handlePopoverClose}/></Popover.Header>
                         <Popover.Body>
                             <ListGroup className="listgroupstyle">
                                 {item.ids.map(id => (
@@ -124,9 +167,4 @@ function SameProps(){
                 ))}
             </ListGroup>
             </Col>
-        </Row>
-        </>
-    );
-}
-
-export default SameProps;
+        </Row>*/

@@ -16,18 +16,18 @@ function SameProps(){
     const [popoverHidden, setPopoverHidden] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
-          const result = await fetchAllPages();
-          console.log("same props", result);
-          setAllPredicates(result);
-        };
-    
-        fetchData();
-      }, []);
+      const fetchData = async () => {
+        const result = await fetchAllPages();
+        console.log("same props", result);
+        setAllPredicates(result);
+      };
+  
+      fetchData();
+    }, []);
 
-      useEffect(() =>{
-        setDuplicates(collectDuplicates(allPredicates));
-      },[allPredicates]);
+    useEffect(() =>{
+      setDuplicates(collectDuplicates(allPredicates));
+    },[allPredicates]);
 
     const fetchAllPages = async()=>{
         let allResults = [];
@@ -73,7 +73,7 @@ function SameProps(){
 
     const handleCellClick = (item) => {
         const content = (
-          <Popover id={`popover-${item.label}`}>
+          <Popover className="duplicateList" id={`popover-${item.label}`}>
             <Popover.Header as="h3">{item.label}</Popover.Header>
             <Popover.Body>
               <ListGroup>

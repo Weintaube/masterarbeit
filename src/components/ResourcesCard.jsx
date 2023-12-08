@@ -107,7 +107,7 @@ function ResourcesList(){
     
   const [endpointURL, , ] = store.useState("endpointURL");    
   const [prefixes, , ] = store.useState("endpointPrefixes");
-  const [property, setProperty] = useState(`orkgc:Resources`);
+  const [property, setProperty] = useState(`orkgc:Resource`);
   const [description, setDescription] = useState(`orkgp:description`);
   const [resourcesList, setClasses] = useState(null);
 
@@ -130,7 +130,7 @@ function ResourcesList(){
       if(response.ok){ //Anfrage erfolgreich Statuscode 200
           console.log("Response (OK)",  response)
           const result = await response.json();
-          console.log("List of properties without description");
+          console.log("List of resources without description");
           //console.log(result.results.bindings[0].p);
           const uriList = [];
           console.log("size result", result.results.bindings.length);
@@ -145,7 +145,7 @@ function ResourcesList(){
                   label: itemlabel
               });
           }
-          console.log(uriList);
+          console.log("uriList",uriList);
           setClasses(uriList); //TODO liste formatie
           
       }else{

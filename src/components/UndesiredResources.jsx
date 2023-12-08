@@ -1,70 +1,94 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ListGroup } from "react-bootstrap";
+import store from './storing';
 
 function UndesiredResources(){
+
+    const[undocResources, setUndocResources] = useState([]); 
+    const[undesResources, setUndesResources] = useState([]); 
+    const [prefixes, , ] = store.useState("endpointPrefixes");
+    const [endpointURL, , ] = store.useState("endpointURL");
     
-    useEffect(() =>{
+    useEffect(()=>{
+        fetchSPARQLData(); //is this awaited?
         fetchData();
     },[]);
 
-    const fetchAllPages = async()=>{
-        let allResults = [];
-        let currentPage = 0;
-        let totalPages = 1; // Setze eine Anfangszahl
-
-        while (currentPage < totalPages) {
+    const fetchData = async() =>{
+        console.log("fetch data");
+        for(var i=0;i<undocResources.length;i++){
+            var curID = undocResources[i];
             try {
-                const response = await fetch(`https://orkg.org/api/predicates/?sort=label,asc&page=${currentPage}`);
-      
+                const response = await fetch(`https://orkg.org/api/resources/${curID}`);
+                console.log("test1");
+    
                 if (response.ok) {
+                    console.log("test2");
                     const result = await response.json();
-                    allResults = allResults.concat(result.content); // Füge die Ergebnisse der aktuellen Seite hinzu
-                    totalPages = result.totalPages; // Aktualisiere die Anzahl der Seiten
-                    currentPage++; // Gehe zur nächsten Seite
+                    console.log("result cur id", result);
+
                 } else {
-                    console.error(`Fehler beim Abrufen der Seite ${currentPage}`);
-                    break; // Stoppe die Schleife im Falle eines Fehlers
+                    console.error(`Fehler beim Abrufen der Resource ${curID}`);
                 }
             } catch (error) {
-                console.error(`Fehler beim Abrufen der Seite ${currentPage}: ${error}`);
-                break; 
+                console.error(`Exception beim Abrufen der Resource ${curID}: ${error}`);
             }
         }
-        return allResults;
     }
 
-    const fetchData = async()=>{
-        try{
+    const fetchSPARQLData = async () => {
+        console.log("fetch sparql data undes res");
+        try {
+          const query = encodeURIComponent(`
+            ${prefixes}  
+            SELECT distinct ?p
+            WHERE {
+              ?p rdf:type orkgc:Resource.
+              FILTER(NOT EXISTS{?p orkgp:description ?d})
+            } 
+            `);
+    
+      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const response = await fetch(url);
+      console.log("response", response);
 
-            const response = await fetch('https://orkg.org/api/resources/');
-            console.log(response);
-
-            if(response.ok){
-                const result = await response.json();
-                console.log(result);
-
-            }else{
-                throw new Error("Error while requesting REST API for undesired resources.");
-            }
-
-        }catch(error){
-            console.error(error);
+      if(response.ok){ //Anfrage erfolgreich Statuscode 200
+        console.log("Response (OK)",  response)
+          const result = await response.json();
+          console.log("results without descr ",result);
+          const uriList = [];
+          for(var i=0;i<result.results.bindings.length;i++){
+            var itemID = result.results.bindings[i].p.value;
+            uriList.push(itemID);
         }
+        setUndocResources(uriList);
+ 
+      }else{
+        throw new Error("Error while requesting SPARQL data.")
+      }
+     } catch (error) {
+      console.error(error);
+     }
+     //console.log("Render finsished Test")
+  };
 
-    }
 
     return(
         <>
-        Undesired resources
-        <ListGroup>
-            
+        Undesired resources ({undesResources.length})
+        <ListGroup className="duplicateList">
+            {undesResources.map(item => (
+                <ListGroup.Item
+                    key={item.label}
+                    className="listgroupcursor">
+                    {item.label}
+                </ListGroup.Item>
+            ))}
         </ListGroup>
         </>
 
-    );
-
-    
+    ); 
 }
 
 export default UndesiredResources;

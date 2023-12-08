@@ -14,8 +14,10 @@ function Contributors(){
                 const result = await response.json();
                 console.log("Contributors");
                 console.log(result);
-            }
 
+            }else{
+                console.log("Error while fetching comparisons.");
+            }
 
         }catch(error){
             console.log(error);

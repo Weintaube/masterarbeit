@@ -16,6 +16,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import SameProps from './components/SameProps';
 import UndesiredResources from './components/UndesiredResources';
+import EmptyComparisons from './components/EmptyComparisons';
 
 function App() {
   return (
@@ -33,16 +34,28 @@ function App() {
           <Col><ResourcesCard/></Col>
         </Row>
         <Row>
-          <SameProps ></SameProps>
+          <Col><SameProps ></SameProps></Col>
+          {/*<Col><UndesiredResources></UndesiredResources></Col>*/}
         </Row>
       </Tab>
-      <Tab eventKey="templates" title="Templates">
+      <Tab eventKey="visit" title="Users">
+
+      </Tab>
+      <Tab eventKey="insights" title="Insights">
+
+
+      </Tab>
+      <Tab eventKey="usage" title="Usage">
         <Row>
           {/*<Col><Contributors/></Col>*/}
           <Col><Templates/></Col>
+          <Col><EmptyComparisons/></Col>
         </Row>
+
       </Tab>
-      <Tab eventKey="visitors" title="ORKG Visitors"> 
+      <Tab eventKey="actions" title="Actions">
+
+
       </Tab>
       </Tabs>
       

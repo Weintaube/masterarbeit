@@ -45,7 +45,7 @@ function App() {
 
 
       </Tab>
-      <Tab eventKey="usage" title="Usage">
+      <Tab eventKey="content" title="Content">
         <Row>
           {/*<Col><Contributors/></Col>*/}
           <Col><Templates/></Col>

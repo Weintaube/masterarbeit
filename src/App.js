@@ -39,11 +39,16 @@ function App() {
         </Row>
       </Tab>
       <Tab eventKey="visit" title="Users">
-
+      Map of visitors path<br/>
+      Active members of an observatory in the last 6 months<br/>
+      Number of contributors (internal/external)<br/>
       </Tab>
       <Tab eventKey="insights" title="Insights">
-
-
+      Depth of graph per paper<br/>
+      Connectedness (how many connections to other papers exist through shared resources)<br/>
+      Input is wrongly assigned as a resource<br/>
+      Distribution of statements per entitiy<br/>
+      Number of statements per paper/from templates<br/>
       </Tab>
       <Tab eventKey="content" title="Content">
         <Row>
@@ -54,7 +59,10 @@ function App() {
 
       </Tab>
       <Tab eventKey="actions" title="Actions">
-
+        I see a paper representation (lacking completeness comment)<br/>
+        I see a paper or comparison that I do not understand (bad modelling comment)<br/>
+        I see a paper or comparison that is relevant for specific domain (suggest to move to featured)<br/>
+        Identify statements approved by one of the authors<br/>
 
       </Tab>
       </Tabs>

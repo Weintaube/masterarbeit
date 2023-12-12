@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import store from './storing';
 import { ListGroup } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
@@ -13,7 +13,15 @@ function EmptyComparisons(){
     const [comparisonCells, setComparisonCells] = useState([]);
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const [endpointURL, , ] = store.useState("endpointURL");
+    const [elementsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
 
+    const indexOfLastElement = currentPage * elementsPerPage;
+    const indexOfFirstElement = indexOfLastElement - elementsPerPage;
+    const currentElements = comparisonCells.slice(indexOfFirstElement, indexOfLastElement);
+    const maxPages = Math.ceil(comparisonCells.length / elementsPerPage);
+    
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
 
     useEffect(()=>{
         const fetchbothdata = async()=>{
@@ -127,18 +135,46 @@ function EmptyComparisons(){
         
     }
 
+    const handleSort = (column) => {
+        if (sortCriteria.column === column) {
+            setSortCriteria({
+                ...sortCriteria,
+                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            setSortCriteria({
+                column,
+                order: 'asc'
+            });
+        }
+    };
+
+    const sortedComparisonCells = useMemo(() => {
+        const { column, order } = sortCriteria;
+
+        const compareFunction = (a, b) => {
+            if (order === 'asc') {
+                return a[column] - b[column];
+            } else {
+                return b[column] - a[column];
+            }
+        };
+
+        return [...comparisonCells].sort(compareFunction);
+    }, [comparisonCells, sortCriteria]);
+
     return( <>
         <Table striped bordered hover>
         <thead>
         <tr>
           <th>Comparison</th>
-          <th>Number of all cells</th>
-          <th>Number of empty cells</th>
-          <th>Percentage of empty cells</th>
+          <th onClick={() => handleSort('allCells')}>Number of all cells</th>
+          <th onClick={() => handleSort('emptyCells')}>Number of empty cells</th>
+          <th onClick={() => handleSort('percentage')}>Percentage of empty cells</th>
         </tr>
         </thead>
         <tbody>
-            {comparisonCells.map((item, index) => (
+            {sortedComparisonCells.map((item, index) => (
                 <tr>
                     <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
                     <td> {item.allCells} </td>
@@ -150,11 +186,15 @@ function EmptyComparisons(){
         </tbody>
         </Table>
         <Row>
-            <Col>Currently page x from y</Col>
+            <Col>Currently page {currentPage} from {maxPages} </Col>
             <Col>
                 <Pagination>
-                    <Pagination.Prev />
-                    <Pagination.Next />
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : currentPage)}/>
+                    <Pagination.Next onClick={() => setCurrentPage(
+                        currentPage < Math.ceil(comparisonCells.length / elementsPerPage)
+                            ? currentPage + 1
+                            : currentPage
+                    )} />
                 </Pagination>     
             </Col>
         </Row>

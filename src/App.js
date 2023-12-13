@@ -17,6 +17,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import SameProps from './components/SameProps';
 import UndesiredResources from './components/UndesiredResources';
 import EmptyComparisons from './components/EmptyComparisons';
+import UnusedResources from './components/UnusedResources';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Col><PropsCard/></Col>
           <Col><ClassCard/></Col>
           <Col><ResourcesCard/></Col>
+          <Col><UnusedResources/></Col>
         </Row>
         <Row>
           <Col><SameProps ></SameProps></Col>

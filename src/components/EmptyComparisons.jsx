@@ -175,7 +175,7 @@ function EmptyComparisons(){
         </thead>
         <tbody>
             {sortedComparisonCells.map((item, index) => (
-                <tr>
+                <tr key={index}>
                     <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
                     <td> {item.allCells} </td>
                     <td> {item.emptyCells} </td>

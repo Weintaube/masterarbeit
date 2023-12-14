@@ -77,9 +77,9 @@ function UnusedResources(){
         <Card.Body style={{ flex: showComponent ? '1' : '0 0 18rem', display: 'flex', flexDirection: 'column' }}>
             <Card.Title>Resources</Card.Title>
             <Card.Text>
-            % of the Resources are missing a description.
+            % of the Resources are not being used.
             </Card.Text>
-            <Button onClick={handleClick}variant="primary">{showHideText} undescribed resources</Button>
+            <Button onClick={handleClick}variant="primary">{showHideText} unused resources</Button>
         </Card.Body>
         </Card>  
     );

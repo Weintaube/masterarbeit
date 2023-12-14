@@ -32,12 +32,11 @@ function App() {
         <Row>
           <Col><PropsCard/></Col>
           <Col><ClassCard/></Col>
-          <Col><ResourcesCard/></Col>
           <Col><UnusedResources/></Col>
+          {/*<Col><ResourcesCard/></Col>*/}
         </Row>
         <Row>
           <Col><SameProps ></SameProps></Col>
-          {/*<Col><UndesiredResources></UndesiredResources></Col>*/}
         </Row>
       </Tab>
       <Tab eventKey="visit" title="Users">

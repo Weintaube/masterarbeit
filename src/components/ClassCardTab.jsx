@@ -132,13 +132,9 @@ function ClassList(){
       const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
       const response = await fetch(url);
       if(response.ok){ //Anfrage erfolgreich Statuscode 200
-          console.log("Response (OK)",  response)
           const result = await response.json();
-          console.log("List of properties without description");
-          //console.log(result.results.bindings[0].p);
           const uriList = [];
           console.log("size result", result.results.bindings.length);
-          console.log(result.results.bindings[0]);
           for(var i=0;i<result.results.bindings.length;i++){
               var itemlabel = result.results.bindings[i].label.value;
               var item = result.results.bindings[i].p.value;

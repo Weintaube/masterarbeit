@@ -21,6 +21,7 @@ import UnusedResources from './components/UnusedResources';
 import PropsCardTab from './components/PropsCardTab';
 import ClassCardTab from './components/ClassCardTab';
 import ResourcesCardTab from './components/ResourcesCardTab';
+import StatementsPaper from './components/StatementsPaper';
 
 function App() {
   return (
@@ -60,6 +61,8 @@ function App() {
       Input is wrongly assigned as a resource<br/>
       Distribution of statements per entitiy<br/>
       Number of statements per paper/from templates<br/>
+
+        <StatementsPaper/>
       </Tab>
       <Tab eventKey="content" title="Content">
         <Row>

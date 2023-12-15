@@ -19,9 +19,9 @@ function Templates(){
             const response = await fetch(`https://orkg.org/api/statements/predicate/sh:targetClass?page=${pageNo}&size=10`); //nodeshape (template) sh:targetClass Classwhichdescribestemplate, 436
 
             if(response.ok){ 
-                console.log("Response (OK)",  response)
+                //console.log("Response (OK)",  response)
                 const result = await response.json(); //get a paginated content with 436 elements
-                console.log("first result", result);
+                //console.log("first result", result);
                 let templateRows = result.content.map(some => ({ label: some.subject.label, created_by: some.subject.created_by, id: some.object.id}));
                 //todo add uri to make clickable
                 console.log("Template rows", templateRows);

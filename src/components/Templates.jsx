@@ -74,6 +74,8 @@ function Templates(){
           <th>Template</th>
           <th>Created by</th>
           <th>Number of uses</th>
+          <th>Number of uses by author</th>
+          <th>Number of uses by others</th>
         </tr>
         </thead>
         <tbody>
@@ -82,6 +84,8 @@ function Templates(){
                 <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a></td>
                 <td>{item.created_by}</td>
                 <td>{item.numberOfInstances}</td>
+                <td></td>
+                <td></td>
             </tr>
         ))}
         </tbody>

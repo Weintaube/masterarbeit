@@ -24,10 +24,18 @@ function UnusedResources(){
     }, []);
 
     useEffect(()=>{
-        if(allResources.length > 0){
-            
+        
+        const newUnusedRes = [];
+        /*if(allResources.length > 0){
+            allResources.forEach(resource =>{
+                if(resource.shared == 0){
+                    newUnusedRes.push(resource.id);
+                }
+            })
+        }*/
 
-        }
+       //check for each
+
 
     },[allResources]);
 
@@ -69,8 +77,6 @@ function UnusedResources(){
         console.log("all pages undoc", allResults);
         return allResults;
     }
-
-
 
     return(
         <Card style={{ display: 'flex', flexDirection: 'row', padding: '10px', gap: '10px', flex: '1' }}>

@@ -18,6 +18,9 @@ import SameProps from './components/SameProps';
 import UndesiredResources from './components/UndesiredResources';
 import EmptyComparisons from './components/EmptyComparisons';
 import UnusedResources from './components/UnusedResources';
+import PropsCardTab from './components/PropsCardTab';
+import ClassCardTab from './components/ClassCardTab';
+import ResourcesCardTab from './components/ResourcesCardTab';
 
 function App() {
   return (
@@ -30,14 +33,21 @@ function App() {
       className="mb-3">
       <Tab eventKey="overview" title="Overview">
         <Row>
-          <Col><PropsCard/></Col>
-          <Col><ClassCard/></Col>
-          <Col><UnusedResources/></Col>
-          {/*<Col><ResourcesCard/></Col>*/}
+          <Col><PropsCardTab/></Col>
+          <Col><ClassCardTab/></Col>
+          <Col><ResourcesCardTab/></Col>
         </Row>
+
         <Row>
-          <Col><SameProps ></SameProps></Col>
+          {/*<Col><PropsCard/></Col>
+          <Col><ClassCard/></Col>*/}
+          {/*<Col><UnusedResources/></Col>
+          <Col><ResourcesCard/></Col>*/}
         </Row>
+        {/*<Row>
+          <Col><SameProps ></SameProps></Col>
+          
+        </Row>*/}
       </Tab>
       <Tab eventKey="visit" title="Users">
       Map of visitors path<br/>

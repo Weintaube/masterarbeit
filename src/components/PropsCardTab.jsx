@@ -132,7 +132,7 @@ function PropsCardTab(){
                 id="uncontrolled-tab-example"
                 className="mb-3"> 
                     <Tab eventKey="description" title="Missing descriptions">
-                        {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a des                           cription.
+                        {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a description.
                         <PropsList></PropsList>
                     </Tab>
                     <Tab eventKey="duplicates" title="Duplicate predicates">

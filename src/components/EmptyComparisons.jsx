@@ -167,6 +167,7 @@ function EmptyComparisons(){
     }
 
     const handleSort = (column) => {
+        setCurrentPage(1);
         if (sortCriteria.column === column) {
             setSortCriteria({
                 ...sortCriteria,

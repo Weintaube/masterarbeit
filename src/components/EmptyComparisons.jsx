@@ -6,7 +6,7 @@ import Pagination from 'react-bootstrap/Pagination';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSort, faSortUp, faSortDown, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 
 function EmptyComparisons(){
@@ -20,7 +20,6 @@ function EmptyComparisons(){
 
     const indexOfLastElement = currentPage * elementsPerPage;
     const indexOfFirstElement = indexOfLastElement - elementsPerPage;
-    const currentElements = comparisonCells.slice(indexOfFirstElement, indexOfLastElement);
     const maxPages = Math.ceil(comparisonCells.length / elementsPerPage);
     
     const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
@@ -75,9 +74,7 @@ function EmptyComparisons(){
             console.error(error);
         }
     };
-
-    //if(comparisonIDs.length>0){
-        //for(var item in comparisonIDs){
+ 
     const fetchData = async()=>{
         console.log("fetch data of comp");
         const newCompList = [];
@@ -209,6 +206,20 @@ function EmptyComparisons(){
         return [...comparisonCells].sort(compareFunction);
     }, [comparisonCells, sortCriteria]);
 
+    
+    const currentElements = sortedComparisonCells.slice(indexOfFirstElement, indexOfLastElement);
+    
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
+    };
+    
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) =>
+            prevPage < maxPages ? prevPage + 1 : prevPage
+        );
+    };
+
+
     return( <>
         <Table striped bordered hover>
         <thead>
@@ -266,7 +277,7 @@ function EmptyComparisons(){
         </tr>
         </thead>
         <tbody>
-            {sortedComparisonCells.map((item, index) => (
+            {currentElements.map((item, index) => (
                 <tr key={index}>
                     <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
                     <td> {item.allCells} </td>
@@ -281,12 +292,8 @@ function EmptyComparisons(){
             <Col>Currently page {currentPage} from {maxPages} </Col>
             <Col>
                 <Pagination>
-                    <Pagination.Prev onClick={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : currentPage)}/>
-                    <Pagination.Next onClick={() => setCurrentPage(
-                        currentPage < Math.ceil(comparisonCells.length / elementsPerPage)
-                            ? currentPage + 1
-                            : currentPage
-                    )} />
+                    <Pagination.Prev onClick={handlePrevPage}/>
+                    <Pagination.Next onClick={handleNextPage} />
                 </Pagination>     
             </Col>
         </Row>

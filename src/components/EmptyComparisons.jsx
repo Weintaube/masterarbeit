@@ -91,32 +91,64 @@ function EmptyComparisons(){
                     
                     if(response.ok){
                         const result = await response.json();
-                        const predicates = result.payload.thing.config.predicates
-                        const table = result.payload.thing.data.data
-        
-                        var emptyCellCount = 0
-                        var allCellCount = 0
-        
-                        predicates.forEach(predicate =>{ //loop through array of predicates listed in the table UI
-                            if (table[predicate] && Array.isArray(table[predicate])) { //because some props are merged
-                                table[predicate].forEach(element =>{ // run through list of predicates (more than in UI), check if they contain the predicate
-                                    allCellCount = allCellCount + 1;
-                                    if(element && element.length > 0 && Object.keys(element[0]).length === 0){
-                                        emptyCellCount = emptyCellCount+1;
-                                    }
-                                })
-                            }
-                        })
-                        const newItem = {
-                            key: item.key,
-                            uri: `https://orkg.org/comparison/${item.key}/`,
-                            value: item.value,
-                            label: item.label,
-                            emptyCells: emptyCellCount,
-                            allCells: allCellCount
-                        }
-                        newCompList.push(newItem);
+                        
+                        const table = result.payload.thing.data.data;
+                        var predicates = result.payload.thing.config.predicates;
 
+                        if(predicates.length > 0){ //predicates list got customized to the UI view
+                            //for the trivial case, that I have a fitting predicate list with UI
+                            var emptyCellCount = 0
+                            var allCellCount = 0
+                            predicates.forEach(predicate =>{ //loop through array of predicates listed in the table UI
+                                if (table[predicate] && Array.isArray(table[predicate])) { //because some props are merged
+                                    table[predicate].forEach(element =>{ // run through list of predicates (more than in UI), check if they contain the predicate
+                                        allCellCount = allCellCount + 1;
+                                        if(element && element.length > 0 && Object.keys(element[0]).length === 0){
+                                            emptyCellCount = emptyCellCount+1;
+                                        }
+                                    })
+                                }
+                            })
+                            const newItem = {
+                                key: item.key,
+                                uri: `https://orkg.org/comparison/${item.key}/`,
+                                value: item.value,
+                                label: item.label,
+                                emptyCells: emptyCellCount,
+                                allCells: allCellCount
+                            }
+                            newCompList.push(newItem);
+    
+
+                        }else{ //otherwise all the raw predicates are listed, only the ones with n_contributions are shown in the UI
+                            //for non-trivial case where I have all the raw comparison data
+                            var filledCells = 0
+                            var numberPredicates = 0
+                            var allContributions = result.payload.thing.config.contributions.length;
+
+                            predicates = result.payload.thing.data.predicates; 
+                            predicates.forEach(predicate =>{
+                                if(predicate.n_contributions > 1){ //we only look at the ones with n_contributions > 1 as they are shown in the UI
+                                    numberPredicates = numberPredicates + 1;
+                                    filledCells = filledCells + predicate.n_contributions; //how many contributions are implementing this specific predicate
+                                }
+                            })
+                            
+                            var allCells = allContributions * numberPredicates;
+                            const newItem = {
+                                key: item.key,
+                                uri: `https://orkg.org/comparison/${item.key}/`,
+                                value: item.value,
+                                label: item.label,
+                                emptyCells: allCells - filledCells,
+                                allCells: allCells
+                            }
+                            newCompList.push(newItem);
+    
+                        }
+                        
+                        console.log("cell stuff", result);
+                        
                     }else{
                         missingComps.push(item.key);
                     }

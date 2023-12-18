@@ -34,8 +34,8 @@ function ResourcesCardTab(){
         const newUnlabeledRes = [];
         if(allResources.length > 0){
             allResources.forEach(resource =>{
-                if(resource.label == null){
-                    newUnlabeledRes.push({label: resource.label, id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
+                if(resource.label == ""){
+                    newUnlabeledRes.push({id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
 
                 }else if(resource.shared == 0){
                     newUnusedRes.push({label: resource.label, id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
@@ -60,7 +60,7 @@ function ResourcesCardTab(){
       
                 if (response.ok) {
                     const result = await response.json();
-                    console.log(result);
+                    //console.log(result);
                     allResults = allResults.concat(result.content); // Füge die Ergebnisse der aktuellen Seite hinzu
                     totalPages = result.totalPages; // Aktualisiere die Anzahl der Seiten
                     currentPage++; // Gehe zur nächsten Seite
@@ -101,8 +101,10 @@ function ResourcesCardTab(){
 
                 <Tab eventKey="unlabeled" title="Unlabeled resources">
                     {(unlabeledResources.length/allResources.length * 100).toFixed(2)}% ({unlabeledResources.length}) of the resources do not have a label.
+                    <ListGroup className="listgroupstyle">
                     {unlabeledResources? unlabeledResources.map((item, key) => 
-                    <ListGroup.Item key={key} action href={item.value}>{item.label}</ListGroup.Item>): null}
+                        <ListGroup.Item key={key} action href={item.value}>{item.id}</ListGroup.Item>): null}
+                    </ListGroup>
                 </Tab>
 
             </Tabs>

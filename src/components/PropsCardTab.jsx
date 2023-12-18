@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -10,6 +10,8 @@ import Tabs from 'react-bootstrap/Tabs';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import { ListGroupItem } from "react-bootstrap";
 
@@ -130,7 +132,7 @@ function PropsCardTab(){
                 id="uncontrolled-tab-example"
                 className="mb-3"> 
                     <Tab eventKey="description" title="Missing descriptions">
-                        {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a description.
+                        {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a des                           cription.
                         <PropsList></PropsList>
                     </Tab>
                     <Tab eventKey="duplicates" title="Duplicate predicates">
@@ -213,6 +215,8 @@ function PropsList(){
 function DuplicatePredicates(){
     const [allPredicates, setAllPredicates] = useState([]);
     const [duplicatePredicates, setDuplicates] = useState([]);
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
+
 
     useEffect(() => {
       const fetchData = async () => {
@@ -283,6 +287,37 @@ function DuplicatePredicates(){
     
       };
 
+      const handleSort = (column) => {
+        if (sortCriteria.column === column) {
+            setSortCriteria({
+                ...sortCriteria,
+                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            setSortCriteria({
+                column,
+                order: 'asc'
+            });
+        }
+    };
+
+    const sortedDuplicates = useMemo(() => {
+        const { column, order } = sortCriteria;
+
+        const compareFunction = (a, b) => {
+            const aValue = a.ids.length;
+            const bValue = b.ids.length;
+    
+            if (order === 'asc') {
+                return aValue - bValue;
+            } else {
+                return bValue - aValue;
+            }
+        };
+
+        return [...duplicatePredicates].sort(compareFunction);
+    }, [duplicatePredicates, sortCriteria]);
+
     return(
         <>
         There are {duplicatePredicates.length} duplicate predicates. 
@@ -291,11 +326,26 @@ function DuplicatePredicates(){
             <thead>
             <tr>
                 <th>Label</th>
-                <th>Occurences</th>
+                <th>Occurences
+                <button onClick={() => handleSort('ids.length')}>
+                    {sortCriteria.column === 'ids.length' ? (
+                        sortCriteria.order === 'asc' ? (
+                            <FontAwesomeIcon icon={faArrowUp} />
+                        ) : (
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        )
+                    ) : (
+                        <>
+                            <FontAwesomeIcon icon={faArrowUp} />
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        </>
+                    )}
+                </button>
+                </th>
             </tr>
             </thead>
             <tbody>
-                {duplicatePredicates.map((item, index) => (
+                {sortedDuplicates.map((item, index) => (
                 <tr key={index}>
                     <td>{item.label}</td>
                     <td>{item.ids.length}</td>

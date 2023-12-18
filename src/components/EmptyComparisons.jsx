@@ -5,6 +5,8 @@ import Table from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSort, faSortUp, faSortDown, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 
 function EmptyComparisons(){
@@ -185,10 +187,22 @@ function EmptyComparisons(){
         const { column, order } = sortCriteria;
 
         const compareFunction = (a, b) => {
-            if (order === 'asc') {
-                return a[column] - b[column];
+
+            if (column === 'percentage') { 
+                const percentageA = parseFloat((a.emptyCells / a.allCells) * 100); 
+                const percentageB = parseFloat((b.emptyCells / b.allCells) * 100); 
+    
+                if (order === 'asc') {
+                    return percentageA - percentageB; 
+                } else {
+                    return percentageB - percentageA; 
+                }
             } else {
-                return b[column] - a[column];
+                if (order === 'asc') {
+                    return a[column] - b[column];
+                } else {
+                    return b[column] - a[column];
+                }
             }
         };
 
@@ -200,9 +214,55 @@ function EmptyComparisons(){
         <thead>
         <tr>
           <th>Comparison</th>
-          <th onClick={() => handleSort('allCells')}>Number of all cells</th>
-          <th onClick={() => handleSort('emptyCells')}>Number of empty cells</th>
-          <th onClick={() => handleSort('percentage')}>Percentage of empty cells</th>
+          <th> Number of all cells
+            <button onClick={() => handleSort('allCells')}>
+            {sortCriteria.column === 'allCells' ? (
+                sortCriteria.order === 'asc' ? (
+                <FontAwesomeIcon icon={faArrowUp} />
+                ) : (
+                <FontAwesomeIcon icon={faArrowDown} />
+                )
+            ) : (
+                <>
+                <FontAwesomeIcon icon={faArrowUp} />
+                <FontAwesomeIcon icon={faArrowDown} />
+                </>
+            )}
+            </button>
+            </th>
+          <th>Number of empty cells
+          <button onClick={() => handleSort('emptyCells')}>
+            {sortCriteria.column === 'emptyCells' ? (
+                sortCriteria.order === 'asc' ? (
+                <FontAwesomeIcon icon={faArrowUp} />
+                ) : (
+                <FontAwesomeIcon icon={faArrowDown} />
+                )
+            ) : (
+                <>
+                <FontAwesomeIcon icon={faArrowUp} />
+                <FontAwesomeIcon icon={faArrowDown} />
+                </>
+            )}
+            </button>
+          </th>
+          <th>Percentage of empty cells
+          <button onClick={() => handleSort('percentage')}>
+            {sortCriteria.column === 'percentage' ? (
+                sortCriteria.order === 'asc' ? (
+                <FontAwesomeIcon icon={faArrowUp} />
+                ) : (
+                <FontAwesomeIcon icon={faArrowDown} />
+                )
+            ) : (
+                <>
+                <FontAwesomeIcon icon={faArrowUp} />
+                <FontAwesomeIcon icon={faArrowDown} />
+                </>
+            )}
+            </button>
+
+          </th>
         </tr>
         </thead>
         <tbody>

@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -11,6 +11,8 @@ import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import { ListGroupItem } from "react-bootstrap";
 
@@ -25,6 +27,10 @@ function PropsCardTab(){
     const [showComponent, setShowComponent] = useState(false);
     const [showHideText, setShowHideText] = useState("Show");
     const [propsWithoutAkku, setPropsWithoutAkku] = useState(0);
+    const [showDescriptionless, setShowDescriptionless] = useState(false);
+    const [combinedList, setCombinedList] = useState([]);
+
+    const [sharedPropertiesWithoutDescr, setSharedProps] = useState([]);
 
     const getPage = async function(pageno=1){
         const results = await fetch(endpointURL+`/predicates/?page=${pageno}&limit=20`).
@@ -108,6 +114,15 @@ function PropsCardTab(){
         
 
     useEffect(() => {
+        console.log("FIRST USE EFFECT");    
+        console.log("Label ", endpointLabel); 
+        console.log("Label ", endpointLabel);
+        if(endpointLabel === "ORKG"){
+            console.log(endpointLabel);
+        }
+        //fetchData();
+        //console.log(getEntireList()); 
+        //console.log(getEntireList().size);
         fetchSPARQLData();
     }, [endpointLabel]);
 
@@ -123,10 +138,10 @@ function PropsCardTab(){
                 className="mb-3"> 
                     <Tab eventKey="description" title="Missing descriptions">
                         {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a description.
-                        <PropsList></PropsList>
+                        <PropsList setSharedProps={setSharedProps}></PropsList>
                     </Tab>
                     <Tab eventKey="duplicates" title="Duplicate predicates">
-                        <DuplicatePredicates/>
+                        <DuplicatePredicates sharedPropertiesWithoutDescr={sharedPropertiesWithoutDescr}/>
                     </Tab>
                 </Tabs>
 
@@ -138,7 +153,7 @@ function PropsCardTab(){
 export default PropsCardTab;
 
 
-function PropsList(){
+function PropsList({setSharedProps}){
     
     const [endpointURL, , ] = store.useState("endpointURL");    
     const [prefixes, , ] = store.useState("endpointPrefixes");
@@ -163,11 +178,13 @@ function PropsList(){
         const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
         const response = await fetch(url);
         if(response.ok){ //Anfrage erfolgreich Statuscode 200
+            console.log("Response (OK)",  response)
             const result = await response.json();
             console.log("List of properties without description");
             //console.log(result.results.bindings[0].p);
             const uriList = [];
             console.log("size result", result.results.bindings.length);
+            console.log(result.results.bindings[0]);
             for(var i=0;i<result.results.bindings.length;i++){
                 var itemlabel = result.results.bindings[i].label.value;
                 var item = result.results.bindings[i].p.value;
@@ -179,6 +196,7 @@ function PropsList(){
             }
             console.log(uriList);
             setProperties(uriList); //TODO liste formatie
+            setSharedProps(uriList);
             
         }else{
             throw new Error("Error while requesting SPARQL data.")
@@ -200,9 +218,13 @@ function PropsList(){
     );
 }
 
-function DuplicatePredicates(){
+function DuplicatePredicates({sharedPropertiesWithoutDescr}){
     const [allPredicates, setAllPredicates] = useState([]);
     const [duplicatePredicates, setDuplicates] = useState([]);
+    const [duplicatePredicatesWithoutDescr, setDuplicatesWithout] = useState([]);
+    const [showDuplicates, setShowDuplicates] = useState([]);
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
+
 
     useEffect(() => {
       const fetchData = async () => {
@@ -215,7 +237,7 @@ function DuplicatePredicates(){
     }, []);
 
     useEffect(() =>{
-      setDuplicates(collectDuplicates(allPredicates));
+        collectDuplicates(allPredicates);
     },[allPredicates]);
 
     const fetchAllPages = async()=>{
@@ -246,18 +268,32 @@ function DuplicatePredicates(){
 
     const collectDuplicates = sortedList => {
         const duplicatesMap = {};
+        const duplicatesWoDescrMap = {};
       
         sortedList.forEach(item => {
-          if (!duplicatesMap[item.label]) {
-            duplicatesMap[item.label] = { label: item.label, ids: [] };
-          }
-          duplicatesMap[item.label].ids.push(item.id);
+            console.log("duplicate share", sharedPropertiesWithoutDescr[item.id]);
+            if(sharedPropertiesWithoutDescr[item.id]){ //if this id exists in the list with props without descriptions 
+                console.log("duplicate share da");
+                if(!duplicatesWoDescrMap[item.label]){
+                    duplicatesWoDescrMap[item.label] = {label: item.label, ids:[]};
+                }
+                duplicatesWoDescrMap[item.label].ids.push(item.id);
+            }
+
+            if (!duplicatesMap[item.label]) { //all duplicates regardless if missing a description
+                duplicatesMap[item.label] = { label: item.label, ids: [] };
+            }
+            duplicatesMap[item.label].ids.push(item.id);
         });
       
         // Filtere nur Einträge mit mehr als einer ID (Duplikate)
         const duplicatePredicates = Object.values(duplicatesMap).filter(item => item.ids.length > 1);
         console.log("duplicate predicates", duplicatePredicates);
-        return duplicatePredicates;
+        console.log("duplicate without descr", duplicatesWoDescrMap);
+        //filter the duplicates which do not have a description
+        setDuplicatesWithout(duplicatesWoDescrMap);
+        setDuplicates(duplicatePredicates);
+        setShowDuplicates(duplicatePredicates);
       };   
 
     const handleCellClick = (item) => {
@@ -273,6 +309,45 @@ function DuplicatePredicates(){
     
       };
 
+      const handleSort = (column) => {
+        if (sortCriteria.column === column) {
+            setSortCriteria({
+                ...sortCriteria,
+                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            setSortCriteria({
+                column,
+                order: 'asc'
+            });
+        }
+    };
+
+    const sortedDuplicates = useMemo(() => {
+        const { column, order } = sortCriteria;
+
+        const compareFunction = (a, b) => {
+            const aValue = a.ids.length;
+            const bValue = b.ids.length;
+    
+            if (order === 'asc') {
+                return aValue - bValue;
+            } else {
+                return bValue - aValue;
+            }
+        };
+
+        return [...showDuplicates].sort(compareFunction);
+    }, [showDuplicates, sortCriteria]);
+
+   const handleSwitchChange=(event)=>{
+        if (event.target.checked) {
+            setShowDuplicates(duplicatePredicatesWithoutDescr);
+        } else {
+            setShowDuplicates(duplicatePredicates);
+        }
+   }
+   
     return(
         <>
         <Form>
@@ -280,19 +355,35 @@ function DuplicatePredicates(){
             type="switch"
             id="description-switch"
             label="Predicates without description"
+            onChange={handleSwitchChange}
         />
         </Form>
-        There are {duplicatePredicates.length} duplicate predicates. 
+        There are {showDuplicates.length} duplicate predicates. 
         <div className="listgroupstyle listgroupcursor">
         <Table bordered hover >
             <thead>
             <tr>
                 <th>Label</th>
-                <th>Occurences</th>
+                <th>Occurences
+                <button onClick={() => handleSort('ids.length')}>
+                    {sortCriteria.column === 'ids.length' ? (
+                        sortCriteria.order === 'asc' ? (
+                            <FontAwesomeIcon icon={faArrowUp} />
+                        ) : (
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        )
+                    ) : (
+                        <>
+                            <FontAwesomeIcon icon={faArrowUp} />
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        </>
+                    )}
+                </button>
+                </th>
             </tr>
             </thead>
             <tbody>
-                {duplicatePredicates.map((item, index) => (
+                {sortedDuplicates.map((item, index) => (
                 <tr key={index}>
                     <td>{item.label}</td>
                     <td>{item.ids.length}</td>

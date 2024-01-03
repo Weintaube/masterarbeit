@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import {React, useEffect, useState} from "react";
 import store from './storing';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -9,9 +9,8 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
+import Form from 'react-bootstrap/Form';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import { ListGroupItem } from "react-bootstrap";
 
@@ -109,15 +108,6 @@ function PropsCardTab(){
         
 
     useEffect(() => {
-        console.log("FIRST USE EFFECT");    
-        console.log("Label ", endpointLabel); 
-        console.log("Label ", endpointLabel);
-        if(endpointLabel === "ORKG"){
-            console.log(endpointLabel);
-        }
-        //fetchData();
-        //console.log(getEntireList()); 
-        //console.log(getEntireList().size);
         fetchSPARQLData();
     }, [endpointLabel]);
 
@@ -173,13 +163,11 @@ function PropsList(){
         const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
         const response = await fetch(url);
         if(response.ok){ //Anfrage erfolgreich Statuscode 200
-            console.log("Response (OK)",  response)
             const result = await response.json();
             console.log("List of properties without description");
             //console.log(result.results.bindings[0].p);
             const uriList = [];
             console.log("size result", result.results.bindings.length);
-            console.log(result.results.bindings[0]);
             for(var i=0;i<result.results.bindings.length;i++){
                 var itemlabel = result.results.bindings[i].label.value;
                 var item = result.results.bindings[i].p.value;
@@ -215,8 +203,6 @@ function PropsList(){
 function DuplicatePredicates(){
     const [allPredicates, setAllPredicates] = useState([]);
     const [duplicatePredicates, setDuplicates] = useState([]);
-    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
-
 
     useEffect(() => {
       const fetchData = async () => {
@@ -287,65 +273,26 @@ function DuplicatePredicates(){
     
       };
 
-      const handleSort = (column) => {
-        if (sortCriteria.column === column) {
-            setSortCriteria({
-                ...sortCriteria,
-                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
-            });
-        } else {
-            setSortCriteria({
-                column,
-                order: 'asc'
-            });
-        }
-    };
-
-    const sortedDuplicates = useMemo(() => {
-        const { column, order } = sortCriteria;
-
-        const compareFunction = (a, b) => {
-            const aValue = a.ids.length;
-            const bValue = b.ids.length;
-    
-            if (order === 'asc') {
-                return aValue - bValue;
-            } else {
-                return bValue - aValue;
-            }
-        };
-
-        return [...duplicatePredicates].sort(compareFunction);
-    }, [duplicatePredicates, sortCriteria]);
-
     return(
         <>
+        <Form>
+        <Form.Check
+            type="switch"
+            id="description-switch"
+            label="Predicates without description"
+        />
+        </Form>
         There are {duplicatePredicates.length} duplicate predicates. 
         <div className="listgroupstyle listgroupcursor">
         <Table bordered hover >
             <thead>
             <tr>
                 <th>Label</th>
-                <th>Occurences
-                <button onClick={() => handleSort('ids.length')}>
-                    {sortCriteria.column === 'ids.length' ? (
-                        sortCriteria.order === 'asc' ? (
-                            <FontAwesomeIcon icon={faArrowUp} />
-                        ) : (
-                            <FontAwesomeIcon icon={faArrowDown} />
-                        )
-                    ) : (
-                        <>
-                            <FontAwesomeIcon icon={faArrowUp} />
-                            <FontAwesomeIcon icon={faArrowDown} />
-                        </>
-                    )}
-                </button>
-                </th>
+                <th>Occurences</th>
             </tr>
             </thead>
             <tbody>
-                {sortedDuplicates.map((item, index) => (
+                {duplicatePredicates.map((item, index) => (
                 <tr key={index}>
                     <td>{item.label}</td>
                     <td>{item.ids.length}</td>

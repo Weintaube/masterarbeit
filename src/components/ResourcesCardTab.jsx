@@ -35,11 +35,7 @@ function ResourcesCardTab(){
         if(allResources.length > 0){
             allResources.forEach(resource =>{
                 if(resource.label == ""){
-<<<<<<< HEAD
-                    newUnlabeledRes.push({label: resource.label, id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
-=======
-                    newUnlabeledRes.push({id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
->>>>>>> f2e73c385cbc6df14d4a21f00af28e383e9a251e
+          newUnlabeledRes.push({id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
 
                 }else if(resource.shared == 0){
                     newUnusedRes.push({id: resource.id, value: `https://orkg.org/resource/${resource.id}`});
@@ -107,12 +103,7 @@ function ResourcesCardTab(){
                 <Tab eventKey="unlabeled" title="Unlabeled resources">
                     {(unlabeledResources.length/allResources.length * 100).toFixed(2)}% ({unlabeledResources.length}) of the resources do not have a label.
                     <ListGroup className="listgroupstyle">
-<<<<<<< HEAD
-                        {unlabeledResources? unlabeledResources.map((item, key) => 
-=======
-                    {unlabeledResources? unlabeledResources.map((item, key) => 
->>>>>>> f2e73c385cbc6df14d4a21f00af28e383e9a251e
-                        <ListGroup.Item key={key} action href={item.value}>{item.id}</ListGroup.Item>): null}
+                        {unlabeledResources? unlabeledResources.map((item, key) => <ListGroup.Item key={key} action href={item.value}>{item.id}</ListGroup.Item>): null }
                     </ListGroup>
                 </Tab>
 

@@ -22,6 +22,7 @@ import PropsCardTab from './components/PropsCardTab';
 import ClassCardTab from './components/ClassCardTab';
 import ResourcesCardTab from './components/ResourcesCardTab';
 import StatementsPaper from './components/StatementsPaper';
+import Comments from './components/Comments';
 
 function App() {
   return (
@@ -73,10 +74,9 @@ function App() {
 
       </Tab>
       <Tab eventKey="actions" title="Actions">
-        I see a paper representation (lacking completeness comment)<br/>
-        I see a paper or comparison that I do not understand (bad modelling comment)<br/>
-        I see a paper or comparison that is relevant for specific domain (suggest to move to featured)<br/>
-        Identify statements approved by one of the authors<br/>
+        
+        
+      
 
       </Tab>
       </Tabs>
@@ -88,6 +88,12 @@ function App() {
 }
 
 export default App;
+
+//action tab
+/*  I see a paper representation (lacking completeness comment)<br/>
+        I see a paper or comparison that I do not understand (bad modelling comment)<br/>
+        I see a paper or comparison that is relevant for specific domain (suggest to move to featured)<br/>
+        Identify statements approved by one of the authors<br/>*/
 
 /*<div className="App">
       <header className="App-header">

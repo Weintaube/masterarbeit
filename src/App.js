@@ -74,7 +74,7 @@ function App() {
 
       </Tab>
       <Tab eventKey="actions" title="Actions">
-        
+        <Comments></Comments>
         
       
 

@@ -269,10 +269,11 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
     const collectDuplicates = sortedList => {
         const duplicatesMap = {};
         const duplicatesWoDescrMap = {};
-      
+        console.log("duplicate share", sharedPropertiesWithoutDescr);
         sortedList.forEach(item => {
-            console.log("duplicate share", sharedPropertiesWithoutDescr[item.id]);
-            if(sharedPropertiesWithoutDescr[item.id]){ //if this id exists in the list with props without descriptions 
+
+            const foundItem = sharedPropertiesWithoutDescr.find(sharedItem => sharedItem.key === item.id);
+            if(foundItem){ //if this id exists in the list with props without descriptions 
                 console.log("duplicate share da");
                 if(!duplicatesWoDescrMap[item.label]){
                     duplicatesWoDescrMap[item.label] = {label: item.label, ids:[]};
@@ -291,7 +292,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
         console.log("duplicate predicates", duplicatePredicates);
         console.log("duplicate without descr", duplicatesWoDescrMap);
         //filter the duplicates which do not have a description
-        setDuplicatesWithout(duplicatesWoDescrMap);
+        setDuplicatesWithout(Object.values(duplicatesWoDescrMap).filter(item => item.ids.length > 1));
         setDuplicates(duplicatePredicates);
         setShowDuplicates(duplicatePredicates);
       };   

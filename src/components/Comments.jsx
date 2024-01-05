@@ -144,6 +144,14 @@ function Comments(){
                             </Form.Select>
                         </Form.Group>
 
+                        <Form.Group className="mb-3" controlId="formID">
+                            <Form.Label>ID</Form.Label>
+                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required/>
+                            <Form.Control.Feedback type="invalid">
+                                Please enter an ID.
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
                         <Form.Group className="mb-3" controlId="formTypeComment">
                             <Form.Label>Type of comment</Form.Label>
                             <Form.Select name="formTypeComment">
@@ -151,14 +159,6 @@ function Comments(){
                                     <option key={index}>{type}</option>
                                 ))}
                             </Form.Select>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formID">
-                            <Form.Label>ID</Form.Label>
-                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required/>
-                            <Form.Control.Feedback type="invalid">
-                                Please enter an ID.
-                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formComment">

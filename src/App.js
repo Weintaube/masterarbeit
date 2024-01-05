@@ -23,6 +23,7 @@ import ClassCardTab from './components/ClassCardTab';
 import ResourcesCardTab from './components/ResourcesCardTab';
 import StatementsPaper from './components/StatementsPaper';
 import Comments from './components/Comments';
+import MatomoStatistics from './components/MatomoStatistics';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
         </Row>*/}
       </Tab>
       <Tab eventKey="visit" title="Users">
+        	<MatomoStatistics></MatomoStatistics>
       Map of visitors path<br/>
       Active members of an observatory in the last 6 months<br/>
       Number of contributors (internal/external)<br/>

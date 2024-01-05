@@ -77,7 +77,7 @@ function Comments(){
 
             
         }
-      };
+      };{}    
 
     //possibility to edit the comments/delete them
     //adding a filter function for type of comments
@@ -95,17 +95,6 @@ function Comments(){
             id="uncontrolled-tab-example"
             className="mb-3"> 
                 <Tab eventKey="table" title="All comments">
-
-                Filter by
-                <Dropdown>
-                <Dropdown.Toggle variant="primary" id="dropdown-basic">
-                    Select type of comment
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                    {typeComments.map((element, index) => <Dropdown.Item key={index}>{element}</Dropdown.Item>)}
-                </Dropdown.Menu>
-                </Dropdown>
                 <Table striped bordered hover>
                     <thead>
                     <tr>

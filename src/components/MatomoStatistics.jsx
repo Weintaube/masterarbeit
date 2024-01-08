@@ -13,6 +13,8 @@ function MatomoStatistics(){
       fetchData();
     },[]);
 
+//curl -X GET "https://cors-anywhere.herokuapp.com/https://support.tib.eu/piwik/index.php?idSite=29&rec=1&period=day&date=today&format=JSON&module=API&action=UsersFlow.getUsersFlowPretty&token_auth=2f1a8c6a07609a76907dd8111dff26ed" -H "Origin: http://localhost" -H "X-Requested-With: XMLHttpRequest"
+
     const fetchData = async () => {
         try {
           const headers = new Headers();

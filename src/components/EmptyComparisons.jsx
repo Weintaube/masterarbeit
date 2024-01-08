@@ -93,12 +93,14 @@ function EmptyComparisons(){
                         
                         const table = result.payload.thing.data.data;
                         var predicates = result.payload.thing.config.predicates;
+                        console.log("empty comparisons id", item.key);
+                        console.log("empty comparisons", predicates);
 
                         if(predicates.length > 0){ //predicates list got customized to the UI view
                             //for the trivial case, that I have a fitting predicate list with UI
                             var emptyCellCount = 0
                             var allCellCount = 0
-                            predicates.forEach(predicate =>{ //loop through array of predicates listed in the table UI
+                            predicates.forEach(predicate =>{ //loop through array of predicates listed in the table UI 
                                 if (table[predicate] && Array.isArray(table[predicate])) { //because some props are merged
                                     table[predicate].forEach(element =>{ // run through list of predicates (more than in UI), check if they contain the predicate
                                         allCellCount = allCellCount + 1;
@@ -114,7 +116,9 @@ function EmptyComparisons(){
                                 value: item.value,
                                 label: item.label,
                                 emptyCells: emptyCellCount,
-                                allCells: allCellCount
+                                allCells: allCellCount,
+                                properties: predicates.length,
+                                contributions: allCellCount/predicates.length
                             }
                             newCompList.push(newItem);
     
@@ -140,7 +144,9 @@ function EmptyComparisons(){
                                 value: item.value,
                                 label: item.label,
                                 emptyCells: allCells - filledCells,
-                                allCells: allCells
+                                allCells: allCells,
+                                properties: numberPredicates,
+                                contributions: allContributions
                             }
                             newCompList.push(newItem);
     
@@ -226,6 +232,38 @@ function EmptyComparisons(){
         <thead>
         <tr>
           <th>Comparison</th>
+          <th>Number of properties
+          <button onClick={() => handleSort('properties')}>
+            {sortCriteria.column === 'properties' ? (
+                sortCriteria.order === 'asc' ? (
+                <FontAwesomeIcon icon={faArrowUp} />
+                ) : (
+                <FontAwesomeIcon icon={faArrowDown} />
+                )
+            ) : (
+                <>
+                <FontAwesomeIcon icon={faArrowUp} />
+                <FontAwesomeIcon icon={faArrowDown} />
+                </>
+            )}
+            </button>
+          </th>
+          <th>Number of contributions
+          <button onClick={() => handleSort('contributions')}>
+            {sortCriteria.column === 'contributions' ? (
+                sortCriteria.order === 'asc' ? (
+                <FontAwesomeIcon icon={faArrowUp} />
+                ) : (
+                <FontAwesomeIcon icon={faArrowDown} />
+                )
+            ) : (
+                <>
+                <FontAwesomeIcon icon={faArrowUp} />
+                <FontAwesomeIcon icon={faArrowDown} />
+                </>
+            )}
+            </button>
+          </th>
           <th> Number of all cells
             <button onClick={() => handleSort('allCells')}>
             {sortCriteria.column === 'allCells' ? (
@@ -281,6 +319,8 @@ function EmptyComparisons(){
             {currentElements.map((item, index) => (
                 <tr key={index}>
                     <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
+                    <td> {item.properties} </td>
+                    <td> {item.contributions} </td>
                     <td> {item.allCells} </td>
                     <td> {item.emptyCells} </td>
                     <td> {((item.emptyCells / item.allCells)*100).toFixed(2)}% </td>

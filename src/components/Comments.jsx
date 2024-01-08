@@ -77,7 +77,7 @@ function Comments(){
 
             
         }
-      };
+      };{}    
 
     //possibility to edit the comments/delete them
     //adding a filter function for type of comments
@@ -95,7 +95,7 @@ function Comments(){
             id="uncontrolled-tab-example"
             className="mb-3"> 
                 <Tab eventKey="table" title="All comments">
-                    Here you can make comments about papers or comparisons which should be improved.
+                Here you can make comments about papers or comparisons which should be improved.
                 <Table striped bordered hover>
                     <thead>
                     <tr>
@@ -134,6 +134,14 @@ function Comments(){
                             </Form.Select>
                         </Form.Group>
 
+                        <Form.Group className="mb-3" controlId="formID">
+                            <Form.Label>ID</Form.Label>
+                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required/>
+                            <Form.Control.Feedback type="invalid">
+                                Please enter an ID.
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
                         <Form.Group className="mb-3" controlId="formTypeComment">
                             <Form.Label>Type of comment</Form.Label>
                             <Form.Select name="formTypeComment">
@@ -141,14 +149,6 @@ function Comments(){
                                     <option key={index}>{type}</option>
                                 ))}
                             </Form.Select>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formID">
-                            <Form.Label>ID</Form.Label>
-                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required/>
-                            <Form.Control.Feedback type="invalid">
-                                Please enter an ID.
-                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formComment">

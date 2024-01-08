@@ -95,17 +95,7 @@ function Comments(){
             id="uncontrolled-tab-example"
             className="mb-3"> 
                 <Tab eventKey="table" title="All comments">
-
-                Filter by
-                <Dropdown>
-                <Dropdown.Toggle variant="primary" id="dropdown-basic">
-                    Select type of comment
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                    {typeComments.map((element, index) => <Dropdown.Item key={index}>{element}</Dropdown.Item>)}
-                </Dropdown.Menu>
-                </Dropdown>
+                    Here you can make comments about papers or comparisons which should be improved.
                 <Table striped bordered hover>
                     <thead>
                     <tr>

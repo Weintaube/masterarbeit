@@ -24,6 +24,7 @@ import ResourcesCardTab from './components/ResourcesCardTab';
 import StatementsPaper from './components/StatementsPaper';
 import Comments from './components/Comments';
 import MatomoStatistics from './components/MatomoStatistics';
+import ResearchFields from './components/ResearchFields';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
       Number of contributors (internal/external)<br/>
       </Tab>
       <Tab eventKey="insights" title="Insights">
+        <ResearchFields></ResearchFields>
       Depth of graph per paper<br/>
       Connectedness (how many connections to other papers exist through shared resources)<br/>
       Input is wrongly assigned as a resource<br/>

@@ -8,14 +8,14 @@ import store from './storing';
 
 
 store.setState("testendpoint", "ORKGbla");
-store.setState("endpointURL", "https://orkg.org/triplestore"); //https://orkg.org/api/
+store.setState("sparqlendpointURL", "https://orkg.org/triplestore"); //https://orkg.org/api/
 store.setState("endpointLabel", "ORKG");
 store.setState("endpointPrefixes", null);
 
 function NavBar (){
 
   const [testendpoint, setTest, updateTest] = store.useState("testendpoint");
-  const [endpointURL, setEndpointURL, ] = store.useState("endpointURL");
+  const [sparqlendpointURL, setEndpointURL, ] = store.useState("sparqlendpointURL");
   const [endpointLabel, setLabel, ] = store.useState("endpointLabel");
   const [endpointPrefixes, setEndpointPrefixes, ] = store.useState("endpointPrefixes");
 

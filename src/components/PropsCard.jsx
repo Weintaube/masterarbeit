@@ -12,7 +12,7 @@ import { ListGroupItem } from "react-bootstrap";
 
 function PropsCard(){
     
-    const [endpointURL, , ] = store.useState("endpointURL");
+    const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [endpointLabel, , ] = store.useState("endpointLabel");
     const [propsWithoutDescr, setPropsWithout] = useState(0);
     const [property, setProperty] = useState(`orkgc:Predicate`);
@@ -22,7 +22,7 @@ function PropsCard(){
     const [showHideText, setShowHideText] = useState("Show");
 
     const getPage = async function(pageno=1){
-        const results = await fetch(endpointURL+`/predicates/?page=${pageno}&limit=20`).
+        const results = await fetch(sparqlendpointURL+`/predicates/?page=${pageno}&limit=20`).
         then(resp=>{
             return resp.json();
         });
@@ -68,7 +68,7 @@ function PropsCard(){
             console.log("before fetch");
 
         
-      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
       //const url2 = `https://orkg.org/triplestore?query=`+query;  
       const response = await fetch(url);
       //const response = await fetch('https://orkg.org/api/statements/');

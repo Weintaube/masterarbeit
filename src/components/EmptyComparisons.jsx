@@ -14,7 +14,7 @@ function EmptyComparisons(){
     const [comparisonIDs, setComparisonIDs] = useState([]);
     const [comparisonCells, setComparisonCells] = useState([]);
     const [prefixes, , ] = store.useState("endpointPrefixes");
-    const [endpointURL, , ] = store.useState("endpointURL");
+    const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [elementsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -49,7 +49,7 @@ function EmptyComparisons(){
 
             console.log("before fetch");
         
-        const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+        const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
         const response = await fetch(url);
         if(response.ok){ //Anfrage erfolgreich Statuscode 200
             const result = await response.json();

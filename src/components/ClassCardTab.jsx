@@ -11,7 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function ClassCardTab(){
     
-    const [endpointURL, , ] = store.useState("endpointURL");
+    const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [endpointLabel, , ] = store.useState("endpointLabel");
     const [classesWithoutDescr, setClassesWithout] = useState(0);
     const [type, setType] = useState(`owl:Class`);
@@ -42,7 +42,7 @@ function ClassCardTab(){
             }  
             `);
         
-      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
       //const url2 = `https://orkg.org/triplestore?query=`+query;  
       const response = await fetch(url);
       //const response = await fetch('https://orkg.org/api/statements/');
@@ -109,7 +109,7 @@ export default ClassCardTab;
 
 function ClassList(){
     
-  const [endpointURL, , ] = store.useState("endpointURL");    
+  const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");    
   const [prefixes, , ] = store.useState("endpointPrefixes");
   const [property, setProperty] = useState(`owl:Class`);
   const [description, setDescription] = useState(`orkgp:description`);
@@ -129,7 +129,7 @@ function ClassList(){
 
           console.log("before fetch");
       
-      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
       const response = await fetch(url);
       if(response.ok){ //Anfrage erfolgreich Statuscode 200
           const result = await response.json();

@@ -197,6 +197,7 @@ function PropsList({setSharedProps}){
             console.log(uriList);
             setProperties(uriList); //TODO liste formatie
             setSharedProps(uriList);
+            console.log("PROPS CARD", uriList);
             
         }else{
             throw new Error("Error while requesting SPARQL data.")

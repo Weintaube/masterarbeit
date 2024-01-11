@@ -41,10 +41,7 @@ function ResearchFields(){
             `);
         
             const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
-            //const url2 = `https://orkg.org/triplestore?query=`+query;  
             const response = await fetch(url);
-            //const response = await fetch('https://orkg.org/api/statements/');
-            //const response = await fetch('https://wikidata.org/w/rest.php/wikibase/v0/entities/properties');
             console.log(response);
 
             if(response.ok){
@@ -57,7 +54,9 @@ function ResearchFields(){
                 console.log("research fields end result", fieldsResult);
                 setResearchFieldsCount(fieldsResult);
             }else{
-                throw new Error("Error while requesting SPARQL data.")
+                const errorData = await response.json();
+                console.error("Error while requesting SPARQL data:", errorData);
+                throw new Error("Error while requesting SPARQL data.");
             }
 
 
@@ -84,39 +83,6 @@ function ResearchFields(){
         });
     }, [researchFieldsCount]);
 
-
-    const chartOptions = {
-        scales: {
-          x: {
-            type: 'category',
-            title: {
-              display: true,
-              text: 'Research Fields',
-            },
-          },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Paper Count',
-            },
-          },
-        },
-        plugins: {
-          zoom: {
-            zoom: {
-              wheel: {
-                enabled: true,
-              },
-              pinch: {
-                enabled: true,
-              },
-              mode: 'xy',
-            },
-          },
-        },
-      };
-
     return(
         <>
         <Bar data={{
@@ -128,8 +94,7 @@ function ResearchFields(){
                 borderColor: 'rgba(0,0,0,1)', 
                 borderWidth: 2
             }]
-        }}
-            options={chartOptions}/>
+        }}/>
         </>
     );
 

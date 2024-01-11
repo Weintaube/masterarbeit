@@ -13,10 +13,10 @@ function ResearchFields(){
     const [researchFieldsCount, setResearchFieldsCount] = useState([]);
     const [chartData, setChartData] = useState(
         {
-            labels: researchFieldsCount.map((item) => item.research_field),
+            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
             datasets: [{
-                label: "Research Fields count",
-                data: researchFieldsCount.map((item) => item.paper_count), 
+                label: "Number of papers in research field",
+                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
                 backgroundColor: 'rgba(53, 162, 235, 0.5)', 
                 borderColor: 'rgba(0,0,0,1)', 
                 borderWidth: 2
@@ -50,16 +50,10 @@ function ResearchFields(){
             if(response.ok){
                 const result = await response.json();
                 console.log("research fields", result);
-                const fieldsResult = [];
-                result.results.bindings.forEach(element=>{
-                    let newElement = {};
-                    if(element.research_field){
-                        newElement = {research_field: element.research_field.value, paper_count: element.count.value};
-                    }else{
-                        newElement = {research_field: "No name", paper_count: element.count.value};
-                    }
-                    fieldsResult.push(newElement);
-                })
+                const fieldsResult = result.results.bindings.map(element => ({
+                    research_field: element.research_field?.value || "No name",
+                    paper_count: element.count.value
+                  }));
                 console.log("research fields end result", fieldsResult);
                 setResearchFieldsCount(fieldsResult);
             }else{
@@ -79,10 +73,10 @@ function ResearchFields(){
 
     useEffect(()=>{
         setChartData({
-            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
+            labels: researchFieldsCount.map((item) => item.research_field),
             datasets: [{
-                label: "Research Fields count",
-                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
+                label: "Number of papers in research field",
+                data: researchFieldsCount.map((item) => item.paper_count), 
                 backgroundColor: 'rgba(53, 162, 235, 0.5)', 
                 borderColor: 'rgba(0,0,0,1)', 
                 borderWidth: 2
@@ -91,9 +85,51 @@ function ResearchFields(){
     }, [researchFieldsCount]);
 
 
+    const chartOptions = {
+        scales: {
+          x: {
+            type: 'category',
+            title: {
+              display: true,
+              text: 'Research Fields',
+            },
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Paper Count',
+            },
+          },
+        },
+        plugins: {
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true,
+              },
+              mode: 'xy',
+            },
+          },
+        },
+      };
+
     return(
         <>
-        <Bar data={chartData} />
+        <Bar data={{
+            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
+            datasets: [{
+                label: "Number of papers in research field",
+                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
+                backgroundColor: 'rgba(53, 162, 235, 0.5)', 
+                borderColor: 'rgba(0,0,0,1)', 
+                borderWidth: 2
+            }]
+        }}
+            options={chartOptions}/>
         </>
     );
 

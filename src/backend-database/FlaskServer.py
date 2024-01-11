@@ -10,14 +10,14 @@ from MarshmallowSchemas import CommentSchema
 from utilities.LogRoutes import log_routes
 
 # create flask app
-app = Flask("ExampleAPY")
+app = Flask("CommentDB")
 app.app_context().push()
 
 # setup CORS
 CORS(app)
 
 # setup flask-alchemy db connection
-db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'example.db')
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'ORKGComments.db')
 engine = create_engine('sqlite:///' + db_path, echo=True)
 Base.metadata.create_all(engine)
 
@@ -30,24 +30,27 @@ def all_comments():
         comments = session.query(Comment).all()
         return CommentSchema(many=True).dump(comments), 200
 
-
 @app.route("/comments/<id>", methods=["GET", "POST", "DELETE"])
 def one_comment(id):
-    """ Get or post a Comment. """
+    """ Get, post or delete a Comment. """
     if request.method == "POST":
         with Session(engine) as session:
-            comment_data = request.json
-            print("cd", comment_data)
-            if comment_data.get('id', None) is None:
+            content = request.json
+            if content.get('id', None) is None:
+                # comment = CommentSchema().load() id shouldnt be none error
                 # create new comment
                 comment = Comment(
-                    message=comment_data.get('message', ''),
-                    # userId=comment_data.get('userId', None)
+                    typeRes=content.get('typeRes', None),
+                    resourceId=content.get('resourceId', None),
+                    uri=content.get('uri', None),
+                    title=content.get('title', None),
+                    typeComm=content.get('typeComm', None),
+                    description=content.get('description', None)
                 )
                 session.add(comment)
             else:
                 # change existing comment
-                comment = CommentSchema().load(request.json)
+                comment = CommentSchema().load(content)
                 session.merge(comment)
             session.commit()
             return CommentSchema().dump(comment), 200

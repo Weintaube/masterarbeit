@@ -208,6 +208,7 @@ function PropsList({setSharedProps}){
     };
 
     useEffect(() => {
+        console.log("PROPS USE EFFECT");
         fetchSPARQLData();
     }, []);
 

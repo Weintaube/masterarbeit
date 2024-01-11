@@ -25,6 +25,7 @@ import StatementsPaper from './components/StatementsPaper';
 import Comments from './components/Comments';
 import MatomoStatistics from './components/MatomoStatistics';
 import ResearchFields from './components/ResearchFields';
+import CommentsDB from './components/CommentsDB';
 
 
 function App() {
@@ -79,7 +80,7 @@ function App() {
 
       </Tab>
       <Tab eventKey="actions" title="Actions">
-        <Comments></Comments>
+        <CommentsDB></CommentsDB>
         
       
 

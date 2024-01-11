@@ -1,13 +1,28 @@
 import { useEffect , useState} from "react";
 import store from './storing';
+import { Bar } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
 
 
 function ResearchFields(){
 
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [prefixes, , ] = store.useState("endpointPrefixes");
-    const [researchFieldsCount, setResearchFieldsCount, ] = useState([]);
-    const [chartData, setChartData] = useState([]);
+    const [researchFieldsCount, setResearchFieldsCount] = useState([]);
+    const [chartData, setChartData] = useState(
+        {
+            labels: researchFieldsCount.map((item) => item.research_field),
+            datasets: [{
+                label: "Research Fields count",
+                data: researchFieldsCount.map((item) => item.paper_count), 
+                backgroundColor: 'rgba(53, 162, 235, 0.5)', 
+                borderColor: 'rgba(0,0,0,1)', 
+                borderWidth: 2
+            }]
+        }
+    );
 
     const fetchSPARQLData = async()=>{
         try{
@@ -64,12 +79,12 @@ function ResearchFields(){
 
     useEffect(()=>{
         setChartData({
-            labels: researchFieldsCount.map((item) => item.research_field),
+            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
             datasets: [{
                 label: "Research Fields count",
-                data: researchFieldsCount.map((item) => item.paper_count), 
+                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
                 backgroundColor: 'rgba(53, 162, 235, 0.5)', 
-                borderColor: 'rgba(0,0,0,1)', // Farbe anpassen
+                borderColor: 'rgba(0,0,0,1)', 
                 borderWidth: 2
             }]
         });
@@ -78,6 +93,7 @@ function ResearchFields(){
 
     return(
         <>
+        <Bar data={chartData} />
         </>
     );
 

@@ -158,7 +158,7 @@ function CommentsDB(){
                                 <td> {item.resourceId} </td>
                                 <OverlayTrigger
                                     placement="top"
-                                    overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.descr}</Tooltip>}
+                                    overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.description}</Tooltip>}
                                 >
                                     <Button>{item.typeComm}</Button>
                                 </OverlayTrigger>

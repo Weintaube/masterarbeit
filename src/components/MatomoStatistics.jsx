@@ -1,5 +1,6 @@
 //Authentication Token 2f1a8c6a07609a76907dd8111dff26ed
 import { useEffect } from "react";
+import { Sankey } from 'devextreme-react/sankey';
 
 function MatomoStatistics(){
 
@@ -39,14 +40,10 @@ function MatomoStatistics(){
           const matomoURL = `${matomoEndpoint}?${queryParams}`;
 
           const response = await fetch(`http://localhost:5000/matomo?url=${encodeURIComponent(matomoURL)}`, requestOptions);
-          console.log("MATOMO", response);
           
-          //const response = await fetch(`${matomoEndpoint}?idSite=${siteID}&rec=1&period=day&date=${date}&format=JSON&module=API&method=Live.getLastVisitsDetails&filter_limit=500&token_auth=${TOKEN}`, requestOptions);
-          console.log("MATOMO AFTER FETCH");
           if (!response.ok) {
             throw new Error('Network response was not ok.');
           }
-          console.log("MATOMO RESPONSE", response);
           const data = await response.json(); 
           console.log("MATOMO DATA", data);
 
@@ -56,9 +53,31 @@ function MatomoStatistics(){
       };
 
 
+      const data = [
+        { source: 'Spain', target: 'United States of America', weight: 2 },
+        { source: 'Germany', target: 'United States of America', weight: 8 },
+        { source: 'France', target: 'United States of America', weight: 4 },
+        { source: 'Germany', target: 'Great Britain', weight: 2 },
+        { source: 'France', target: 'Great Britain', weight: 4 },
+        { source: 'United States of America', target: 'Australia', weight: 6 },
+        { source: 'United States of America', target: 'New Zealand', weight: 5 },
+        { source: 'United States of America', target: 'Japan', weight: 3 },
+        { source: 'Great Britain', target: 'New Zealand', weight: 4 },
+        { source: 'Great Britain', target: 'Japan', weight: 1 },
+      ];
+
 
     return(
-    <></>
+    <>
+    <Sankey 
+      id="sankey"
+      dataSource={data}
+      sourceField="source"
+      targetField="target"
+      weightField="weight"
+    
+    />
+    </>
     );
 }
 

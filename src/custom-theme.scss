@@ -1,0 +1,12 @@
+// custom-theme.scss
+
+@use 'devextreme/scss/bundles/dx.light.scss'; // Import the base DevExtreme styles
+@use 'devextreme/scss/bundles/dx.material.blue.light.compact.scss'; 
+
+.custom-sankey-theme {
+  // Add your custom styles here
+  // For example, you can change the color of links
+  .d-sankey-link {
+    stroke: #ff0000; // Set a custom color
+  }
+}

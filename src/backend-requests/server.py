@@ -9,29 +9,30 @@ import json
 ssl._create_default_https_context = ssl._create_unverified_context
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/matomo": {"origins": "http://localhost:3000"}})
+#CORS(app)
 
 
 @app.route('/sparql', methods=['GET'])
 @cross_origin()
 def sparql():
     try:
-        print("REQUEST incoming")
-        print(request)
+        #print("REQUEST incoming sparql")
+        #print(request)
         #query = request.args.get('query')
         url = request.args.get('url')
         query = request.args.get('query')
 
-        print("REQUEST ARGS")
-        print(request.args)
-        print("QUERY")
+        #print("REQUEST ARGS")
+        #print(request.args)
+       # print("QUERY")
         #print(query) #encode the query? sparql wrapper?
 
         encoded_query = urllib.parse.quote(query)
         #url = f'https://orkg.org/triplestore?query={encoded_query}'
         format_url = f'{url}?query={encoded_query}'
-        print("Anfrage URL ")
-        print(format_url)
+        #print("Anfrage URL ")
+        #print(format_url)
 
         headers = {
             'Accept': 'application/json'
@@ -40,8 +41,8 @@ def sparql():
 
         if response.status_code == 200:
             try:
-                print("ANTWORT ERHALTEN:")
-                print(response.content)
+                #print("ANTWORT ERHALTEN:")
+                #print(response.content)
                 data = response.json()
                 # Jetzt kannst du die Daten weiterverarbeiten
             except json.JSONDecodeError as e:
@@ -49,21 +50,41 @@ def sparql():
         else:
             print("Fehler beim Senden der Anfrage. Statuscode:", response.status_code)
 
-        print("RESPONSE")
-        print(type(response.content))
+        #print("RESPONSE")
+        #print(type(response.content))
 
         data = response.json()
         #data = json.loads(response.content.decode('utf-8'))
-        print("DATA")
-        print(data)
-        print(type(data))
+        #print("DATA")
+        #print(data)
+        #print(type(data))
 
         return data
         
         #return data
     except Exception as e:
-        print("shit")
         return {'error': str(e)}, 500
+    
+@app.route('/matomo', methods=['GET'])
+@cross_origin(origin='*')
+def matomo():
+    try:
+        # Forward the request to Matomo
+        print("REQUEST incoming matomo")
+        matomo_url = request.args.get('url')
+        response = requests.get(matomo_url)
+        print("MATOMO URL")
+        print(response)
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+            return data
+        else:
+            return {'error': 'Matomo request failed.'}, response.status_code
+    except Exception as e:
+        print("Error:", str(e))
+        return {'error': str(e)}, 500
+
 
 if __name__ == '__main__':
     app.run()

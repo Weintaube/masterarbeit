@@ -68,7 +68,7 @@ function ResearchFields(){
 
     useEffect(()=>{
         fetchSPARQLData();
-    })
+    },[])
 
     useEffect(()=>{
         setChartData({

@@ -1,5 +1,8 @@
 import { useEffect , useState} from "react";
 import store from './storing';
+import Form from 'react-bootstrap/Form';
+import Card from 'react-bootstrap/Card';
+import { Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Bar } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -11,12 +14,15 @@ function ResearchFields(){
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const [researchFieldsCount, setResearchFieldsCount] = useState([]);
+    const [minPapers, setMinPapers] = useState();
+    const [maxPapers, setMaxPapers] = useState();
+    const [searchTerm, setSearchTerm] = useState('');
     const [chartData, setChartData] = useState(
         {
             labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
             datasets: [{
                 label: "Number of papers in research field",
-                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
+                data: researchFieldsCount.map((item) => item.paper_count), 
                 backgroundColor: 'rgba(53, 162, 235, 0.5)', 
                 borderColor: 'rgba(0,0,0,1)', 
                 borderWidth: 2
@@ -52,7 +58,7 @@ function ResearchFields(){
                     paper_count: element.count.value
                   }));
                 console.log("research fields end result", fieldsResult);
-                setResearchFieldsCount(fieldsResult);
+                setResearchFieldsCount(fieldsResult); //list is sorted
             }else{
                 const errorData = await response.json();
                 console.error("Error while requesting SPARQL data:", errorData);
@@ -83,18 +89,131 @@ function ResearchFields(){
         });
     }, [researchFieldsCount]);
 
-    return(
-        <>
-        <Bar data={{
-            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
+    const filterData = () => {
+        const filteredData = researchFieldsCount.filter((item) => {
+            const paperCount = item.paper_count;
+            const matchesSearchTerm = item.research_field.toLowerCase().includes(searchTerm.toLowerCase());
+            const minPapersValue = minPapers ? parseInt(minPapers, 10) : 0;  // Convert to number, default to 0
+            const maxPapersValue = maxPapers ? parseInt(maxPapers, 10) : Number.MAX_SAFE_INTEGER;  // Convert to number, default to max safe integer
+    
+            return paperCount >= minPapersValue && paperCount <= maxPapersValue && matchesSearchTerm;
+        });
+    
+        return filteredData;
+    }
+    
+    const handleFilterChange = () => {
+        const filteredData = filterData();
+        setChartData({
+            labels: filteredData.map((item) => item.research_field),
             datasets: [{
                 label: "Number of papers in research field",
-                data: researchFieldsCount.slice(0, 20).map((item) => item.paper_count), 
-                backgroundColor: 'rgba(53, 162, 235, 0.5)', 
-                borderColor: 'rgba(0,0,0,1)', 
+                data: filteredData.map((item) => item.paper_count),
+                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                borderColor: 'rgba(0,0,0,1)',
                 borderWidth: 2
             }]
-        }}/>
+        });
+    }
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    }
+
+    const handleDropdownItemClick = (selectedItem) => {
+        setSearchTerm(selectedItem);
+      };   
+      
+    useEffect(()=>{
+        handleFilterChange();
+    },[searchTerm]);
+
+    const options = {
+        indexAxis: 'x', // Set y-axis for research fields
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Papers',
+            },
+          },
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Research Fields',
+            },
+          },
+        },
+      };
+
+    return(
+        <>
+        <Card >
+            <Card.Body >
+                <Card.Title>Research Fields</Card.Title>
+
+                <Row>
+                <Col>
+                    <Form.Label>Minimum number of papers:</Form.Label>
+                    <Form.Control
+                    value={minPapers}
+                    onChange={(e) => setMinPapers(e.target.value)}
+                    onBlur={handleFilterChange}
+                    />
+                </Col>
+                <Col>
+                    <Form.Label>Maximum number of papers:</Form.Label>
+                    <Form.Control
+                    value={maxPapers}
+                    onChange={(e) => setMaxPapers(e.target.value)}
+                    onBlur={handleFilterChange}
+                    placeholder={`maximum of ${researchFieldsCount[0] ? researchFieldsCount[0].paper_count: 0} papers in field`}
+                    />
+                </Col>
+                </Row>
+
+                <Row>
+                    <Col>
+                        <Form.Label>Search:</Form.Label>
+                        <DropdownButton id="dropdown-basic-button" title="All Research Fields">
+                            <Dropdown.Menu
+                                style={{
+                                    maxHeight: '200px', // specify the max height
+                                    width: '300px',    // specify the width
+                                    overflowY: 'auto',  // make it scrollable
+                                    marginTop: 0,   // set margin-top to 0
+                                    paddingTop: 0,  // set padding-top to 0
+                                    border: 0,    
+                                }}
+                            >
+                            {researchFieldsCount.map((item, index) => (
+                                <Dropdown.Item key={index} onClick={() => handleDropdownItemClick(item.research_field)}>{item.research_field} </Dropdown.Item>
+                            ))}
+                            </Dropdown.Menu>
+                        </DropdownButton>
+                        <Form.Control
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                        </Col>
+                    <Col>
+                        
+                    </Col>
+                </Row>
+                    
+                <Row>
+                    Currently showing {chartData.labels
+                        ? chartData.labels.length
+                        : 0} of {researchFieldsCount.length} research fields.
+                </Row>
+
+                <Bar options={options} data={chartData}/>
+
+            </Card.Body>
+        </Card>  
         </>
     );
 

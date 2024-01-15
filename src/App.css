@@ -13,6 +13,12 @@
   overflow: auto;
 }
 
+.dropdownmenu{
+  max-width: 300px;
+  max-height: 400px;
+  overflow: auto;
+}
+
 .popover-stick{ 
   position: absolute;
   top:50px;

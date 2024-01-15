@@ -8,7 +8,7 @@ function UndesiredResources(){
     const[undocResources, setUndocResources] = useState([]); 
     const[undesResources, setUndesResources] = useState([]); 
     const [prefixes, , ] = store.useState("endpointPrefixes");
-    const [endpointURL, , ] = store.useState("endpointURL");
+    const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     
     useEffect(()=>{
         fetchSPARQLData(); //is this awaited?
@@ -49,7 +49,7 @@ function UndesiredResources(){
             } 
             `);
     
-      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
       const response = await fetch(url);
       console.log("response", response);
 

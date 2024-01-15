@@ -52,55 +52,58 @@ function MatomoStatistics(){
           console.log("MATOMO DATA", data); //list of pages that were visited
 
           // Extract actions data from Matomo response
-          const actionsData = data.actionDetails || [];
+          /*const actionsData1 = data.actionDetails || [];
 
           console.log("Matomo actions data", actionsData);
           // Transform actions data into Sankey-compatible format
-          const transformedData = actionsData.map((action, index) => ({
+          const transformedData1 = actionsData.map((action, index) => ({
             source: action.subtitle, // Use the page title as the source
             target: actionsData[index + 1]?.subtitle || '', // Use the next page title as the target
             weight: action.timeSpent || 1, // Use time spent as the weight, default to 1 if not available
-          }));
+          }));*/
 
-          /*
-          // Extract actions data from Matomo response
-            const actionsData = matomoData?.actionDetails || [];
+          
+        // Extract actions data from Matomo response
+          
 
-            // Initialize an empty array to store the transformed data
-            const transformedData = [];
+          // Initialize an empty array to store the transformed data
 
-            // Iterate over the actionsData array
+          
+          const transformedData = [];
+
+          data.forEach((object) => {
+            const actionsData = object.actionDetails;
+          
             for (let i = 0; i < actionsData.length - 1; i++) {
-              const currentAction = actionsData[i];
-              const nextAction = actionsData[i + 1];
+              const currentAction = actionsData[i].subtitle;
+              const nextAction = actionsData[i + 1].subtitle;
 
-              // Create a new object with source, target, and weight
-              const transition = {
-                source: currentAction.title,
-                target: nextAction.title || '',
-                weight: 1, // Default weight is 1
-              };
-
-              // Check if a similar transition already exists in the list
-              const existingTransition = transformedData.find(
-                (t) => t.source === transition.source && t.target === transition.target
-              );
-
-              if (existingTransition) {
-                // If it exists, increment the weight
-                existingTransition.weight += 1;
-              } else {
-                // If it doesn't exist, add the new transition to the list
-                transformedData.push(transition);
+              if(currentAction != nextAction){
+                // Create a new object with source, target, and weight
+                const transition = {
+                  source: currentAction,
+                  target: nextAction || '',
+                  weight: 1, // Default weight is 1
+                };
+            
+                // Check if a similar transition already exists in the list
+                const existingTransition = transformedData.find(
+                  (t) => t.source === transition.source && t.target === transition.target
+                );
+            
+                if (existingTransition) {
+                  // If it exists, increment the weight
+                  existingTransition.weight += 1;
+                } else {
+                  // If it doesn't exist, add the new transition to the list
+                  transformedData.push(transition);
+                }
               }
             }
-
-            // Print the transformed data (you can use it as your Sankey data source)
-            console.log(transformedData);
-            */
-
-          console.log("MATOMO Transformed", transformedData);
-          setSankeyData(transformedData);
+          });
+            
+          console.log("MATOMO Transformed", transformedData.filter(item=> item.weight > 2));
+          setSankeyData(transformedData.filter(item=> item.weight > 2));
 
         } catch (error) {
           console.error('Error fetching matomo data.', error);

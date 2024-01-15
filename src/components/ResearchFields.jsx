@@ -183,10 +183,7 @@ function ResearchFields(){
                                     maxHeight: '200px', // specify the max height
                                     width: '300px',    // specify the width
                                     overflowY: 'auto',  // make it scrollable
-                                    marginTop: 0,   // set margin-top to 0
-                                    paddingTop: 0,  // set padding-top to 0
-                                    border: 0,    
-                                }}
+                                  }}
                             >
                             {researchFieldsCount.map((item, index) => (
                                 <Dropdown.Item key={index} onClick={() => handleDropdownItemClick(item.research_field)}>{item.research_field} </Dropdown.Item>

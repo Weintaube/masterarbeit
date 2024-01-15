@@ -1,6 +1,9 @@
 //Authentication Token 2f1a8c6a07609a76907dd8111dff26ed
 import { useEffect, useState } from "react";
-import { Sankey } from 'devextreme-react/sankey';
+import { Sankey } from "devextreme-react";
+
+
+import CytoscapeComponent from 'react-cytoscapejs';
 
 //import '../custom-theme.scss'; 
 
@@ -50,24 +53,6 @@ function MatomoStatistics(){
           }
           const data = await response.json(); 
           console.log("MATOMO DATA", data); //list of pages that were visited
-
-          // Extract actions data from Matomo response
-          /*const actionsData1 = data.actionDetails || [];
-
-          console.log("Matomo actions data", actionsData);
-          // Transform actions data into Sankey-compatible format
-          const transformedData1 = actionsData.map((action, index) => ({
-            source: action.subtitle, // Use the page title as the source
-            target: actionsData[index + 1]?.subtitle || '', // Use the next page title as the target
-            weight: action.timeSpent || 1, // Use time spent as the weight, default to 1 if not available
-          }));*/
-
-          
-        // Extract actions data from Matomo response
-          
-
-          // Initialize an empty array to store the transformed data
-
           
           const transformedData = [];
 
@@ -75,35 +60,60 @@ function MatomoStatistics(){
             const actionsData = object.actionDetails;
           
             for (let i = 0; i < actionsData.length - 1; i++) {
-              const currentAction = actionsData[i].subtitle;
-              const nextAction = actionsData[i + 1].subtitle;
-
-              if(currentAction != nextAction){
-                // Create a new object with source, target, and weight
-                const transition = {
-                  source: currentAction,
-                  target: nextAction || '',
-                  weight: 1, // Default weight is 1
-                };
-            
-                // Check if a similar transition already exists in the list
-                const existingTransition = transformedData.find(
-                  (t) => t.source === transition.source && t.target === transition.target
-                );
-            
-                if (existingTransition) {
-                  // If it exists, increment the weight
-                  existingTransition.weight += 1;
-                } else {
-                  // If it doesn't exist, add the new transition to the list
-                  transformedData.push(transition);
-                }
+              let currentAction = actionsData[i].subtitle;
+              let nextAction = actionsData[i + 1].subtitle;
+          
+              let currentActionPart = currentAction;
+              let nextActionPart = nextAction;
+          
+              const regex =  /orkg\.org\/([^\/]+)/;
+              const currentMatch = currentAction.match(regex);
+              const nextMatch = nextAction.match(regex);
+          
+              if (currentAction === "https://www.orkg.org/") {
+                  currentActionPart = "ORKG main";
+              } else if (currentMatch) {
+                  currentActionPart = currentMatch[1];
+                  if(currentActionPart == "u"){
+                    currentActionPart = "user";
+                  }
               }
+          
+              if (nextAction === "https://www.orkg.org/") {
+                  nextActionPart = "ORKG main";
+              } else if (nextMatch) {
+                  nextActionPart = nextMatch[1];
+                  if(nextActionPart == "u"){
+                    nextActionPart = "user";
+                  }
+              }
+
+              if (currentActionPart !== nextActionPart) {
+              // Create a new object with source, target, and weight
+              const transition = {
+                source: currentActionPart,
+                target: nextActionPart || '',
+                weight: 1, // Default weight is 1
+              };
+        
+              // Check if a similar transition already exists in the list
+              const existingTransition = transformedData.find(
+                (t) => t.source === transition.source && t.target === transition.target
+              );
+        
+              if (existingTransition) { // If it exists, increment the weight
+                existingTransition.weight += 1;
+
+              } else { // If it doesn't exist, add the new transition to the list
+                transformedData.push(transition);
+              }
+            }
+              
             }
           });
             
-          console.log("MATOMO Transformed", transformedData.filter(item=> item.weight > 2));
-          setSankeyData(transformedData.filter(item=> item.weight > 2));
+          console.log("MATOMO Transformed", transformedData); //todo make changeable .filter(item=> item.weight > 2)
+          setSankeyData(transformedData); //.filter(item=> item.weight > 2)
 
         } catch (error) {
           console.error('Error fetching matomo data.', error);
@@ -124,20 +134,32 @@ function MatomoStatistics(){
         { source: 'Great Britain', target: 'Japan', weight: 1 },
       ];
 
+      const elements = [
+        { data: { id: 'node1', label: 'Page 1' } },
+        { data: { id: 'node2', label: 'Page 2' } },
+        { data: { id: 'edge1', source: 'node1', target: 'node2' } }
+      ];
+
+      try{
 
     return(
     <>
     <Sankey 
       id="sankey"
-      dataSource={sankeyData}
+      dataSource={data}
       sourceField="source"
       targetField="target"
       weightField="weight"
       paletteExtensionMode="extrapolate"
       theme="Blue Light Compact"
     />
-    </>
-    );
+    <CytoscapeComponent elements={elements} style={ { width: '600px', height: '600px' , display: 'block'} } />;
+  
+    </> );
+      }catch(error){
+        console.log(error("error diagram matomo"), error);
+      }
+    
 }
 
 export default MatomoStatistics;

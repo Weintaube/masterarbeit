@@ -37,12 +37,14 @@ function CommentsDB(){
                 if(typeOfResource === "Paper"){
                     const response = await fetch(`https://orkg.org/api/papers/${resourceId}`);
                     console.log("comment list fired", response);
+                    let isIDValid = true;
                     if (response.ok) {
                         const result = await response.json();
                         console.log("comment list fetch", result);
                         resultAPI = { uri: `https://orkg.org/paper/${resourceId}`, title: result.title };
                     } else {
                         console.log('Error fetching paper data.');
+                        isIDValid = false;
                     }
                 } else if (typeOfResource === 'Comparison') {
                     const response = await fetch(`https://orkg.org/api/comparisons/${resourceId}`);
@@ -51,25 +53,28 @@ function CommentsDB(){
                         resultAPI = { uri: `https://orkg.org/comparison/${resourceId}`, title: result.title };
                     } else {
                         console.log('Error fetching comparison data.');
+                        isIDValid = false;
                     }
                 }
 
-                const newComment = {
-                    typeRes: typeOfResource,
-                    uri: resultAPI.uri,
-                    title: resultAPI.title,
-                    resourceId: resourceId,
-                    description: commentDescription,                
-                    typeComm: typeOfComment,
-                };
-                console.log("Comment list new", newComment);
-    
-                /*setCommentList([...commentList, newComment]);
-                console.log("comment list", commentList);*/
-                postComment(newComment);
-                setValidated(false);
-                setActiveTab('table');
-                form.reset();
+                if(isIDValid){
+                    const newComment = {
+                        typeRes: typeOfResource,
+                        uri: resultAPI.uri,
+                        title: resultAPI.title,
+                        resourceId: resourceId,
+                        description: commentDescription,                
+                        typeComm: typeOfComment,
+                    };
+                    console.log("Comment list new", newComment);
+        
+                    /*setCommentList([...commentList, newComment]);
+                    console.log("comment list", commentList);*/
+                    postComment(newComment);
+                    setValidated(false);
+                    setActiveTab('table');
+                    form.reset();
+                }
 
             }catch(error){
                 console.error("Error fetching data", error);
@@ -123,6 +128,8 @@ function CommentsDB(){
       useEffect(()=>{
         fetchDBData();     
       },[activeTab]);
+
+
 
     //possibility to edit the comments/delete them
     //adding a filter function for type of comments

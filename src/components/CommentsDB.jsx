@@ -5,7 +5,7 @@ import Card from 'react-bootstrap/Card';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Form from 'react-bootstrap/Form';
-import {OverlayTrigger, Tooltip} from "react-bootstrap";
+import {OverlayTrigger, Tooltip, Popover} from "react-bootstrap";
 
 
 function CommentsDB(){
@@ -34,10 +34,12 @@ function CommentsDB(){
 
             try{
                 let resultAPI = {};
+                let isIDValid = true;
+
                 if(typeOfResource === "Paper"){
                     const response = await fetch(`https://orkg.org/api/papers/${resourceId}`);
                     console.log("comment list fired", response);
-                    let isIDValid = true;
+
                     if (response.ok) {
                         const result = await response.json();
                         console.log("comment list fetch", result);
@@ -74,18 +76,19 @@ function CommentsDB(){
                     setValidated(false);
                     setActiveTab('table');
                     form.reset();
+                }else{
+                    console.log("comments id not valid");
+                    form.elements['formID'].setCustomValidity('ID not valid');  
+                      
                 }
-
+                form.reportValidity();
             }catch(error){
                 console.error("Error fetching data", error);
-                window.alert('Error fetching data.');
             }
-
-            
         }
       };
 
-      const postComment = async(comment)=>{
+    const postComment = async(comment)=>{
         try {
             const url = `http://localhost:8001/comments/_new`;
             const response = await fetch(url, {
@@ -105,12 +108,37 @@ function CommentsDB(){
         } catch (error) {
             console.error(error);
         }
-      }
+    };
 
-      const fetchDBData = async () => {
+    const deleteEntry = async(item)=>{
         try {
-                const url = `http://localhost:8001/comments`;
-                const response = await fetch(url);
+            const url = `http://localhost:8001/comments/${item.id}`;
+            const response = await fetch(url, {
+                method: "DELETE", 
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(item)   
+            });
+            if(response.ok){ //Anfrage erfolgreich Statuscode 200
+                console.log("Response (OK)",  response)
+                const result = await response.json();
+                console.log("DB SHIT", result);
+
+                await fetchDBData();
+            }else{
+                throw new Error("Error while requesting SPARQL data.")
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+    };
+
+    const fetchDBData = async () => {
+        try {
+            const url = `http://localhost:8001/comments`;
+            const response = await fetch(url);
             if(response.ok){ //Anfrage erfolgreich Statuscode 200
                 console.log("Response (OK)",  response)
                 const result = await response.json();
@@ -124,12 +152,20 @@ function CommentsDB(){
         }
     };
 
-      
-      useEffect(()=>{
-        fetchDBData();     
-      },[activeTab]);
+    useEffect(()=>{
+    fetchDBData();     
+    },[activeTab]);
 
+    
+    const handleDeleteRow = (item) => {
+        console.log("item to be deleted", item);
+        deleteEntry(item);
+    };
 
+    const handleInputChange = (event) => {
+        // Reset the custom validity
+        event.target.setCustomValidity('');
+    };
 
     //possibility to edit the comments/delete them
     //adding a filter function for type of comments
@@ -159,6 +195,18 @@ function CommentsDB(){
                     </thead>
                     <tbody>
                         {commentList.map((item, index) => (
+                            <OverlayTrigger
+                            placement="bottom"
+                            trigger="click"
+                            rootClose="true"
+                            key={`Delete Popover${item.id}`}
+                            overlay={<Popover data-bs-theme="dark">
+                                <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
+                                <Popover.Body>
+                                    {item.typeRes} with ID {item.resourceId}<br></br>
+                                    <Button variant="danger" onClick={()=>handleDeleteRow(item)}>Delete</Button>
+                                </Popover.Body>
+                            </Popover>}>
                             <tr key={index}>
                                 <td> {item.typeRes} </td>
                                 <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title}</a> </td>
@@ -170,6 +218,7 @@ function CommentsDB(){
                                     <Button>{item.typeComm}</Button>
                                 </OverlayTrigger>
                             </tr>
+                            </OverlayTrigger>
                         )
                         )}
                     </tbody>
@@ -188,7 +237,7 @@ function CommentsDB(){
 
                         <Form.Group className="mb-3" controlId="formID">
                             <Form.Label>ID</Form.Label>
-                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required/>
+                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required onChange={handleInputChange}/>
                             <Form.Control.Feedback type="invalid">
                                 Please enter an ID.
                             </Form.Control.Feedback>

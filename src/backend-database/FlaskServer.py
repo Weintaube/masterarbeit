@@ -59,7 +59,7 @@ def one_comment(id):
             comment = session.get(Comment, id)
             session.delete(comment)
             session.commit()
-            return comment, 200
+            return CommentSchema().dump(comment), 200
     else:
         with Session(engine) as session:
             comment = session.get(Comment, id)

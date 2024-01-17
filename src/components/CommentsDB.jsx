@@ -5,7 +5,7 @@ import Card from 'react-bootstrap/Card';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Form from 'react-bootstrap/Form';
-import {OverlayTrigger, Tooltip, Popover} from "react-bootstrap";
+import {OverlayTrigger, Tooltip, Popover, Modal} from "react-bootstrap";
 
 
 function CommentsDB(){
@@ -14,6 +14,9 @@ function CommentsDB(){
     const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
     const [activeTab, setActiveTab] = useState("table");
+    const [showModal, setShowModal] = useState(false); //for description editing overlay
+    const [updatedDescription, setUpdatedDescription] = useState("");
+    const [selectedComment, setSelectedComment] = useState(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -153,6 +156,30 @@ function CommentsDB(){
         }
     };
 
+    const updateComment = async(item)=>{
+        try {
+            const url = `http://localhost:8001/comments/${item.id}`;
+            const response = await fetch(url, {
+                method: "POST", 
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(item)   
+            });
+            if(response.ok){ //Anfrage erfolgreich Statuscode 200
+                console.log("Response (OK)",  response)
+                const result = await response.json();
+                console.log("DB SHIT", result);
+
+                await fetchDBData();
+            }else{
+                throw new Error("Error while requesting SPARQL data.")
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
     useEffect(()=>{
     fetchDBData();     
     },[activeTab]);
@@ -167,6 +194,30 @@ function CommentsDB(){
         // Reset the custom validity
         event.target.setCustomValidity('');
     };
+
+    const handleEditModalShow = (item) => {
+        setSelectedComment(item);
+        setUpdatedDescription(item.description);
+        setShowModal(true);
+      };
+    
+      const handleEditModalClose = () => {
+        setSelectedComment(null);
+        setUpdatedDescription("");
+        setShowModal(false);
+      };
+    
+      const handleUpdateDescription = async () => {
+        // Perform update in the database (similar to postComment)
+        // You should replace this with your actual update logic
+        // ...
+        console.log("Updating description:", updatedDescription);
+        selectedComment.description = updatedDescription;
+        console.log("comments updated descr now", selectedComment.description);
+        updateComment();
+        // Close the modal after updating
+        handleEditModalClose();
+      };
 
     //possibility to edit the comments/delete them
     //adding a filter function for type of comments
@@ -212,11 +263,13 @@ function CommentsDB(){
                                 <td> {item.typeRes} </td>
                                 <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title}</a> </td>
                                 <td> {item.resourceId} </td>
+
+                                
                                 <OverlayTrigger
                                     placement="top"
                                     overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.description}</Tooltip>}
                                 >
-                                    <Button>{item.typeComm}</Button>
+                                    <Button onClick={()=>handleEditModalShow(item)}>{item.typeComm}</Button>
                                 </OverlayTrigger>
                             </tr>
                             </OverlayTrigger>
@@ -270,6 +323,33 @@ function CommentsDB(){
 
         </Card.Body>
          </Card>
+
+         <Modal show={showModal} onHide={handleEditModalClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>Edit Description</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <Form.Group controlId="formUpdatedDescription">
+                <Form.Label>Updated Description</Form.Label>
+                <Form.Control
+                as="textarea"
+                rows={3}
+                value={updatedDescription}
+                onChange={(e) => setUpdatedDescription(e.target.value)}
+                />
+            </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleEditModalClose}>
+                Close
+            </Button>
+            <Button variant="primary" onClick={handleUpdateDescription}>
+                Save Changes
+            </Button>
+            </Modal.Footer>
+        </Modal>
+
+
         </>
     );
 

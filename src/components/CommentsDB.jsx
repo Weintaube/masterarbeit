@@ -191,7 +191,6 @@ function CommentsDB(){
     };
 
     const handleInputChange = (event) => {
-        // Reset the custom validity
         event.target.setCustomValidity('');
     };
 
@@ -208,14 +207,10 @@ function CommentsDB(){
       };
     
       const handleUpdateDescription = async () => {
-        // Perform update in the database (similar to postComment)
-        // You should replace this with your actual update logic
-        // ...
         console.log("Updating description:", updatedDescription);
         selectedComment.description = updatedDescription;
         console.log("comments updated descr now", selectedComment.description);
         updateComment();
-        // Close the modal after updating
         handleEditModalClose();
       };
 
@@ -247,32 +242,38 @@ function CommentsDB(){
                     </thead>
                     <tbody>
                         {commentList.map((item, index) => (
-                            <OverlayTrigger
-                            placement="bottom"
-                            trigger="click"
-                            rootClose="true"
-                            key={`Delete Popover${item.id}`}
-                            overlay={<Popover data-bs-theme="dark">
-                                <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
-                                <Popover.Body>
-                                    {item.typeRes} with ID {item.resourceId}<br></br>
-                                    <Button variant="danger" onClick={()=>handleDeleteRow(item)}>Delete</Button>
-                                </Popover.Body>
-                            </Popover>}>
+                            
                             <tr key={index}>
-                                <td> {item.typeRes} </td>
+                                <OverlayTrigger
+                                    placement="bottom"
+                                    trigger="click"
+                                    rootClose="true"
+                                    key={`Delete Popover${item.id}`}
+                                    overlay={<Popover data-bs-theme="dark">
+                                        <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
+                                        <Popover.Body>
+                                            {item.typeRes} with ID {item.resourceId}<br></br>
+                                            <Button variant="danger" onClick={()=>handleDeleteRow(item)}>Delete</Button>
+                                        </Popover.Body>
+                                    </Popover>}>
+
+                                    <td> {item.typeRes} </td>
+                                </OverlayTrigger>
+                                
                                 <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title}</a> </td>
                                 <td> {item.resourceId} </td>
 
-                                
+                                {/*Edit Button*/}
+                                <td>
                                 <OverlayTrigger
                                     placement="top"
-                                    overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.description}</Tooltip>}
+                                    overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.description}
+                                    </Tooltip>}
                                 >
                                     <Button onClick={()=>handleEditModalShow(item)}>{item.typeComm}</Button>
                                 </OverlayTrigger>
+                                </td>
                             </tr>
-                            </OverlayTrigger>
                         )
                         )}
                     </tbody>

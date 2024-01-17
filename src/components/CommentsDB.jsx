@@ -102,6 +102,7 @@ function CommentsDB(){
                 console.log("Response (OK)",  response)
                 const result = await response.json();
                 console.log("DB SHIT", result);
+                await fetchDBData();
             }else{
                 throw new Error("Error while requesting SPARQL data.")
             }

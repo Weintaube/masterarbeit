@@ -151,7 +151,11 @@ function MatomoStatistics() {
   const elements = diagramData.map((node) => ({ data: node.data }));
   console.log("MATOMO diagram data mapped", elements);
 
-  const layout = { name: 'random' };
+  const layout = { name: 'circle', //force directed layout
+            idealEdgeLength:10,
+            nodeOverlap: 20,
+            spacingFactor: 2
+          };
 
   const darkModeStyles = [
     {

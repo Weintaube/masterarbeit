@@ -9,7 +9,8 @@ import {OverlayTrigger, Tooltip, Popover, Modal} from "react-bootstrap";
 
 
 function CommentsDB(){
-    const [commentList, setCommentList, ] = useState([]); //list for keeping the ids which have a list of comments attached
+    const [commentList, setCommentList] = useState([]); //list for keeping the ids which have a list of comments attached, sorted by resource id
+    const [rawCommentList, setRawCommentList] = useState([]); //raw comments, each one in a row
     const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison", "Statement"]); //todo think about how the statement can be implemented
     const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
@@ -52,7 +53,7 @@ function CommentsDB(){
                         isIDValid = false;
                     }
                 } else if (typeOfResource === 'Comparison') {
-                    const response = await fetch(`https://orkg.org/api/comparisons/${resourceId}`);
+                    const response = await fetch(`https://orkg.org/api/comparisons/${resourceId}/`);
                     if (response.ok) {
                         const result = await response.json();
                         resultAPI = { uri: `https://orkg.org/comparison/${resourceId}`, title: result.title };
@@ -143,20 +144,37 @@ function CommentsDB(){
         try {
             const url = `http://localhost:8001/comments`;
             const response = await fetch(url);
-            if(response.ok){ //Anfrage erfolgreich Statuscode 200
-                console.log("Response (OK)",  response)
+            if (response.ok) {
                 const result = await response.json();
-                console.log("DB SHIT", result);
-                setCommentList(result);
-            }else{
-                throw new Error("Error while requesting SPARQL data.")
+                setRawCommentList(result);
+                const commentsByResource = {};
+    
+                result.forEach(comment => {
+                    if (!commentsByResource[comment.resourceId]) {
+                        commentsByResource[comment.resourceId] = {
+                            typeRes: comment.typeRes,
+                            uri: comment.uri,
+                            title: comment.title,
+                            resourceId: comment.resourceId,
+                            comments: []
+                        };
+                    }
+    
+                    commentsByResource[comment.resourceId].comments.push(comment);
+                });
+    
+                setCommentList(commentsByResource);
+            } else {
+                throw new Error("Error while requesting SPARQL data.");
             }
         } catch (error) {
             console.error(error);
         }
-    };
+    };    
+    
 
     const updateComment = async(item)=>{
+        console.log(item);
         try {
             const url = `http://localhost:8001/comments/${item.id}`;
             const response = await fetch(url, {
@@ -185,18 +203,33 @@ function CommentsDB(){
     },[activeTab]);
 
     
-    const handleDeleteRow = (item) => {
-        console.log("item to be deleted", item);
-        deleteEntry(item);
+    const handleDeleteRow = async(item) => { //deletion by whole item
+        const rowsToDelete = rawCommentList.filter(comment => comment.resourceId === item.resourceId);
+
+        for (const row of rowsToDelete) {
+            console.log("item to be deleted", row);
+            await deleteEntry(row);
+        }
     };
+
+    const handleDeleteComment = (id) => { //deletion by id, for a specific comment
+        const item = rawCommentList.find(comment => comment.id === id);
+        if (item) {
+            console.log("Item to be deleted:", item);
+            deleteEntry(item);
+        } else {
+            console.error("Item not found");
+        }
+        handleEditModalClose();
+    }
 
     const handleInputChange = (event) => {
         event.target.setCustomValidity('');
     };
 
-    const handleEditModalShow = (item) => {
-        setSelectedComment(item);
-        setUpdatedDescription(item.description);
+    const handleEditModalShow = (comment) => {
+        setSelectedComment(comment);
+        setUpdatedDescription(comment.description);
         setShowModal(true);
       };
     
@@ -210,7 +243,7 @@ function CommentsDB(){
         console.log("Updating description:", updatedDescription);
         selectedComment.description = updatedDescription;
         console.log("comments updated descr now", selectedComment.description);
-        updateComment();
+        updateComment(selectedComment);
         handleEditModalClose();
       };
 
@@ -233,52 +266,53 @@ function CommentsDB(){
                 Here you can make comments about papers or comparisons which should be improved.
                 <Table striped bordered hover>
                     <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Title</th>
-                        <th>ID</th>
-                        <th>Comments</th>
-                    </tr>
+                        <tr>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>ID</th>
+                            <th>Comments</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        {commentList.map((item, index) => (
-                            
+                        {Object.values(commentList).map((item, index) => (
                             <tr key={index}>
                                 <OverlayTrigger
                                     placement="bottom"
                                     trigger="click"
                                     rootClose="true"
-                                    key={`Delete Popover${item.id}`}
+                                    key={`Delete Popover${item.resourceId}`}
                                     overlay={<Popover data-bs-theme="dark">
                                         <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
                                         <Popover.Body>
                                             {item.typeRes} with ID {item.resourceId}<br></br>
-                                            <Button variant="danger" onClick={()=>handleDeleteRow(item)}>Delete</Button>
+                                            <Button variant="danger" onClick={() => handleDeleteRow(item)} key={`delete-${item.resourceId}`}>Delete</Button>
                                         </Popover.Body>
-                                    </Popover>}>
-
+                                    </Popover>}
+                                >
                                     <td> {item.typeRes} </td>
                                 </OverlayTrigger>
-                                
+
                                 <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title}</a> </td>
                                 <td> {item.resourceId} </td>
 
-                                {/*Edit Button*/}
+                                {/* Edit Button */}
                                 <td>
-                                <OverlayTrigger
-                                    placement="top"
-                                    overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${index}`}>{item.description}
-                                    </Tooltip>}
-                                >
-                                    <Button onClick={()=>handleEditModalShow(item)}>{item.typeComm}</Button>
-                                </OverlayTrigger>
+                                    {item.comments.map((comment, commentIndex) => (
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${item.resourceId}-${commentIndex}`}>{comment.description}</Tooltip>}
+                                        >
+                                            {/* Updated line: Added data-id attribute for identifying the comment */}
+                                            <Button onClick={() => handleEditModalShow(comment)} data-id={comment.id}>{comment.typeComm}</Button>
+                                        </OverlayTrigger>
+                                    ))}
                                 </td>
                             </tr>
-                        )
-                        )}
+                        ))}
                     </tbody>
-                    </Table>
-                </Tab>
+                </Table>
+            </Tab>
+
                 <Tab eventKey="addcomment" title="Add a comment">
                     <Form noValidate validated={validated} onSubmit={handleSubmit}>
                         <Form.Group className="mb-3" controlId="formTypeRes">
@@ -343,6 +377,9 @@ function CommentsDB(){
             <Modal.Footer>
             <Button variant="secondary" onClick={handleEditModalClose}>
                 Close
+            </Button>
+            <Button variant="danger" onClick={() => handleDeleteComment(selectedComment.id)}>
+            Delete Comment
             </Button>
             <Button variant="primary" onClick={handleUpdateDescription}>
                 Save Changes

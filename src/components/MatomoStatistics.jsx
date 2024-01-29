@@ -81,41 +81,47 @@ function MatomoStatistics() {
           }
 
           if (currentActionPart !== nextActionPart) {
+
+            const sourceId = `node_${currentActionPart}`;
+            const targetId = `node_${nextActionPart}`;
+
+            const edgeId = `${sourceId}>${targetId}`;
+
             const nodeSource = {
-              data: { id: `node_${currentActionPart}`,
+              data: { id: sourceId,
               label: currentActionPart
               },
             };
-            console.log("matomo node source generated", nodeSource);
+            //console.log("matomo node source generated", nodeSource);
 
             const nodeTarget = {
-              data: { id: `node_${nextActionPart}`,
-              label: nextActionPart
-              },
+              data: { id: targetId,
+                      label: nextActionPart
+                    },
             };
 
             const edge = {
-              data: { id: `${currentActionPart}>${nextActionPart}`, source: `node_${currentActionPart}`, target: `node_${nextActionPart}` },
+              data: { id: edgeId, source: sourceId, target: targetId },
             };
 
 
             const existingNodeSource = transformedData.find(
-              (t) => t.label === nodeSource.data.label
+              (t) => t.data.id === nodeSource.data.id
             );
 
             if(existingNodeSource){
-              console.log("matomo source to compare", nodeSource);
-              console.log("matomo existing source", existingNodeSource);
+              //console.log("matomo source to compare", nodeSource);
+              //console.log("matomo existing source", existingNodeSource);
             }
       
             if (!existingNodeSource) { 
-              console.log("matomot push node source", nodeSource);
+              //console.log("matomot push node source", nodeSource);
               transformedData.push(nodeSource);
-              console.log("matomo current transformed data",transformedData);
+              //console.log("matomo current transformed data",transformedData);
             }
 
             const existingNodeTarget = transformedData.find(
-              (t) => t.id === nodeTarget.id && t.label === nodeTarget.label
+              (t) => t.data.id === nodeTarget.data.id
             );
 
             if (!existingNodeTarget) { 
@@ -142,8 +148,8 @@ function MatomoStatistics() {
   };
 
   // Create elements based on transformed data
-  const elements = diagramData.map((node) => ({ data: node }));
-  console.log("matomo diagram data mapped", elements);
+  const elements = diagramData.map((node) => ({ data: node.data }));
+  console.log("MATOMO diagram data mapped", elements);
 
   const layout = { name: 'random' };
 

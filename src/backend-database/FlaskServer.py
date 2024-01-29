@@ -31,13 +31,13 @@ def all_comments():
         return CommentSchema(many=True).dump(comments), 200
 
 @app.route("/comments/<id>", methods=["GET", "POST", "DELETE"])
+@app.route("/comments/<id>", methods=["GET", "POST", "DELETE"])
 def one_comment(id):
     """ Get, post or delete a Comment. """
     if request.method == "POST":
         with Session(engine) as session:
             content = request.json
-            if content.get('id', None) is None:
-                # comment = CommentSchema().load() id shouldnt be none error
+            if id == "_new":
                 # create new comment
                 comment = Comment(
                     typeRes=content.get('typeRes', None),
@@ -50,20 +50,35 @@ def one_comment(id):
                 session.add(comment)
             else:
                 # change existing comment
-                comment = CommentSchema().load(content)
-                session.merge(comment)
+                comment = session.query(Comment).get(id)
+                if comment:
+                    comment.typeRes = content.get('typeRes', comment.typeRes)
+                    comment.resourceId = content.get('resourceId', comment.resourceId)
+                    comment.uri = content.get('uri', comment.uri)
+                    comment.title = content.get('title', comment.title)
+                    comment.typeComm = content.get('typeComm', comment.typeComm)
+                    comment.description = content.get('description', comment.description)
+                else:
+                    return "Comment not found", 404
+
             session.commit()
             return CommentSchema().dump(comment), 200
     elif request.method == "DELETE":
         with Session(engine) as session:
-            comment = session.get(Comment, id)
-            session.delete(comment)
-            session.commit()
-            return CommentSchema().dump(comment), 200
+            comment = session.query(Comment).get(id)
+            if comment:
+                session.delete(comment)
+                session.commit()
+                return CommentSchema().dump(comment), 200
+            else:
+                return "Comment not found", 404
     else:
         with Session(engine) as session:
-            comment = session.get(Comment, id)
-            return CommentSchema().dump(comment), 200
+            comment = session.query(Comment).get(id)
+            if comment:
+                return CommentSchema().dump(comment), 200
+            else:
+                return "Comment not found", 404
 
 
 if __name__ == '__main__':

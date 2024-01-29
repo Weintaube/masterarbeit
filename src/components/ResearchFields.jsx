@@ -148,12 +148,18 @@ function ResearchFields(){
         },
       };
 
+
+      //filter by first render from 100 to 5000
     return(
         <>
         <Card >
             <Card.Body >
                 <Card.Title>Research Fields</Card.Title>
-
+                <Row>
+                    Currently showing {chartData.labels
+                        ? chartData.labels.length
+                        : 0} of {researchFieldsCount.length} research fields.<br></br>
+                </Row>
                 <Row>
                 <Col>
                     <Form.Label>Minimum number of papers:</Form.Label>
@@ -201,11 +207,6 @@ function ResearchFields(){
                     </Col>
                 </Row>
                     
-                <Row>
-                    Currently showing {chartData.labels
-                        ? chartData.labels.length
-                        : 0} of {researchFieldsCount.length} research fields.
-                </Row>
 
                 <Bar options={options} data={chartData}/>
 

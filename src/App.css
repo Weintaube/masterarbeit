@@ -13,6 +13,42 @@
   overflow: auto;
 }
 
+.btn-accuracy-questioned {
+  background-color: #B67207 !important; /* Set the background color for Accuracy questioned type */
+  color: #FFFFFF !important; /* Set the text color for Accuracy questioned type */
+  border-color: #4C2A00 !important;
+}
+
+.btn-bad-modeling {
+  background-color: #8B0029 !important; /* Set the background color for Bad modeling type */
+  color: #FFFFFF !important; /* Set the text color for Bad modeling type */
+  border-color: #3F0113 !important;
+}
+
+.btn-lacking-completeness {
+  background-color: #2B0195 !important; /* Set the background color for Lacking completeness type */
+  color: #FFFFFF !important; /* Set the text color for Lacking completeness type */
+  border-color: #1B025A !important;
+}
+
+.btn-in-depth-analysis {
+  background-color: #0180E5 !important; /* Set the background color for Lacking completeness type */
+  color: #FFFFFF !important; /* Set the text color for Lacking completeness type */
+  border-color: #05528F !important;
+}
+
+.btn-innovative-approach {
+  background-color: #B0AB32 !important; /* Set the background color for Lacking completeness type */
+  color: #FFFFFF !important; /* Set the text color for Lacking completeness type */
+  border-color: #6E6B20 !important;
+}
+
+.btn-reproducible-results {
+  background-color: #069B0C !important; /* Set the background color for Lacking completeness type */
+  color: #FFFFFF !important; /* Set the text color for Lacking completeness type */
+  border-color: #034D06 !important;
+}
+
 .dropdownmenu{
   max-width: 300px;
   max-height: 400px;

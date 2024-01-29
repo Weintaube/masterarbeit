@@ -12,7 +12,7 @@ function CommentsDB(){
     const [commentList, setCommentList] = useState([]); //list for keeping the ids which have a list of comments attached, sorted by resource id
     const [rawCommentList, setRawCommentList] = useState([]); //raw comments, each one in a row
     const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison", "Statement"]); //todo think about how the statement can be implemented
-    const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness"]);  //todo add custom option
+    const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness", "In-depth analysis", "Innovative Approach", "Reproducible Results"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
     const [activeTab, setActiveTab] = useState("table");
     const [showModal, setShowModal] = useState(false); //for description editing overlay
@@ -303,7 +303,7 @@ function CommentsDB(){
                                             overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${item.resourceId}-${commentIndex}`}>{comment.description}</Tooltip>}
                                         >
                                             {/* Updated line: Added data-id attribute for identifying the comment */}
-                                            <Button onClick={() => handleEditModalShow(comment)} data-id={comment.id}>{comment.typeComm}</Button>
+                                            <Button onClick={() => handleEditModalShow(comment)} className={`btn-${comment.typeComm.toLowerCase().replace(/\s+/g, '-')}`} data-id={comment.id}>{comment.typeComm}</Button>
                                         </OverlayTrigger>
                                     ))}
                                 </td>
@@ -393,6 +393,7 @@ function CommentsDB(){
 
 }
 
+//{`btn-${comment.typeComm.toLowerCase().replace(/\s+/g, '-')}}`}
 //{commentIDs? commentIDs.map(item=><ListGroup.Item>[commentIDs.id}</ListGroup.Item>):null}
 
 export default CommentsDB;

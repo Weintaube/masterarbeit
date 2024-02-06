@@ -9,11 +9,11 @@ function StatementsPaper(){
 
     const fetchData = async()=>{
         try{
-            const response = await fetch('https://orkg.org/api/statements/R659268/bundle?maxLevel=2');
+            const response = await fetch(''); //https://orkg.org/api/statements/R659268/bundle?maxLevel=2
             if(response.ok){ //Anfrage erfolgreich Statuscode 200
                 console.log("Response (OK)",  response)
                 const result = await response.json();
-                console.log("bundle stuff", result);
+                console.log("Statements per paper", result);
 
             }else{
                 console.log("Error while fetching comparisons.");

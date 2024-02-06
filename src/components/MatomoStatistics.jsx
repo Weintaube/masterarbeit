@@ -1,31 +1,49 @@
 // Authentication Token 2f1a8c6a07609a76907dd8111dff26ed
 import { useEffect, useState } from "react";
 import CytoscapeComponent from 'react-cytoscapejs';
+import Card from 'react-bootstrap/Card';
+import { Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
+  const [selectedEdge, setSelectedEdge] = useState([]); //todo make label that shows current edge with source, target and label
+  const [startDate, setStartDate] = useState('today'); // State for start date
+  const [endDate, setEndDate] = useState('');
+  const [period, setPeriod] = useState('day'); //range, day
+  const [fetchOneDay, setFetchOneDay] = useState(true); // State for the checkbox
+  const [nodeSpacing, setNodeSpacing] = useState(6);
+  const [layoutDiagram, setLayoutDiagram] = useState('breadthfirst');
+
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
   const siteID = 29;
-  const date = 'today'; // todo make this variable
-  const period = 'day'; // todo make this variable
-
-  const matomoParams = {
-    idSite: siteID,
-    period: period,
-    date: date,
-    format: 'JSON',
-    module: 'API',
-    method: 'Live.getLastVisitsDetails',
-    token_auth: TOKEN,
-    expanded: 1,
-  };
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    const matomoParams = {
+      idSite: siteID,
+      period: period,
+      date: startDate,
+      format: 'JSON',
+      module: 'API',
+      method: 'Live.getLastVisitsDetails',
+      token_auth: TOKEN,
+      expanded: 1,
+      filter_limit: -1
+    };
+
+    if(period == 'day'){
+      matomoParams.date = startDate;
+
+    }else if(period == 'range'){
+      matomoParams.date = `${startDate},${endDate}`;
+    }
+    
     try {
       const headers = new Headers();
       headers.append('Origin', 'http://localhost:3000');
@@ -92,7 +110,6 @@ function MatomoStatistics() {
               label: currentActionPart
               },
             };
-            //console.log("matomo node source generated", nodeSource);
 
             const nodeTarget = {
               data: { id: targetId,
@@ -101,25 +118,23 @@ function MatomoStatistics() {
             };
 
             const edge = {
-              data: { id: edgeId, source: sourceId, target: targetId },
+              data: { id: edgeId, 
+                      source: sourceId, 
+                      target: targetId,
+                      label: '1'},
             };
-
 
             const existingNodeSource = transformedData.find(
               (t) => t.data.id === nodeSource.data.id
             );
 
-            if(existingNodeSource){
-              //console.log("matomo source to compare", nodeSource);
-              //console.log("matomo existing source", existingNodeSource);
-            }
-      
+            //check for duplicate source nodes
+        
             if (!existingNodeSource) { 
-              //console.log("matomot push node source", nodeSource);
               transformedData.push(nodeSource);
-              //console.log("matomo current transformed data",transformedData);
             }
 
+            //check for duplicate target nodes
             const existingNodeTarget = transformedData.find(
               (t) => t.data.id === nodeTarget.data.id
             );
@@ -128,7 +143,18 @@ function MatomoStatistics() {
               transformedData.push(nodeTarget);
             }
 
-            transformedData.push(edge);
+            //check for duplicate edges
+            const existingEdge = transformedData.find(
+              (t)  => {
+              return t.data.id === edge.data.id
+              });
+
+            if (existingEdge) { // If it exists, increment the label (count)
+              existingEdge.data.label = `${parseInt(existingEdge.data.label) + 1}`;
+
+            } else { // If it doesn't exist, add the new edge to the list
+              transformedData.push(edge);
+            }
           }
         }
       });
@@ -147,15 +173,42 @@ function MatomoStatistics() {
     }
   };
 
+  const handleSelect = (event) => {
+    const selected = event.target;
+
+    if (selected) {
+      const edge = selected.edges();
+      console.log("selected ", edge[0].data());
+      setSelectedEdge(edge[0].data().id);
+    }else{
+      setSelectedEdge([]);
+    }
+  };
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
+  const handleCheckboxChange = (event) => {
+    setFetchOneDay(event.target.checked);
+
+    // If checkbox is checked, disable end date and set period to 'day'
+    if (event.target.checked) {
+      setEndDate('');
+      setPeriod('day');
+    } else {
+      // If checkbox is unchecked, set period back to 'range'
+      setPeriod('range');
+    }
+  };
+
   // Create elements based on transformed data
   const elements = diagramData.map((node) => ({ data: node.data }));
   console.log("MATOMO diagram data mapped", elements);
-
-  const layout = { name: 'circle', //force directed layout
-            idealEdgeLength:10,
-            nodeOverlap: 20,
-            spacingFactor: 2
-          };
 
   const darkModeStyles = [
     {
@@ -163,23 +216,41 @@ function MatomoStatistics() {
       style: {
         'background-color': '#FFFFFF', // Dark background color for nodes
         'label': 'data(label)',
-        'color': '#C864C7' // Text color for nodes
+        'text-wrap': 'wrap',
+        'text-max-width': '10px',
+        'text-overflow-wrap': 'anywhere',
+        'color': '#e86161', // Text color for nodes
+        'text-background-color': '#090202'
       }
     },
     {
       selector: 'edge',
       style: {
-        'line-color': '#55ABE9', // Color of edges
-        'target-arrow-color': '#ECF0F1', // Color of arrowheads on edges
+        'line-color': '#dbdde5', // Color of edges Todo change 
+        'target-arrow-color': '#dbdde5', // Color of arrowheads on edges
         'target-arrow-shape': 'triangle',
-        'curve-style': 'bezier'
+        'curve-style': 'bezier',
+        'label': 'data(label)',
+        'color': '#e86161', //text color for edge label
+        'font-size': '15',
+        'text-background-color': '#F3F1F1'
       }
     },
     {
       selector: ':selected',
       style: {
-        'background-color': '#3498DB', // Color for selected nodes
-        'line-color': '#3498DB' // Color for selected edges
+        'background-color': '#e86161', // Color for selected nodes
+        'line-color': '#e86161', // Color for selected edges'label': 'data(label)',
+        'color': '#FFFFFF', // Text color for edges
+        'target-arrow-color': '#e86161'
+      }
+    },
+    {
+      selector: 'edge:hover',
+      style: {
+        'label': 'data(label)',
+        'text-opacity': 1,
+        'text-background-opacity': 1,
       }
     }
   ];
@@ -195,14 +266,95 @@ function MatomoStatistics() {
   try {
     return (
       <>
+      <Card >
+            <Card.Body >
+                  <Card.Title>Matomo Visitor Data</Card.Title>
+        {/*Date selection form*/}
+        <div>
+          <p>Please enter dates in the format YYYY-MM-DD.</p>
+          <Row>
+            <Col>
+              <Form.Check
+                type="checkbox"
+                checked={fetchOneDay}
+                onChange={handleCheckboxChange}
+                label="Fetch data only for (one day) the start date"
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group>
+              <Form.Label>Start Date:</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col>
+            <Form.Group>
+              <Form.Label>End Date:</Form.Label>
+              <Form.Control
+                type="text"
+                value={endDate}
+                onChange={handleEndDateChange}
+                disabled={fetchOneDay}
+              />
+            </Form.Group>
+            </Col>
+
+            <Col>
+              <Button variant="primary" onClick={fetchData}> Fetch Data</Button>
+            </Col>
+          </Row>
+          <Row>
+            <p>Modify the graph:</p>
+            <Col>
+              <Form.Group>
+                <Form.Label>Node Spacing:</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={nodeSpacing}
+                  onChange={(e) => setNodeSpacing(parseInt(e.target.value))}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col>
+              <Form.Label>Select graph layout:</Form.Label>
+              <Form.Select 
+                aria-label="selectlayout"
+                value={layoutDiagram}
+                onChange={(e)=>setLayoutDiagram(e.target.value)}>
+                <option value="breadthfirst">breadthfirst</option>
+                <option value="circle">circle</option>
+                <option value="grid">grid</option>
+                <option value="random">random</option>
+              </Form.Select>
+          </Col>
+          </Row>
+
+        </div>
+          
+        {/*Cytoscape diagram*/}
         {diagramData.length > 0 && (
           <CytoscapeComponent
             elements={elements}
-            layout={layout}
-            style={{ width: '800px', height: '800px', display: 'block' }}
+            layout={{name: layoutDiagram, //circle, cose?, grid
+            spacingFactor: nodeSpacing,
+            avoidOverlap: true,
+            circle:true
+            }}
+            style={{ width: '100%', height: '800px', display: 'block' }}
             stylesheet={darkModeStyles}
+            
           />
         )}
+        </Card.Body>
+        </Card>
       </>
     );
   } catch (error) {
@@ -215,6 +367,17 @@ export default MatomoStatistics;
 
 
 /*
+
+{selectedEdge.length > 0 && (
+        <div style={{ textAlign: "center", margin: "10px" }}>
+          Selected edge {selectedEdge.id} with source node {selectedEdge.source} and target {selectedEdge.target} has {selectedEdge.label} transitions
+        </div>
+        )}
+
+cy={(cy) => {
+              cy.on("select", handleSelect);
+            }}
+
    const transformedData = [];
 
           data.forEach((object) => {

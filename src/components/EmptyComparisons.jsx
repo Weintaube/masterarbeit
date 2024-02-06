@@ -93,8 +93,8 @@ function EmptyComparisons(){
                         
                         const table = result.payload.thing.data.data;
                         var predicates = result.payload.thing.config.predicates;
-                        console.log("empty comparisons id", item.key);
-                        console.log("empty comparisons", predicates);
+                        //console.log("empty comparisons id", item.key);
+                        //console.log("empty comparisons", predicates);
 
                         if(predicates.length > 0){ //predicates list got customized to the UI view
                             //for the trivial case, that I have a fitting predicate list with UI
@@ -152,7 +152,7 @@ function EmptyComparisons(){
     
                         }
                         
-                        console.log("cell stuff", result);
+                        //console.log("cell stuff", result);
                         
                     }else{
                         missingComps.push(item.key);

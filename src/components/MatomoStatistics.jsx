@@ -222,7 +222,8 @@ function MatomoStatistics() {
         'text-wrap': 'wrap',
         'text-max-width': '10px',
         'color': '#e86161', // Text color for nodes
-        'text-background-color': '#090202'
+        'text-background-color': '#494949',
+        'text-background-opacity': 1,
       }
     },
     {
@@ -235,7 +236,7 @@ function MatomoStatistics() {
         'label': 'data(label)',
         'color': '#e86161', //text color for edge label
         'font-size': '15',
-        'text-background-color': '#F3F1F1',
+        'text-background-color': '#494949',
         'text-opacity': 0, //todo remove if labels should be visible all time
         'text-background-opacity': 0,
       }

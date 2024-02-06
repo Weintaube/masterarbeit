@@ -15,6 +15,9 @@ function MatomoStatistics() {
   const [fetchOneDay, setFetchOneDay] = useState(true); // State for the checkbox
   const [nodeSpacing, setNodeSpacing] = useState(6);
   const [layoutDiagram, setLayoutDiagram] = useState('breadthfirst');
+  const [labelPosition, setLabelPosition] = useState({ top: 0, left: 0 });
+  const [isLabelVisible, setIsLabelVisible] = useState(false);
+  const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState('');  
 
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -218,7 +221,6 @@ function MatomoStatistics() {
         'label': 'data(label)',
         'text-wrap': 'wrap',
         'text-max-width': '10px',
-        'text-overflow-wrap': 'anywhere',
         'color': '#e86161', // Text color for nodes
         'text-background-color': '#090202'
       }
@@ -233,15 +235,16 @@ function MatomoStatistics() {
         'label': 'data(label)',
         'color': '#e86161', //text color for edge label
         'font-size': '15',
-        'text-background-color': '#F3F1F1'
+        'text-background-color': '#F3F1F1',
+        'text-opacity': 0, //todo remove if labels should be visible all time
+        'text-background-opacity': 0,
       }
     },
     {
       selector: ':selected',
       style: {
         'background-color': '#e86161', // Color for selected nodes
-        'line-color': '#e86161', // Color for selected edges'label': 'data(label)',
-        'color': '#FFFFFF', // Text color for edges
+        'line-color': '#e86161', // Color for selected edges'label': 'data(label)
         'target-arrow-color': '#e86161'
       }
     },
@@ -255,17 +258,42 @@ function MatomoStatistics() {
     }
   ];
 
-  const elements2 = [
-    { data: { id: 'node1', label: 'Page 1' } },
-    { data: { id: 'node2', label: 'Page 2' } },
-    { data: { id: 'edge1', source: 'node1', target: 'node2' } }
-  ];
-
-  console.log("MATOMO dummy data", elements2);
+  const handleMouseover = (event) => {
+    const edge = event.target;
+    const label = edge.data('label');
+  
+    // Update the state with the hovered edge label and position
+    setHoveredEdgeLabel(label);
+    setLabelPosition({ top: event.originalEvent.clientY, left: event.originalEvent.clientX });
+    setIsLabelVisible(true);
+  };
+  
+  // Attach an event listener for mouseout on edges
+  const handleMouseout = () => {
+    // Hide the label on mouseout
+    setIsLabelVisible(false);
+  };
 
   try {
     return (
       <>
+      {isLabelVisible && (
+        <div
+          id="edgeLabelDiv"
+          style={{
+            position: 'absolute',
+            top: labelPosition.top,
+            left: labelPosition.left,
+            backgroundColor: 'grey',
+            padding: '5px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
+            zIndex: 999, // Set a high z-index to ensure it's above other elements
+          }}
+        >
+          {hoveredEdgeLabel}
+        </div>
+      )}
       <Card >
             <Card.Body >
                   <Card.Title>Matomo Visitor Data</Card.Title>
@@ -350,7 +378,11 @@ function MatomoStatistics() {
             }}
             style={{ width: '100%', height: '800px', display: 'block' }}
             stylesheet={darkModeStyles}
-            
+            cy={(cy) => {
+              // Attach event listeners to the cy instance
+              cy.on('mouseover', 'edge', handleMouseover);
+              cy.on('mouseout', 'edge', handleMouseout);
+            }}
           />
         )}
         </Card.Body>

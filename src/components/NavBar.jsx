@@ -31,6 +31,7 @@ function NavBar (){
   PREFIX orkgp: <http://orkg.org/orkg/predicate/>
 
   PREFIX dbp: <http://dbpedia.org/>
+  PREFIX dbo: <http://dbpedia.org/ontology/>
 
   PREFIX wikidata: <http://www.wikidata.org/entity/>
   PREFIX wikibase: <http://wikiba.se/ontology#>
@@ -40,16 +41,16 @@ function NavBar (){
     //setEndpointURL(eventKey);
     if (eventKey === "#orkg") {
       setLabel("ORKG");
-      //setEndpointURL("https://orkg.org/api/");
+      //setEndpointURL("https://orkg.org/api/"); todo change
 
     } else if (eventKey === "#dbpedia") {
       setLabel("DBpedia");
-      //setEndpointURL("http://dbpedia.org");
+      setEndpointURL("https://dbpedia.org/sparql");
 
     } else if (eventKey === "#wikidata") {
       setLabel("Wikidata");
       console.log("Wikidata selected");
-      //setEndpointURL("https://query.wikidata.org/sparql");
+      setEndpointURL(" https://query.wikidata.org/sparql");
     }
   }
 

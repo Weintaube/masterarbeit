@@ -27,6 +27,7 @@ import Comments from './components/Comments';
 import MatomoStatistics from './components/MatomoStatistics';
 import ResearchFields from './components/ResearchFields';
 import CommentsDB from './components/CommentsDB';
+import NumberEntities from './components/OtherKGs/NumberEntities';
 
 
 import StatePool from 'state-pool';
@@ -98,9 +99,9 @@ function App() {
       </Tabs>
       
       ): endpointLabel === "DBpedia"?(
-        <>dbpedia</>
+        <><NumberEntities/></>
       ): endpointLabel === "Wikidata"?(
-        <>wikidata</>
+        <><NumberEntities/></>
       ): null}
       
       

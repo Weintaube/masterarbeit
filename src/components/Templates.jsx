@@ -24,7 +24,7 @@ function Templates() {
             
             if (response.ok) {
                 const result = await response.json();
-                const totalPages = 12; // result.totalPages
+                const totalPages = result.totalPages; // result.totalPages
                 setTotalPages(totalPages);
 
                 let updatedResults = [];

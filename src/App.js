@@ -29,11 +29,21 @@ import ResearchFields from './components/ResearchFields';
 import CommentsDB from './components/CommentsDB';
 
 
+import StatePool from 'state-pool';
+import store from './components/storing';
+
+
 function App() {
+  const [endpointLabel] = store.useState("endpointLabel");
+
   return (
     <div  data-bs-theme="dark">
     <Container>
       <NavBar/>
+      {endpointLabel === "ORKG" ? (
+        
+
+      
       <Tabs
       defaultActiveKey="overview"
       id="uncontrolled-tab-example"
@@ -74,9 +84,11 @@ function App() {
       <Tab eventKey="content" title="Content">
         <Row>
           {/*<Col><Contributors/></Col>*/}
-          <Col><Templates/></Col>
-          {/*<Col><OldTemplates/></Col>*/ }
-          <Col><EmptyComparisons/></Col>
+          <Row>
+            <Col><Templates/></Col>
+            {/*<Col><OldTemplates/></Col>*/}
+            <Col><EmptyComparisons/></Col>
+          </Row>
         </Row>
 
       </Tab>
@@ -84,6 +96,12 @@ function App() {
         <CommentsDB></CommentsDB>
       </Tab>
       </Tabs>
+      
+      ): endpointLabel === "DBpedia"?(
+        <>dbpedia</>
+      ): endpointLabel === "Wikidata"?(
+        <>wikidata</>
+      ): null}
       
       
       </Container>

@@ -28,6 +28,7 @@ function OldTemplates(){
 
                 let updatedResults = results.slice();
                 for (let item of templateRows) {
+                    console.log("template id", item.id);
                     try {
                         let instances = await fetch(`https://orkg.org/api/classes/${item.id}/resources/`);
                         

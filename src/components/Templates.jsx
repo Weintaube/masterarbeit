@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { Card } from "react-bootstrap";
 
 function Templates() {
     const [results, setResults] = useState([]);
@@ -46,8 +47,6 @@ function Templates() {
                     const { column, order } = sortCriteria;
                     const valueA = column === 'Template' ? a['label'].toLowerCase() : a[column];
                     const valueB = column === 'Template' ? b['label'].toLowerCase() : b[column];
-
-                    console.log("template compare columns", valueA, valueB);
 
                     if (order === 'asc') {
                         return valueA < valueB ? -1 : 1;
@@ -119,85 +118,92 @@ function Templates() {
 
     return (
         <>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th> Template
-                            <button onClick={() => handleSort('label')}>
-                            {sortCriteria.column === 'label' ? (
-                                sortCriteria.order == 'asc' ? (
-                                <FontAwesomeIcon icon={faArrowUp} />
+        <Card >
+            <Card.Body >
+                <Card.Title>Templates</Card.Title>
+                <p>Here you can statistics about the template usage.</p>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th> Template label
+                                <button onClick={() => handleSort('label')}>
+                                {sortCriteria.column === 'label' ? (
+                                    sortCriteria.order == 'asc' ? (
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                    )
                                 ) : (
-                                <FontAwesomeIcon icon={faArrowDown} />
-                                )
-                            ) : (
-                                <>
-                                <FontAwesomeIcon icon={faArrowUp} />
-                                <FontAwesomeIcon icon={faArrowDown} />
-                                </>
-                            )}
+                                    <>
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                                </button>
+                            </th>
+
+                            <th>
+                            Created by{' '}
+                            <button onClick={() => handleSort('created_by')}>
+                                {sortCriteria.column === 'created_by' ? (
+                                    sortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
                             </button>
                         </th>
-
                         <th>
-                        Created by{' '}
-                        <button onClick={() => handleSort('created_by')}>
-                            {sortCriteria.column === 'created_by' ? (
-                                sortCriteria.order === 'asc' ? (
-                                    <FontAwesomeIcon icon={faArrowUp} />
+                            Number of uses{' '}
+                            <button onClick={() => handleSort('numberOfInstances')}>
+                                {sortCriteria.column === 'numberOfInstances' ? (
+                                    sortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
                                 ) : (
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                )
-                            ) : (
-                                <>
-                                    <FontAwesomeIcon icon={faArrowUp} />
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                </>
-                            )}
-                        </button>
-                    </th>
-                    <th>
-                        Number of uses{' '}
-                        <button onClick={() => handleSort('numberOfInstances')}>
-                            {sortCriteria.column === 'numberOfInstances' ? (
-                                sortCriteria.order === 'asc' ? (
-                                    <FontAwesomeIcon icon={faArrowUp} />
-                                ) : (
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                )
-                            ) : (
-                                <>
-                                    <FontAwesomeIcon icon={faArrowUp} />
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                </>
-                            )}
-                        </button>
-                    </th>
-                        <th>Number of uses by author</th>
-                        <th>Number of uses by others</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentElements.map((template, index) => (
-                        <tr key={index}>
-                            <td><a href={template.uri} target="_blank" rel="noopener noreferrer">{template.label}</a></td>
-                            <td>{template.created_by}</td>
-                            <td>{template.numberOfInstances}</td>
-                            <td></td>
-                            <td></td>
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                            </button>
+                        </th>
+                            <th>Number of uses by author</th>
+                            <th>Number of uses by others</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
-            <Row>
-                <Col>Currently on page {currentPage + 1} of {totalPages}</Col>
-                <Col>
-                    <Pagination>
-                        <Pagination.Prev onClick={handlePageDecrement} disabled={currentPage === 0} />
-                        <Pagination.Next onClick={handlePageIncrement} disabled={currentPage === totalPages - 1} />
-                    </Pagination>
-                </Col>
-            </Row>
+                    </thead>
+                    <tbody>
+                        {currentElements.map((template, index) => (
+                            <tr key={index}>
+                                <td><a href={template.uri} target="_blank" rel="noopener noreferrer">{template.label}</a></td>
+                                <td>{template.created_by}</td>
+                                <td>{template.numberOfInstances}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+                <Row>
+                    <Col>Currently on page {currentPage + 1} of {totalPages}</Col>
+                    <Col>
+                        <Pagination>
+                            <Pagination.Prev onClick={handlePageDecrement} disabled={currentPage === 0} />
+                            <Pagination.Next onClick={handlePageIncrement} disabled={currentPage === totalPages - 1} />
+                        </Pagination>
+                    </Col>
+                </Row>
+
+                </Card.Body>
+            </Card>
         </>
     );
 }

@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { Card } from "react-bootstrap";
 
 
 function EmptyComparisons(){
@@ -84,8 +85,6 @@ function EmptyComparisons(){
                 var item = comparisonIDs[index];
                 try{
                     //then loop through and fetch from simcomp api
-                    //R12251
-                    //geht es nur mit Ids, die aus 5 Zahlen bestehen???
                     const response = await fetch(`https://orkg.org/simcomp/thing/?thing_type=comparison&thing_key=${item.key}`);
                     
                     if(response.ok){
@@ -228,116 +227,122 @@ function EmptyComparisons(){
 
 
     return( <>
-        <Table striped bordered hover>
-        <thead>
-        <tr>
-          <th>Comparison</th>
-          <th>Number of properties
-          <button onClick={() => handleSort('properties')}>
-            {sortCriteria.column === 'properties' ? (
-                sortCriteria.order === 'asc' ? (
-                <FontAwesomeIcon icon={faArrowUp} />
+    <Card >
+        <Card.Body >
+            <Card.Title>Comparisons</Card.Title>
+            <p>Here you can see statistics about the comparison usage.</p>
+            <Table striped bordered hover>
+            <thead>
+            <tr>
+            <th>Comparison label</th>
+            <th>Number of properties
+            <button onClick={() => handleSort('properties')}>
+                {sortCriteria.column === 'properties' ? (
+                    sortCriteria.order === 'asc' ? (
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    ) : (
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    )
                 ) : (
-                <FontAwesomeIcon icon={faArrowDown} />
-                )
-            ) : (
-                <>
-                <FontAwesomeIcon icon={faArrowUp} />
-                <FontAwesomeIcon icon={faArrowDown} />
-                </>
-            )}
-            </button>
-          </th>
-          <th>Number of contributions
-          <button onClick={() => handleSort('contributions')}>
-            {sortCriteria.column === 'contributions' ? (
-                sortCriteria.order === 'asc' ? (
-                <FontAwesomeIcon icon={faArrowUp} />
-                ) : (
-                <FontAwesomeIcon icon={faArrowDown} />
-                )
-            ) : (
-                <>
-                <FontAwesomeIcon icon={faArrowUp} />
-                <FontAwesomeIcon icon={faArrowDown} />
-                </>
-            )}
-            </button>
-          </th>
-          <th> Number of all cells
-            <button onClick={() => handleSort('allCells')}>
-            {sortCriteria.column === 'allCells' ? (
-                sortCriteria.order === 'asc' ? (
-                <FontAwesomeIcon icon={faArrowUp} />
-                ) : (
-                <FontAwesomeIcon icon={faArrowDown} />
-                )
-            ) : (
-                <>
-                <FontAwesomeIcon icon={faArrowUp} />
-                <FontAwesomeIcon icon={faArrowDown} />
-                </>
-            )}
-            </button>
+                    <>
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    </>
+                )}
+                </button>
             </th>
-          <th>Number of empty cells
-          <button onClick={() => handleSort('emptyCells')}>
-            {sortCriteria.column === 'emptyCells' ? (
-                sortCriteria.order === 'asc' ? (
-                <FontAwesomeIcon icon={faArrowUp} />
+            <th>Number of contributions
+            <button onClick={() => handleSort('contributions')}>
+                {sortCriteria.column === 'contributions' ? (
+                    sortCriteria.order === 'asc' ? (
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    ) : (
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    )
                 ) : (
-                <FontAwesomeIcon icon={faArrowDown} />
-                )
-            ) : (
-                <>
-                <FontAwesomeIcon icon={faArrowUp} />
-                <FontAwesomeIcon icon={faArrowDown} />
-                </>
-            )}
-            </button>
-          </th>
-          <th>Percentage of empty cells
-          <button onClick={() => handleSort('percentage')}>
-            {sortCriteria.column === 'percentage' ? (
-                sortCriteria.order === 'asc' ? (
-                <FontAwesomeIcon icon={faArrowUp} />
+                    <>
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    </>
+                )}
+                </button>
+            </th>
+            <th> Number of all cells
+                <button onClick={() => handleSort('allCells')}>
+                {sortCriteria.column === 'allCells' ? (
+                    sortCriteria.order === 'asc' ? (
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    ) : (
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    )
                 ) : (
-                <FontAwesomeIcon icon={faArrowDown} />
-                )
-            ) : (
-                <>
-                <FontAwesomeIcon icon={faArrowUp} />
-                <FontAwesomeIcon icon={faArrowDown} />
-                </>
-            )}
-            </button>
+                    <>
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    </>
+                )}
+                </button>
+                </th>
+            <th>Number of empty cells
+            <button onClick={() => handleSort('emptyCells')}>
+                {sortCriteria.column === 'emptyCells' ? (
+                    sortCriteria.order === 'asc' ? (
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    ) : (
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    )
+                ) : (
+                    <>
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    </>
+                )}
+                </button>
+            </th>
+            <th>Percentage of empty cells
+            <button onClick={() => handleSort('percentage')}>
+                {sortCriteria.column === 'percentage' ? (
+                    sortCriteria.order === 'asc' ? (
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    ) : (
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    )
+                ) : (
+                    <>
+                    <FontAwesomeIcon icon={faArrowUp} />
+                    <FontAwesomeIcon icon={faArrowDown} />
+                    </>
+                )}
+                </button>
 
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-            {currentElements.map((item, index) => (
-                <tr key={index}>
-                    <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
-                    <td> {item.properties} </td>
-                    <td> {item.contributions} </td>
-                    <td> {item.allCells} </td>
-                    <td> {item.emptyCells} </td>
-                    <td> {((item.emptyCells / item.allCells)*100).toFixed(2)}% </td>
-                </tr>
-            )
-            )}
-        </tbody>
-        </Table>
-        <Row>
-            <Col>Currently page {currentPage} from {maxPages} </Col>
-            <Col>
-                <Pagination>
-                    <Pagination.Prev onClick={handlePrevPage}/>
-                    <Pagination.Next onClick={handleNextPage} />
-                </Pagination>     
-            </Col>
-        </Row>
+            </th>
+            </tr>
+            </thead>
+            <tbody>
+                {currentElements.map((item, index) => (
+                    <tr key={index}>
+                        <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a> </td>
+                        <td> {item.properties} </td>
+                        <td> {item.contributions} </td>
+                        <td> {item.allCells} </td>
+                        <td> {item.emptyCells} </td>
+                        <td> {((item.emptyCells / item.allCells)*100).toFixed(2)}% </td>
+                    </tr>
+                )
+                )}
+            </tbody>
+            </Table>
+            <Row>
+                <Col>Currently page {currentPage} from {maxPages} </Col>
+                <Col>
+                    <Pagination>
+                        <Pagination.Prev onClick={handlePrevPage}/>
+                        <Pagination.Next onClick={handleNextPage} />
+                    </Pagination>     
+                </Col>
+            </Row>
+        </Card.Body>
+        </Card>
         </>
 
     )

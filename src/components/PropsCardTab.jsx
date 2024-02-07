@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import { ListGroupItem } from "react-bootstrap";
+import { select } from "d3";
 
 function PropsCardTab(){
     
@@ -226,6 +227,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
     const [duplicatePredicatesWithoutDescr, setDuplicatesWithout] = useState([]);
     const [showDuplicates, setShowDuplicates] = useState([]);
     const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
+    const [selectedRow, setSelectedRow] = useState(null);
 
 
     useEffect(() => {
@@ -300,6 +302,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
       };   
 
     const handleCellClick = (item) => {
+        setSelectedRow(item);
         const content = (
             <ListGroup>
             {item.ids.map(id => (
@@ -387,7 +390,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
             </thead>
             <tbody>
                 {sortedDuplicates.map((item, index) => (
-                <tr key={index}>
+                <tr key={index} onClick={() => handleCellClick(item)}>
                     <td>{item.label}</td>
                     <td>{item.ids.length}</td>
                 </tr>
@@ -395,6 +398,19 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
             </tbody>
         </Table>
         </div>
+
+        {selectedRow && (
+            <div className="listgroupstyle">
+            <p>Selected Predicate IDs for <span style={{ fontWeight: 'bold' }}>{selectedRow.label}</span></p>
+            <ListGroup>
+                {selectedRow.ids.map((id) => (
+                <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
+                    {id}
+                </ListGroup.Item>
+                ))}
+            </ListGroup>
+            </div>
+        )}
         </>
     );
 }

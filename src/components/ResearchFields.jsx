@@ -14,12 +14,12 @@ function ResearchFields(){
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const [researchFieldsCount, setResearchFieldsCount] = useState([]);
-    const [minPapers, setMinPapers] = useState();
+    const [minPapers, setMinPapers] = useState(100);
     const [maxPapers, setMaxPapers] = useState();
     const [searchTerm, setSearchTerm] = useState('');
     const [chartData, setChartData] = useState(
         {
-            labels: researchFieldsCount.slice(0, 20).map((item) => item.research_field),
+            labels: researchFieldsCount.map((item) => item.research_field),
             datasets: [{
                 label: "Number of papers in research field",
                 data: researchFieldsCount.map((item) => item.paper_count), 
@@ -58,7 +58,9 @@ function ResearchFields(){
                     paper_count: element.count.value
                   }));
                 console.log("research fields end result", fieldsResult);
-                setResearchFieldsCount(fieldsResult); //list is sorted
+
+                const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers); //apply filter for first rendering
+                setResearchFieldsCount(filteredData); //list is sorted
             }else{
                 const errorData = await response.json();
                 console.error("Error while requesting SPARQL data:", errorData);
@@ -156,9 +158,9 @@ function ResearchFields(){
             <Card.Body >
                 <Card.Title>Research Fields</Card.Title>
                 <Row>
-                    Currently showing {chartData.labels
+                    <p>Currently showing {chartData.labels
                         ? chartData.labels.length
-                        : 0} of {researchFieldsCount.length} research fields.<br></br>
+                        : 0} of {researchFieldsCount.length} research fields.<br></br></p>
                 </Row>
                 <Row>
                 <Col>

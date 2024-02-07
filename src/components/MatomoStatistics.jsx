@@ -17,8 +17,8 @@ function MatomoStatistics() {
   const [layoutDiagram, setLayoutDiagram] = useState('breadthfirst');
   const [labelPosition, setLabelPosition] = useState({ top: 0, left: 0 });
   const [isLabelVisible, setIsLabelVisible] = useState(false);
-  const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState('');  
-
+  const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
+  
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
   const siteID = 29;
@@ -26,6 +26,10 @@ function MatomoStatistics() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(()=>{
+
+  },[diagramData]);
 
   const fetchData = async () => {
     const matomoParams = {
@@ -211,6 +215,8 @@ function MatomoStatistics() {
 
   // Create elements based on transformed data
   const elements = diagramData.map((node) => ({ data: node.data }));
+
+
   console.log("MATOMO diagram data mapped", elements);
 
   const darkModeStyles = [
@@ -223,7 +229,7 @@ function MatomoStatistics() {
         'text-max-width': '10px',
         'color': '#e86161', // Text color for nodes
         'text-background-color': '#494949',
-        'text-background-opacity': 1,
+        'text-background-opacity': 1  ,
       }
     },
     {

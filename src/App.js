@@ -57,7 +57,6 @@ function App() {
       </Tab>
       <Tab eventKey="visit" title="Users">
         	<MatomoStatistics></MatomoStatistics>
-      Map of visitors path<br/>
       Active members of an observatory in the last 6 months<br/>
       Number of contributors (internal/external)<br/>
       </Tab>
@@ -81,9 +80,6 @@ function App() {
       </Tab>
       <Tab eventKey="actions" title="Actions">
         <CommentsDB></CommentsDB>
-        
-      
-
       </Tab>
       </Tabs>
       

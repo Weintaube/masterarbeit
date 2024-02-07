@@ -1,104 +1,203 @@
-import  {React, useEffect, useState} from "react";
+import { React, useEffect, useState, useMemo } from "react";
 import Table from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
-function Templates(){
-
+function Templates() {
     const [results, setResults] = useState([]);
-    const [pageNo, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
+    const elementsPerPage = 10;
 
-    useEffect(() => {            
+    useEffect(() => {
         fetchData();
-    }, [pageNo]);
+    }, [currentPage, sortCriteria]);
 
-    const fetchData = async()=>{
-        try{
-            const response = await fetch(`https://orkg.org/api/statements/predicate/sh:targetClass?page=${pageNo}&size=10`); //nodeshape (template) sh:targetClass Classwhichdescribestemplate, 436
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`https://orkg.org/api/templates?page=${currentPage}`);
+            
+            if (response.ok) {
+                const result = await response.json();
+                const totalPages = 12; // result.totalPages
+                setTotalPages(totalPages);
 
-            if(response.ok){ 
-                //console.log("Response (OK)",  response)
-                const result = await response.json(); //get a paginated content with 436 elements
-                //console.log("first result", result);
-                let templateRows = result.content.map(some => ({ label: some.subject.label, created_by: some.subject.created_by, id: some.object.id}));
-                //todo add uri to make clickable
-                console.log("Template rows", templateRows);
+                let updatedResults = [];
 
-                let updatedResults = results.slice();
-                for (let item of templateRows) {
-                    try {
-                        let instances = await fetch(`https://orkg.org/api/classes/${item.id}/resources/`);
-                        
-                        if (instances.ok) {
-                            let resourcesInstances = await instances.json();
-                            let numberinstances = resourcesInstances.totalElements;
-                            updatedResults.push({label: item.label, uri: `https://orkg.org/class/${item.id}` , created_by: item.created_by, numberOfInstances: numberinstances});
+                for (let page = 0; page < totalPages; page++) {
+                    const pageResponse = await fetch(`https://orkg.org/api/templates?page=${page}`);
+                    const pageResult = await pageResponse.json();
 
-                        } else {
-                            console.error(`Fehler beim Abrufen der Ressource für ID ${item.id}: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error(`Fehler beim Abrufen der Ressource für ID ${item.id}: ${error}`);
-                    }
+                    updatedResults = updatedResults.concat(pageResult.content.map(template => ({
+                        label: template.label,
+                        created_by: template.created_by,
+                        id: template.id,
+                        uri: `https://orkg.org/template/${template.id}`,
+                        numberOfInstances: 0 // todo change
+                    })));
                 }
-                updatedResults.sort((a, b) => a.numberOfInstances - b.numberOfInstances); //aufsteigend nach number of instances sortieren
-                //für absteigend b-a rechnen, todo mit UI verstellbar machen
-                setResults(updatedResults);
-                console.log("updated Results", updatedResults);
-            }
 
-        }catch(error){
-            console.log(error);
+                // Sort the results based on the current sort criteria
+                updatedResults.sort((a, b) => {
+                    const { column, order } = sortCriteria;
+                    const valueA = column === 'Template' ? a['label'].toLowerCase() : a[column];
+                    const valueB = column === 'Template' ? b['label'].toLowerCase() : b[column];
+
+                    console.log("template compare columns", valueA, valueB);
+
+                    if (order === 'asc') {
+                        return valueA < valueB ? -1 : 1;
+                    } else {
+                        return valueA > valueB ? -1 : 1;
+                    }
+                });
+
+                setResults(updatedResults);
+            } else {
+                console.error(`Error fetching data: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
-    }
+    };
 
     const handlePageIncrement = () => {
-        console.log("page increment");
         setCurrentPage(prevPage => prevPage + 1);
-        setResults([]);
     };
 
     const handlePageDecrement = () => {
-        console.log("page increment");
         setCurrentPage(prevPage => prevPage - 1);
-        setResults([]);
     };
 
-    return(
+    const handleSort = (column) => {
+        setCurrentPage(0);
+        if (sortCriteria.column === column) {
+            setSortCriteria({
+                ...sortCriteria,
+                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            setSortCriteria({
+                column,
+                order: 'asc'
+            });
+        }
+    };
+
+    const indexOfLastElement = (currentPage + 1) * elementsPerPage;
+    const indexOfFirstElement = indexOfLastElement - elementsPerPage;
+    const maxPages = Math.ceil(results.length / elementsPerPage);
+
+    const sortedResults = useMemo(() => {    
+        const compareFunction = (a, b) => {
+            const { column, order } = sortCriteria;
+        
+            if (column === 'label') {
+                const valueA = a[column].toLowerCase();
+                const valueB = b[column].toLowerCase();
+                return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+            } else {
+                const valueA = typeof a[column] === 'string' ? a[column].toLowerCase() : a[column];
+                const valueB = typeof b[column] === 'string' ? b[column].toLowerCase() : b[column];
+        
+                if (order === 'asc') {
+                    return valueA < valueB ? -1 : 1;
+                } else {
+                    return valueA > valueB ? -1 : 1;
+                }
+            }
+        };
+        
+        return [...results].sort(compareFunction);
+    }, [results, sortCriteria]);
+    // Dynamically calculate currentElements based on the current page
+    const currentElements = sortedResults.slice(indexOfFirstElement, indexOfLastElement);
+
+    return (
         <>
-        <Table striped bordered hover>
-        <thead>
-        <tr>
-          <th>Template</th>
-          <th>Created by</th>
-          <th>Number of uses</th>
-          <th>Number of uses by author</th>
-          <th>Number of uses by others</th>
-        </tr>
-        </thead>
-        <tbody>
-            {results.map((item, index) => (
-            <tr key={index}>
-                <td><a href={item.uri} target="_blank" rel="noopener noreferrer">{item.label}</a></td>
-                <td>{item.created_by}</td>
-                <td>{item.numberOfInstances}</td>
-                <td></td>
-                <td></td>
-            </tr>
-        ))}
-        </tbody>
-        </Table>
-        <Row>
-            <Col>Currently page x from y</Col>
-            <Col>
-                <Pagination>
-                    <Pagination.Prev onClick={handlePageDecrement}/>
-                    <Pagination.Next onClick={handlePageIncrement}/>
-                </Pagination>     
-            </Col>
-        </Row>
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th> Template
+                            <button onClick={() => handleSort('label')}>
+                            {sortCriteria.column === 'label' ? (
+                                sortCriteria.order == 'asc' ? (
+                                <FontAwesomeIcon icon={faArrowUp} />
+                                ) : (
+                                <FontAwesomeIcon icon={faArrowDown} />
+                                )
+                            ) : (
+                                <>
+                                <FontAwesomeIcon icon={faArrowUp} />
+                                <FontAwesomeIcon icon={faArrowDown} />
+                                </>
+                            )}
+                            </button>
+                        </th>
+
+                        <th>
+                        Created by{' '}
+                        <button onClick={() => handleSort('created_by')}>
+                            {sortCriteria.column === 'created_by' ? (
+                                sortCriteria.order === 'asc' ? (
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                ) : (
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                )
+                            ) : (
+                                <>
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                </>
+                            )}
+                        </button>
+                    </th>
+                    <th>
+                        Number of uses{' '}
+                        <button onClick={() => handleSort('numberOfInstances')}>
+                            {sortCriteria.column === 'numberOfInstances' ? (
+                                sortCriteria.order === 'asc' ? (
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                ) : (
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                )
+                            ) : (
+                                <>
+                                    <FontAwesomeIcon icon={faArrowUp} />
+                                    <FontAwesomeIcon icon={faArrowDown} />
+                                </>
+                            )}
+                        </button>
+                    </th>
+                        <th>Number of uses by author</th>
+                        <th>Number of uses by others</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {currentElements.map((template, index) => (
+                        <tr key={index}>
+                            <td><a href={template.uri} target="_blank" rel="noopener noreferrer">{template.label}</a></td>
+                            <td>{template.created_by}</td>
+                            <td>{template.numberOfInstances}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+            <Row>
+                <Col>Currently on page {currentPage + 1} of {totalPages}</Col>
+                <Col>
+                    <Pagination>
+                        <Pagination.Prev onClick={handlePageDecrement} disabled={currentPage === 0} />
+                        <Pagination.Next onClick={handlePageIncrement} disabled={currentPage === totalPages - 1} />
+                    </Pagination>
+                </Col>
+            </Row>
         </>
     );
 }

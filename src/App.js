@@ -11,6 +11,7 @@ import ClassCard from './components/ClassCard';
 import ResourcesCard from './components/ResourcesCard';
 import Contributors from './components/Contributors';
 import Templates from './components/Templates';
+import OldTemplates from './components/OldTemplates';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -74,6 +75,7 @@ function App() {
         <Row>
           {/*<Col><Contributors/></Col>*/}
           <Col><Templates/></Col>
+          {/*<Col><OldTemplates/></Col>*/ }
           <Col><EmptyComparisons/></Col>
         </Row>
 

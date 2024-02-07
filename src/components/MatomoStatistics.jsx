@@ -255,14 +255,14 @@ function MatomoStatistics() {
         'target-arrow-color': '#e86161'
       }
     },
-    {
+    /*{
       selector: 'edge:hover',
       style: {
         'label': 'data(label)',
         'text-opacity': 1,
         'text-background-opacity': 1,
       }
-    }
+    }*/
   ];
 
   const handleMouseover = (event) => {

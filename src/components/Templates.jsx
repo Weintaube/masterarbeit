@@ -33,27 +33,23 @@ function Templates() {
                     const pageResponse = await fetch(`https://orkg.org/api/templates?page=${page}`);
                     const pageResult = await pageResponse.json();
 
-                    updatedResults = updatedResults.concat(pageResult.content.map(template => ({
-                        label: template.label,
-                        created_by: template.created_by,
-                        id: template.id,
-                        uri: `https://orkg.org/template/${template.id}`,
-                        numberOfInstances: 0 // todo change
-                    })));
+                    // Sort the results based on the current sort criteria
+                    updatedResults.push(
+                        ...await Promise.all(pageResult.content.map(async template => {
+                        const response = await fetch(`https://orkg.org/api/contributors/${template.created_by}`);
+                        const userResult = await response.json();
+                        //console.log("user result", userResult);
+                    
+                        return {
+                            label: template.label,
+                            created_by: userResult.display_name,
+                            id: template.id,
+                            uri: `https://orkg.org/template/${template.id}`,
+                            numberOfInstances: 0 // todo change
+                        };
+                        }))
+                    );
                 }
-
-                // Sort the results based on the current sort criteria
-                updatedResults.sort((a, b) => {
-                    const { column, order } = sortCriteria;
-                    const valueA = column === 'Template' ? a['label'].toLowerCase() : a[column];
-                    const valueB = column === 'Template' ? b['label'].toLowerCase() : b[column];
-
-                    if (order === 'asc') {
-                        return valueA < valueB ? -1 : 1;
-                    } else {
-                        return valueA > valueB ? -1 : 1;
-                    }
-                });
 
                 setResults(updatedResults);
             } else {
@@ -209,3 +205,30 @@ function Templates() {
 }
 
 export default Templates;
+
+
+/*updatedResults.push(
+    ...await Promise.all(pageResult.content.map(async template => {
+    const response = await fetch(`https://orkg.org/api/user/${template.created_by}`);
+    const userResult = await response.json();
+    console.log("user result", userResult);
+
+    return {
+        label: template.label,
+        created_by: template.created_by,
+        id: template.id,
+        uri: `https://orkg.org/template/${template.id}`,
+        numberOfInstances: 0 // todo change
+    };
+    }))
+);
+}*/
+
+/*
+updatedResults = updatedResults.concat(pageResult.content.map(template => ({
+                        label: template.label,
+                        created_by: template.created_by,
+                        id: template.id,
+                        uri: `https://orkg.org/template/${template.id}`,
+                        numberOfInstances: 0 // todo change
+                    })));*/

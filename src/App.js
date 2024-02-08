@@ -33,6 +33,7 @@ import NumberEntities from './components/OtherKGs/ClassesWithoutDescr';
 import StatePool from 'state-pool';
 import store from './components/storing';
 import ClassesWithoutDescr from './components/OtherKGs/ClassesWithoutDescr';
+import PropertiesWithoutDescr from './components/OtherKGs/PropertiesWithoutDescr';
 
 
 function App() {
@@ -101,12 +102,25 @@ function App() {
       
       ): endpointLabel === "DBpedia"?(
         <>
-          <ClassesWithoutDescr/>
+        <Row>
+          <Col>
+            <ClassesWithoutDescr/>
+          </Col>
+          <Col>
+            <PropertiesWithoutDescr/>
+          </Col>
+        </Row>
         </>
       ): endpointLabel === "Wikidata"?(
         <>
-          Wikidata
-          <ClassesWithoutDescr/>
+        <Row>
+          <Col>
+            <ClassesWithoutDescr/>
+          </Col>
+          <Col>
+            <PropertiesWithoutDescr/>
+          </Col>
+        </Row>
         </>
       ): null}
       

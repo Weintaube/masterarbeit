@@ -59,8 +59,8 @@ function ResearchFields(){
                   }));
                 console.log("research fields end result", fieldsResult);
 
-                const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers); //apply filter for first rendering
-                setResearchFieldsCount(filteredData); //list is sorted
+                //const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers); //apply filter for first rendering
+                setResearchFieldsCount(fieldsResult); //list is sorted
             }else{
                 const errorData = await response.json();
                 console.error("Error while requesting SPARQL data:", errorData);

@@ -8,6 +8,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 
 import "bootstrap/dist/css/bootstrap.min.css"; 
+import { List } from "devextreme-react";
 
 function ClassCardTab(){
     
@@ -162,7 +163,10 @@ function ClassList(){
   //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
   return(
         <ListGroup className="listgroupstyle">
-          {classesList? classesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.label}</ListGroup.Item>): null}
+          {classesList? classesList.map(item => 
+            <ListGroup.Item key={item.key} action href={item.value}>{item.label}
+            </ListGroup.Item>
+            ): null}
       </ListGroup>
   );
 }

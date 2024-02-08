@@ -16,7 +16,7 @@ function NavBar (){
 
   const [testendpoint, setTest, updateTest] = store.useState("testendpoint");
   const [sparqlendpointURL, setEndpointURL, ] = store.useState("sparqlendpointURL");
-  const [endpointLabel, setLabel, ] = store.useState("endpointLabel");
+  const [endpointLabel, setEndpointLabel, ] = store.useState("endpointLabel");
   const [endpointPrefixes, setEndpointPrefixes, ] = store.useState("endpointPrefixes");
 
   setEndpointPrefixes(`
@@ -40,15 +40,15 @@ function NavBar (){
   const handleSelect = (eventKey) => {
     //setEndpointURL(eventKey);
     if (eventKey === "#orkg") {
-      setLabel("ORKG");
-      //setEndpointURL("https://orkg.org/api/"); todo change
+      setEndpointLabel("ORKG");
+      setEndpointURL("https://orkg.org/triplestore"); 
 
     } else if (eventKey === "#dbpedia") {
-      setLabel("DBpedia");
+      setEndpointLabel("DBpedia");
       setEndpointURL("https://dbpedia.org/sparql");
 
     } else if (eventKey === "#wikidata") {
-      setLabel("Wikidata");
+      setEndpointLabel("Wikidata");
       console.log("Wikidata selected");
       setEndpointURL(" https://query.wikidata.org/sparql");
     }

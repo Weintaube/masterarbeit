@@ -300,6 +300,7 @@ function CommentsDB(){
                                     {item.comments.map((comment, commentIndex) => (
                                         <OverlayTrigger
                                             placement="top"
+                                            key={`tooltip-${item.resourceId}-${commentIndex}`}
                                             overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${item.resourceId}-${commentIndex}`}>{comment.description}</Tooltip>}
                                         >
                                             {/* Updated line: Added data-id attribute for identifying the comment */}

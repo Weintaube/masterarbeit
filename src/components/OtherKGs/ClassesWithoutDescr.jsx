@@ -1,23 +1,24 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import StatePool from 'state-pool';
 import store from '../storing';
+import { Card } from 'react-bootstrap';
 
 
-function NumberEntities(){
+function ClassesWithoutDescr(){
 
+    const [percClassesWithout, setClassesWithout] = useState(0);
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");    
     const [endpointLabel, , ] = store.useState("endpointLabel");    
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const dbpediaQuery = encodeURIComponent(`
         ${prefixes}  
-        SELECT ?type (COUNT(?entity) as ?count)
+        SELECT (COUNT(DISTINCT ?class) AS ?numAllClasses) (COUNT(DISTINCT ?classWithoutDescription) AS ?numClassesWithoutDescription)
         WHERE {
-        ?entity rdf:type ?type.
-        FILTER(isURI(?type))
+            ?class rdf:type owl:Class.
+        OPTIONAL {?class rdfs:comment ?description. }
+        BIND(IF(!BOUND(?description), ?class, 0) AS ?classWithoutDescription)
         }
-        GROUP BY ?type
-        ORDER BY DESC(?count)
     `);
 
     const wikidataQuery = encodeURIComponent(`
@@ -45,6 +46,12 @@ function NumberEntities(){
             console.log("Response (OK)",  response)
             const result = await response.json();
             console.log("Endpoint number entities", result);
+            const allClasses = result.results.bindings[0].numAllClasses.value;
+            const classesWithout = result.results.bindings[0].numClassesWithoutDescription.value;
+            console.log(allClasses, classesWithout);
+            const percentageOfWithout = ((classesWithout / allClasses)*100).toFixed(2);
+            console.log("result percentage without description", percentageOfWithout);
+            setClassesWithout(percentageOfWithout);
             
         }else{
             throw new Error("Error while requesting SPARQL data.")
@@ -61,9 +68,15 @@ function NumberEntities(){
 
     return(
     <>
+    <Card key={endpointLabel}>
+        <Card.Body>
+            <Card.Title>Classes</Card.Title>
+            <h3>{percClassesWithout} % </h3>of the classes are missing a description.
+        </Card.Body>
+    </Card>
     </>
     );
 
 }
 
-export default NumberEntities;
+export default ClassesWithoutDescr;

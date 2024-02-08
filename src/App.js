@@ -27,11 +27,12 @@ import Comments from './components/Comments';
 import MatomoStatistics from './components/MatomoStatistics';
 import ResearchFields from './components/ResearchFields';
 import CommentsDB from './components/CommentsDB';
-import NumberEntities from './components/OtherKGs/NumberEntities';
+import NumberEntities from './components/OtherKGs/ClassesWithoutDescr';
 
 
 import StatePool from 'state-pool';
 import store from './components/storing';
+import ClassesWithoutDescr from './components/OtherKGs/ClassesWithoutDescr';
 
 
 function App() {
@@ -99,9 +100,14 @@ function App() {
       </Tabs>
       
       ): endpointLabel === "DBpedia"?(
-        <><NumberEntities/></>
+        <>
+          <ClassesWithoutDescr/>
+        </>
       ): endpointLabel === "Wikidata"?(
-        <><NumberEntities/></>
+        <>
+          Wikidata
+          <ClassesWithoutDescr/>
+        </>
       ): null}
       
       

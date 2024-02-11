@@ -5,6 +5,7 @@ import Card from 'react-bootstrap/Card';
 import { Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import chroma from 'chroma-js';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
@@ -19,6 +20,8 @@ function MatomoStatistics() {
   const [isLabelVisible, setIsLabelVisible] = useState(false);
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
+  const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
+
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -28,9 +31,14 @@ function MatomoStatistics() {
     fetchData();
   }, []);
 
-  useEffect(()=>{
-
-  },[diagramData]);
+  useEffect(() => {
+    const edgeLabels = diagramData
+      .filter(element => element.data.source && element.data.target)
+      .map(edge => parseInt(edge.data.label || 0));
+  
+    const max = Math.max(...edgeLabels);
+    setMaxLabel(max || 0);
+  }, [diagramData]);
 
   const fetchData = async () => {
     const matomoParams = {
@@ -259,6 +267,8 @@ function MatomoStatistics() {
         'text-background-color': '#494949',
         'text-opacity': 0, //todo remove if labels should be visible all time
         'text-background-opacity': 0,
+        'line-color': (ele) => chroma.scale('OrRd').domain([0, maxLabel])(ele.data('label')).hex(),
+        'target-arrow-color': (ele) => chroma.scale('OrRd').domain([0, maxLabel])(ele.data('label')).hex(),
       }
     },
     {
@@ -393,7 +403,7 @@ function MatomoStatistics() {
               <Form.Check
                 type="switch"
                 id="toggleExternalLinks"
-                label="Show External Links"
+                label="Show External Links (how visitors exit the ORKG)"
                 checked={showExternalLinks}
                 onChange={toggleExternalLinks}
               />

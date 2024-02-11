@@ -43,6 +43,7 @@ function Templates() {
                         return {
                             label: template.label,
                             created_by: userResult.display_name,
+                            user_uri: `https://orkg.org/u/${template.created_by}`,
                             id: template.id,
                             uri: `https://orkg.org/template/${template.id}`,
                             numberOfInstances: 0 // todo change
@@ -180,7 +181,7 @@ function Templates() {
                         {currentElements.map((template, index) => (
                             <tr key={index}>
                                 <td><a href={template.uri} target="_blank" rel="noopener noreferrer">{template.label}</a></td>
-                                <td>{template.created_by}</td>
+                                <td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.created_by}</a></td>
                                 <td>{template.numberOfInstances}</td>
                                 <td></td>
                                 <td></td>

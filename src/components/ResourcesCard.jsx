@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function ResourcesCard(){
     
-    const [endpointURL, , ] = store.useState("endpointURL");
+    const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [endpointLabel, , ] = store.useState("endpointLabel");
     const [resourcesWithoutDescr, setResourcesWithout] = useState(0);
     const [type, setType] = useState(`orkgc:Resource`);
@@ -39,7 +39,7 @@ function ResourcesCard(){
             }  
             `);
         
-      const url = `http://localhost:5000/sparql?url=${endpointURL}&query=${query}`;
+      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
       //const url2 = `https://orkg.org/triplestore?query=`+query;  
       const response = await fetch(url);
       //const response = await fetch('https://orkg.org/api/statements/');

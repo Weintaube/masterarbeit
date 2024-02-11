@@ -18,6 +18,7 @@ function MatomoStatistics() {
   const [labelPosition, setLabelPosition] = useState({ top: 0, left: 0 });
   const [isLabelVisible, setIsLabelVisible] = useState(false);
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
+  const [showExternalLinks, setShowExternalLinks] = useState(true);
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -75,15 +76,23 @@ function MatomoStatistics() {
 
       data.forEach((object) => {
         const actionsData = object.actionDetails;
+        console.log("matomo action data", actionsData);
 
         for (let i = 0; i < actionsData.length - 1; i++) {
           let currentAction = actionsData[i].subtitle;
           let nextAction = actionsData[i + 1].subtitle;
+          console.log("matomo current action", currentAction);
+          console.log("matomo next action", nextAction);
+
+          if (currentAction === null || nextAction === null) {
+            continue;
+          }
 
           let currentActionPart = currentAction;
           let nextActionPart = nextAction;
 
           const regex = /orkg\.org\/([^\/]+)/;
+          const regexContribution = /^contribution-editor/;
           const currentMatch = currentAction.match(regex);
           const nextMatch = nextAction.match(regex);
 
@@ -93,6 +102,8 @@ function MatomoStatistics() {
             currentActionPart = currentMatch[1];
             if (currentActionPart === "u") {
               currentActionPart = "user";
+            }else if(currentActionPart.match(regexContribution)){
+              currentActionPart = "contribution editor";
             }
           }
 
@@ -102,7 +113,10 @@ function MatomoStatistics() {
             nextActionPart = nextMatch[1];
             if (nextActionPart === "u") {
               nextActionPart = "user";
+            }else if(nextActionPart.match(regexContribution)){
+              nextActionPart = "contribution editor";
             }
+
           }
 
           if (currentActionPart !== nextActionPart) {
@@ -217,7 +231,7 @@ function MatomoStatistics() {
   const elements = diagramData.map((node) => ({ data: node.data }));
 
 
-  console.log("MATOMO diagram data mapped", elements);
+  //console.log("MATOMO diagram data mapped", elements);
 
   const darkModeStyles = [
     {
@@ -255,14 +269,12 @@ function MatomoStatistics() {
         'target-arrow-color': '#e86161'
       }
     },
-    /*{
-      selector: 'edge:hover',
+    {
+      selector: '.external-node',
       style: {
-        'label': 'data(label)',
-        'text-opacity': 1,
-        'text-background-opacity': 1,
+        display: 'none', // Make external nodes invisible
       }
-    }*/
+    },
   ];
 
   const handleMouseover = (event) => {
@@ -279,6 +291,11 @@ function MatomoStatistics() {
   const handleMouseout = () => {
     // Hide the label on mouseout
     setIsLabelVisible(false);
+  };
+
+  const toggleExternalLinks = () => {
+    setShowExternalLinks(!showExternalLinks);
+    console.log("toggle external/internal links");
   };
 
   try {
@@ -346,7 +363,7 @@ function MatomoStatistics() {
             </Col>
           </Row>
           <Row>
-            <p>Modify the graph:</p>
+            <h5>Modify the graph:</h5>
             <Col>
               <Form.Group>
                 <Form.Label>Node Spacing:</Form.Label>
@@ -371,6 +388,17 @@ function MatomoStatistics() {
               </Form.Select>
           </Col>
           </Row>
+          <Row>
+            <Col>
+              <Form.Check
+                type="switch"
+                id="toggleExternalLinks"
+                label="Show External Links"
+                checked={showExternalLinks}
+                onChange={toggleExternalLinks}
+              />
+            </Col>
+          </Row>
 
         </div>
           
@@ -389,6 +417,17 @@ function MatomoStatistics() {
               // Attach event listeners to the cy instance
               cy.on('mouseover', 'edge', handleMouseover);
               cy.on('mouseout', 'edge', handleMouseout);
+
+              cy.nodes().forEach((node) =>{
+                const regexExternal = /^(https?:\/\/|http:\/\/)/;
+                if(node.data('label').match(regexExternal)){
+                  if (showExternalLinks) {
+                    node.removeClass('external-node');
+                  } else {
+                    node.addClass('external-node');
+                  }
+                }
+              })
             }}
           />
         )}

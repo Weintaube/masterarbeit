@@ -400,8 +400,10 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
         </div>
 
         {selectedRow && (
+            <>
+             <p>Selected Predicate IDs for <span style={{ fontWeight: 'bold' }}>{selectedRow.label}</span></p>
             <div className="listgroupstyle">
-            <p>Selected Predicate IDs for <span style={{ fontWeight: 'bold' }}>{selectedRow.label}</span></p>
+           
             <ListGroup>
                 {selectedRow.ids.map((id) => (
                 <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
@@ -410,6 +412,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
                 ))}
             </ListGroup>
             </div>
+            </>
         )}
         </>
     );

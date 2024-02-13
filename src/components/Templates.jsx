@@ -226,8 +226,10 @@ function Templates() {
                 </div>
                 </div>
                 {selectedAuthor && (
-                    <div className="template-details">
-                        <h5>Templates by {selectedAuthor}</h5>
+                    <>
+                    <p>Templates by <span style={{ fontWeight: 'bold' }}>{selectedAuthor}</span> ({selectedAuthorTemplates.length})</p>
+                    <div className="templatelist listgroupcursor">
+                    <div className="table-container"> 
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
@@ -267,6 +269,8 @@ function Templates() {
                             </tbody>
                         </Table>
                     </div>
+                    </div>
+                    </>
                 )}
                 </Card.Body>
             </Card>

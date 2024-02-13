@@ -1,19 +1,27 @@
 import {React, useEffect} from "react";
 
-function Contributors(){
+function Observatories(){
+
+    const [rawObservatories, setRawObservatories] = useState([]);
 
     useEffect(() => {            
         fetchData();
     }, []);
 
+    useEffect(()=>{
+        
+
+
+    },[rawObservatories]);
+
     const fetchData = async()=>{
         try{
-            const response = await fetch('https://orkg.org/api/contributors/2e5f7de1-42e8-4f8a-97b2-f9880daa6a9a');
+            const response = await fetch('https://orkg.org/api/observatories/');
             if(response.ok){ //Anfrage erfolgreich Statuscode 200
                 console.log("Response (OK)",  response)
                 const result = await response.json();
-                console.log("Contributors");
-                console.log(result);
+                console.log("Observatories", result);
+                setRawObservatories(result);
 
             }else{
                 console.log("Error while fetching comparisons.");
@@ -29,4 +37,4 @@ function Contributors(){
     );
 }
 
-export default Contributors;
+export default Observatories;

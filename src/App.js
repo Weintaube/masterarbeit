@@ -9,7 +9,7 @@ import NavBar from './components/NavBar';
 import PropsCard from './components/PropsCard';
 import ClassCard from './components/ClassCard';
 import ResourcesCard from './components/ResourcesCard';
-import Contributors from './components/Contributors';
+import Observatories from './components/Observatories';
 import Templates from './components/Templates';
 import OldTemplates from './components/OldTemplates';
 import Nav from 'react-bootstrap/Nav';
@@ -73,6 +73,9 @@ function App() {
         	<MatomoStatistics></MatomoStatistics>
       Active members of an observatory in the last 6 months<br/>
       Number of contributors (internal/external)<br/>
+      
+        <Col><Templates/></Col>
+        {/*<Col><Observatories/></Col>*/}
       </Tab>
       <Tab eventKey="insights" title="Insights">
         <ResearchFields></ResearchFields>
@@ -88,7 +91,6 @@ function App() {
         <Row>
           {/*<Col><Contributors/></Col>*/}
           <Row>
-            <Col><Templates/></Col>
             {/*<Col><OldTemplates/></Col>*/}
             <Col><EmptyComparisons/></Col>
           </Row>

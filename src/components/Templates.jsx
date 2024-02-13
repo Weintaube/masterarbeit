@@ -50,13 +50,13 @@ function Templates() {
                 for (let page = 0; page < totalPages; page++) {
                     const pageResponse = await fetch(`https://orkg.org/api/templates?page=${page}`);
                     const pageResult = await pageResponse.json();
+                    console.log("template page", pageResult);
 
                     // Sort the results based on the current sort criteria
                     updatedResults.push(
                         ...await Promise.all(pageResult.content.map(async template => {
                         const response = await fetch(`https://orkg.org/api/contributors/${template.created_by}`);
                         const userResult = await response.json();
-                        //console.log("user result", userResult);
                     
                         return {
                             label: template.label,
@@ -64,7 +64,7 @@ function Templates() {
                             user_uri: `https://orkg.org/u/${template.created_by}`,
                             id: template.id,
                             uri: `https://orkg.org/template/${template.id}`,
-                            numberOfInstances: 0 // todo change
+                            created_at: template.created_at
                         };
                         }))
                     );
@@ -79,19 +79,28 @@ function Templates() {
         }
     };
 
+    function formatDateString(inputDateString) {
+        const date = new Date(inputDateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+    
+        return `${day}-${month}-${year}`;
+    }
+
     const countTemplatesByAuthor=() =>{
         let countTemplates = [];
         console.log("template results", results);
         results.forEach(item =>{
             const alreadyAuthor = countTemplates.find((author) => author.author === item.created_by);
             if(alreadyAuthor){
-                alreadyAuthor.templatesCreated.push({label: item.label, id: item.id, uri: item.uri});
+                alreadyAuthor.templatesCreated.push({label: item.label, id: item.id, uri: item.uri, created_at: item.created_at});
             }else{
                 countTemplates.push(
                     {
                         author: item.created_by,
                         user_uri: item.user_uri,
-                        templatesCreated: [{label: item.label, id: item.id, uri: item.uri}]
+                        templatesCreated: [{label: item.label, id: item.id, uri: item.uri, created_at: item.created_at,}]
                     }
                 );
             }
@@ -118,12 +127,18 @@ function Templates() {
         }
     };
 
-    const handleSortTemplate = () => {
-        setSortCriteriaTemplates({
-            ...sortCriteriaTemplates,
-            column: 'template',
-            order: sortCriteriaTemplates.order === 'asc' ? 'desc' : 'asc'
-        });
+    const handleSortTemplate = (column) => {
+        if (sortCriteriaTemplates.column === column) {
+            setSortCriteriaTemplates({
+                ...sortCriteriaTemplates,
+                order: sortCriteriaTemplates.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            setSortCriteriaTemplates({
+                column,
+                order: 'asc'
+            });
+        }
     };
 
     const sortedResults = useMemo(() => {   
@@ -147,7 +162,6 @@ function Templates() {
         
         return [...templatesByAuthor].sort(compareFunction);
     }, [templatesByAuthor, sortCriteria]);
-    // Dynamically calculate currentElements based on the current page
 
     const sortedTemplates = useMemo(()=>{
         const compareFunction = (a, b) => {
@@ -160,7 +174,13 @@ function Templates() {
                 const valueA = a.label.toLowerCase();
                 const valueB = b.label.toLowerCase();
                 return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-            } 
+            } else if(column == 'date'){
+                const dateA = new Date(a.created_at).getTime() || 0;
+                const dateB = new Date(b.created_at).getTime() || 0;
+                console.log("templates", new Date(a.created_at), new Date(b.created_at), order);
+
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            }
         };
         
         return [...selectedAuthorTemplates].sort(compareFunction);
@@ -174,69 +194,35 @@ function Templates() {
             <Card.Body >
                 <Card.Title>Templates</Card.Title>
                 <p>Here you can statistics about the template usage.</p>
-                <div className="templatelist listgroupcursor">
-                <div className="table-container">
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                        <th>
-                            Created by{' '}
-                            <button onClick={() => handleSort('author')}>
-                                {sortCriteria.column === 'author' ? (
-                                    sortCriteria.order === 'asc' ? (
-                                        <FontAwesomeIcon icon={faArrowUp} />
+
+                <Row>
+                    <Col>
+                    <div className="templatelist listgroupcursor">
+                    <div className="table-container">
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                            <th>
+                                Created by{' '}
+                                <button onClick={() => handleSort('author')}>
+                                    {sortCriteria.column === 'author' ? (
+                                        sortCriteria.order === 'asc' ? (
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                        )
                                     ) : (
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    )
-                                ) : (
-                                    <>
-                                        <FontAwesomeIcon icon={faArrowUp} />
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    </>
-                                )}
-                            </button>
-                        </th>
-                        <th> Templates created
-                                <button onClick={() => handleSort('count')}>
-                                {sortCriteria.column === 'count' ? (
-                                    sortCriteria.order == 'asc' ? (
-                                    <FontAwesomeIcon icon={faArrowUp} />
-                                    ) : (
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                    )
-                                ) : (
-                                    <>
-                                    <FontAwesomeIcon icon={faArrowUp} />
-                                    <FontAwesomeIcon icon={faArrowDown} />
-                                    </>
-                                )}
+                                        <>
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                        </>
+                                    )}
                                 </button>
                             </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedResults.map((template, index) => (
-                            <tr key={index} onClick={()=> handleAuthorClick(template.author)}>
-                                <td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.author}</a></td>
-                                <td>{template.templatesCreated.length}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-                </div>
-                </div>
-                {selectedAuthor && (
-                    <>
-                    <p>Templates by <span style={{ fontWeight: 'bold' }}>{selectedAuthor}</span> ({selectedAuthorTemplates.length})</p>
-                    <div className="templatelist listgroupcursor">
-                    <div className="table-container"> 
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr>
-                                    <th>Template Label
-                                    <button onClick={() => handleSortTemplate()}>
-                                    {sortCriteriaTemplates.column === 'template' ? (
-                                        sortCriteriaTemplates.order == 'asc' ? (
+                            <th> Templates created
+                                    <button onClick={() => handleSort('count')}>
+                                    {sortCriteria.column === 'count' ? (
+                                        sortCriteria.order == 'asc' ? (
                                         <FontAwesomeIcon icon={faArrowUp} />
                                         ) : (
                                         <FontAwesomeIcon icon={faArrowDown} />
@@ -247,31 +233,90 @@ function Templates() {
                                         <FontAwesomeIcon icon={faArrowDown} />
                                         </>
                                     )}
-                                </button>
-                                    </th>
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sortedResults.map((template, index) => (
+                                <tr key={index} onClick={()=> handleAuthorClick(template.author)}>
+                                    <td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.author}</a></td>
+                                    <td>{template.templatesCreated.length}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {/* Map over the templates for the selected author */}
-                                {sortedTemplates.map((template, index) => (
-                                        <tr key={index}>
-                                            <td>
-                                                <a
-                                                    href={template.uri}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {template.label}
-                                                </a>
+                            ))}
+                        </tbody>
+                    </Table>
+                    </div>
+                    </div>
+                    </Col>
+
+                    <Col>
+                        {selectedAuthor && (
+                        <>
+                        <p>Templates by <span style={{ fontWeight: 'bold' }}>{selectedAuthor}</span> ({selectedAuthorTemplates.length})</p>
+                        <div className="templatelist listgroupcursor">
+                        <div className="table-container"> 
+                            <Table striped bordered hover>
+                                <thead>
+                                    <tr>
+                                        <th>Template Label
+                                        <button onClick={() => handleSortTemplate('template')}>
+                                        {sortCriteriaTemplates.column === 'template' ? (
+                                            sortCriteriaTemplates.order == 'asc' ? (
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            ) : (
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                            )
+                                        ) : (
+                                            <>
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                            </>
+                                        )}
+                                        </button>
+                                        </th>
+                                        <th>Created at
+                                        <button onClick={() => handleSortTemplate('date')}>
+                                        {sortCriteriaTemplates.column === 'date' ? (
+                                            sortCriteriaTemplates.order == 'asc' ? (
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            ) : (
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                            )
+                                        ) : (
+                                            <>
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            <FontAwesomeIcon icon={faArrowDown} />
+                                            </>
+                                        )}
+                                        </button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {/* Map over the templates for the selected author */}
+                                    {sortedTemplates.map((template, index) => (
+                                            <tr key={index}>
+                                                <td>
+                                                    <a
+                                                        href={template.uri}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {template.label}
+                                                    </a>
                                                 </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </Table>
-                    </div>
-                    </div>
-                    </>
-                )}
+                                                <td>{formatDateString(template.created_at)}</td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                        </div>
+                        </>
+                        )}
+                    </Col>
+                </Row>
                 </Card.Body>
             </Card>
         </>

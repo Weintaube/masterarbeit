@@ -10,7 +10,7 @@ import {OverlayTrigger, Tooltip} from "react-bootstrap";
 
 function Comments(){
     const [commentList, setCommentList, ] = useState([]); //list for keeping the ids which have a list of comments attached
-    const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison", "Statement"]); //todo think about how the statement can be implemented
+    const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison"]); //todo think about how the statement can be implemented
     const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
     const [activeTab, setActiveTab] = useState("table");

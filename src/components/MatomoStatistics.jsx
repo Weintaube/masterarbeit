@@ -89,8 +89,8 @@ function MatomoStatistics() {
         for (let i = 0; i < actionsData.length - 1; i++) {
           let currentAction = actionsData[i].subtitle;
           let nextAction = actionsData[i + 1].subtitle;
-          console.log("matomo current action", currentAction);
-          console.log("matomo next action", nextAction);
+          //console.log("matomo current action", currentAction);
+          //console.log("matomo next action", nextAction);
 
           if (currentAction === null || nextAction === null) {
             continue;

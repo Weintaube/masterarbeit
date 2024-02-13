@@ -13,6 +13,18 @@
   overflow: auto;
 }
 
+.templatelist{
+  max-height: 450px;
+  max-width: 400px;
+  overflow: auto;
+}
+
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .btn-accuracy-questioned {
   background-color: #B67207 !important; /* Set the background color for Accuracy questioned type */
   color: #FFFFFF !important; /* Set the text color for Accuracy questioned type */

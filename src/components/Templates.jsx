@@ -6,17 +6,35 @@ import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Card } from "react-bootstrap";
+import { count } from "d3";
 
 function Templates() {
     const [results, setResults] = useState([]);
+    const [templatesByAuthor, setTemplatesByAuthor] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' });
-    const elementsPerPage = 10;
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' }); 
+    const [sortCriteriaTemplates, setSortCriteriaTemplates] = useState({ column: '', order: 'asc' }); 
+    const [selectedAuthor, setSelectedAuthor] = useState(null);
+    const [selectedAuthorTemplates, setSelectedAuthorTemplates] = useState([]);
 
     useEffect(() => {
         fetchData();
     }, [currentPage, sortCriteria]);
+
+    useEffect(()=>{
+        console.log("template use effect");
+        countTemplatesByAuthor();
+    },[results]);
+
+    useEffect(() => {
+        // Update selectedAuthorTemplates when the selectedAuthor changes
+        if (selectedAuthor) {
+            setSelectedAuthorTemplates(
+                templatesByAuthor.find((author) => author.author === selectedAuthor)?.templatesCreated || []
+            );
+        }
+    }, [selectedAuthor, templatesByAuthor]);
 
     const fetchData = async () => {
         try {
@@ -42,7 +60,7 @@ function Templates() {
                     
                         return {
                             label: template.label,
-                            created_by: userResult.display_name,
+                            created_by: userResult.display_name == null? "ORKG internal": userResult.display_name,
                             user_uri: `https://orkg.org/u/${template.created_by}`,
                             id: template.id,
                             uri: `https://orkg.org/template/${template.id}`,
@@ -61,16 +79,32 @@ function Templates() {
         }
     };
 
-    const handlePageIncrement = () => {
-        setCurrentPage(prevPage => prevPage + 1);
-    };
+    const countTemplatesByAuthor=() =>{
+        let countTemplates = [];
+        console.log("template results", results);
+        results.forEach(item =>{
+            const alreadyAuthor = countTemplates.find((author) => author.author === item.created_by);
+            if(alreadyAuthor){
+                alreadyAuthor.templatesCreated.push({label: item.label, id: item.id, uri: item.uri});
+            }else{
+                countTemplates.push(
+                    {
+                        author: item.created_by,
+                        user_uri: item.user_uri,
+                        templatesCreated: [{label: item.label, id: item.id, uri: item.uri}]
+                    }
+                );
+            }
+        })
+        console.log("templates count", countTemplates);
+        setTemplatesByAuthor(countTemplates);
+    }
 
-    const handlePageDecrement = () => {
-        setCurrentPage(prevPage => prevPage - 1);
+    const handleAuthorClick = (author) => {
+        setSelectedAuthor(author);
     };
 
     const handleSort = (column) => {
-        setCurrentPage(0);
         if (sortCriteria.column === column) {
             setSortCriteria({
                 ...sortCriteria,
@@ -84,34 +118,55 @@ function Templates() {
         }
     };
 
-    const indexOfLastElement = (currentPage + 1) * elementsPerPage;
-    const indexOfFirstElement = indexOfLastElement - elementsPerPage;
-    const maxPages = Math.ceil(results.length / elementsPerPage);
+    const handleSortTemplate = () => {
+        setSortCriteriaTemplates({
+            ...sortCriteriaTemplates,
+            column: 'template',
+            order: sortCriteriaTemplates.order === 'asc' ? 'desc' : 'asc'
+        });
+    };
 
-    const sortedResults = useMemo(() => {    
+    const sortedResults = useMemo(() => {   
+        if (templatesByAuthor.length === 0) {
+            return templatesByAuthor; // Return unsorted array if it's empty
+        }
         const compareFunction = (a, b) => {
             const { column, order } = sortCriteria;
         
-            if (column === 'label') {
+            if (column === 'author' ) {
                 const valueA = a[column].toLowerCase();
                 const valueB = b[column].toLowerCase();
                 return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-            } else {
-                const valueA = typeof a[column] === 'string' ? a[column].toLowerCase() : a[column];
-                const valueB = typeof b[column] === 'string' ? b[column].toLowerCase() : b[column];
-        
-                if (order === 'asc') {
-                    return valueA < valueB ? -1 : 1;
-                } else {
-                    return valueA > valueB ? -1 : 1;
-                }
+            } else if(column == 'count') {
+                const valueA = a.templatesCreated.length;
+                const valueB = b.templatesCreated.length;
+
+                return order === 'asc' ? valueA - valueB : valueB - valueA;
             }
         };
         
-        return [...results].sort(compareFunction);
-    }, [results, sortCriteria]);
+        return [...templatesByAuthor].sort(compareFunction);
+    }, [templatesByAuthor, sortCriteria]);
     // Dynamically calculate currentElements based on the current page
-    const currentElements = sortedResults.slice(indexOfFirstElement, indexOfLastElement);
+
+    const sortedTemplates = useMemo(()=>{
+        const compareFunction = (a, b) => {
+            if (selectedAuthorTemplates.length === 0) {
+                return selectedAuthorTemplates; // Return unsorted array if it's empty
+            }
+            const { column, order } = sortCriteriaTemplates;
+        
+            if (column === 'template' ) {
+                const valueA = a.label.toLowerCase();
+                const valueB = b.label.toLowerCase();
+                return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+            } 
+        };
+        
+        return [...selectedAuthorTemplates].sort(compareFunction);
+    }, [selectedAuthorTemplates, sortCriteriaTemplates])
+ 
+  
 
     return (
         <>
@@ -119,12 +174,31 @@ function Templates() {
             <Card.Body >
                 <Card.Title>Templates</Card.Title>
                 <p>Here you can statistics about the template usage.</p>
+                <div className="templatelist listgroupcursor">
+                <div className="table-container">
                 <Table striped bordered hover>
                     <thead>
                         <tr>
-                            <th> Template label
-                                <button onClick={() => handleSort('label')}>
-                                {sortCriteria.column === 'label' ? (
+                        <th>
+                            Created by{' '}
+                            <button onClick={() => handleSort('author')}>
+                                {sortCriteria.column === 'author' ? (
+                                    sortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                            </button>
+                        </th>
+                        <th> Templates created
+                                <button onClick={() => handleSort('count')}>
+                                {sortCriteria.column === 'count' ? (
                                     sortCriteria.order == 'asc' ? (
                                     <FontAwesomeIcon icon={faArrowUp} />
                                     ) : (
@@ -138,67 +212,62 @@ function Templates() {
                                 )}
                                 </button>
                             </th>
-
-                            <th>
-                            Created by{' '}
-                            <button onClick={() => handleSort('created_by')}>
-                                {sortCriteria.column === 'created_by' ? (
-                                    sortCriteria.order === 'asc' ? (
-                                        <FontAwesomeIcon icon={faArrowUp} />
-                                    ) : (
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    )
-                                ) : (
-                                    <>
-                                        <FontAwesomeIcon icon={faArrowUp} />
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    </>
-                                )}
-                            </button>
-                        </th>
-                        <th>
-                            Number of uses{' '}
-                            <button onClick={() => handleSort('numberOfInstances')}>
-                                {sortCriteria.column === 'numberOfInstances' ? (
-                                    sortCriteria.order === 'asc' ? (
-                                        <FontAwesomeIcon icon={faArrowUp} />
-                                    ) : (
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    )
-                                ) : (
-                                    <>
-                                        <FontAwesomeIcon icon={faArrowUp} />
-                                        <FontAwesomeIcon icon={faArrowDown} />
-                                    </>
-                                )}
-                            </button>
-                        </th>
-                            <th>Number of uses by author</th>
-                            <th>Number of uses by others</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentElements.map((template, index) => (
-                            <tr key={index}>
-                                <td><a href={template.uri} target="_blank" rel="noopener noreferrer">{template.label}</a></td>
-                                <td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.created_by}</a></td>
-                                <td>{template.numberOfInstances}</td>
-                                <td></td>
-                                <td></td>
+                        {sortedResults.map((template, index) => (
+                            <tr key={index} onClick={()=> handleAuthorClick(template.author)}>
+                                <td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.author}</a></td>
+                                <td>{template.templatesCreated.length}</td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
-                <Row>
-                    <Col>Currently on page {currentPage + 1} of {totalPages}</Col>
-                    <Col>
-                        <Pagination>
-                            <Pagination.Prev onClick={handlePageDecrement} disabled={currentPage === 0} />
-                            <Pagination.Next onClick={handlePageIncrement} disabled={currentPage === totalPages - 1} />
-                        </Pagination>
-                    </Col>
-                </Row>
-
+                </div>
+                </div>
+                {selectedAuthor && (
+                    <div className="template-details">
+                        <h5>Templates by {selectedAuthor}</h5>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Template Label
+                                    <button onClick={() => handleSortTemplate()}>
+                                    {sortCriteriaTemplates.column === 'template' ? (
+                                        sortCriteriaTemplates.order == 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                        )
+                                    ) : (
+                                        <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                        </>
+                                    )}
+                                </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* Map over the templates for the selected author */}
+                                {sortedTemplates.map((template, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <a
+                                                    href={template.uri}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {template.label}
+                                                </a>
+                                                </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+                    </div>
+                )}
                 </Card.Body>
             </Card>
         </>

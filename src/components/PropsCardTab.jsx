@@ -366,6 +366,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
         </Form>
         There are {showDuplicates.length} duplicate predicates. 
         <div className="listgroupstyle listgroupcursor">
+        <div className="table-container">
         <Table bordered hover >
             <thead>
             <tr>
@@ -397,6 +398,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
             ))}
             </tbody>
         </Table>
+        </div>
         </div>
 
         {selectedRow && (

@@ -6,7 +6,6 @@ import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Card } from "react-bootstrap";
-import { count } from "d3";
 
 function Templates() {
     const [results, setResults] = useState([]);
@@ -23,7 +22,6 @@ function Templates() {
     }, [currentPage, sortCriteria]);
 
     useEffect(()=>{
-        console.log("template use effect");
         countTemplatesByAuthor();
     },[results]);
 
@@ -50,7 +48,6 @@ function Templates() {
                 for (let page = 0; page < totalPages; page++) {
                     const pageResponse = await fetch(`https://orkg.org/api/templates?page=${page}`);
                     const pageResult = await pageResponse.json();
-                    console.log("template page", pageResult);
 
                     // Sort the results based on the current sort criteria
                     updatedResults.push(
@@ -105,7 +102,6 @@ function Templates() {
                 );
             }
         })
-        console.log("templates count", countTemplates);
         setTemplatesByAuthor(countTemplates);
     }
 
@@ -177,7 +173,6 @@ function Templates() {
             } else if(column == 'date'){
                 const dateA = new Date(a.created_at).getTime() || 0;
                 const dateB = new Date(b.created_at).getTime() || 0;
-                console.log("templates", new Date(a.created_at), new Date(b.created_at), order);
 
                 return order === 'asc' ? dateA - dateB : dateB - dateA;
             }

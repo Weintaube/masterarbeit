@@ -164,7 +164,10 @@ function ClassList(){
   return(
         <ListGroup className="listgroupstyle">
           {classesList? classesList.map(item => 
-            <ListGroup.Item key={item.key} action href={item.value}>{item.label}
+            <ListGroup.Item key={item.key} 
+                action href={item.value}
+                target="_blank"
+                rel="noopener noreferrer">{item.label}
             </ListGroup.Item>
             ): null}
       </ListGroup>

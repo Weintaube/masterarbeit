@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Card } from "react-bootstrap";
 
 
 function StatementsPaper(){
@@ -26,6 +27,12 @@ function StatementsPaper(){
 
     return(
         <>
+        <Card>
+            <Card.Title>Statements per Paper</Card.Title>
+                <Card.Body>
+                    Test124
+                </Card.Body>
+        </Card>
         </>
     );
 

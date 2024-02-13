@@ -94,6 +94,9 @@ function App() {
             {/*<Col><OldTemplates/></Col>*/}
             <Col><EmptyComparisons/></Col>
           </Row>
+          <Row>
+            <Col><StatementsPaper/></Col>
+          </Row>
         </Row>
 
       </Tab>

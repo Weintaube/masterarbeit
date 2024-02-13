@@ -103,7 +103,10 @@ function ResourcesCardTab(){
                 <Tab eventKey="unlabeled" title="Unlabeled resources">
                     {(unlabeledResources.length/allResources.length * 100).toFixed(2)}% ({unlabeledResources.length}) of the resources do not have a label.
                     <ListGroup className="listgroupstyle">
-                        {unlabeledResources? unlabeledResources.map((item, key) => <ListGroup.Item key={key} action href={item.value}>{item.id}</ListGroup.Item>): null }
+                        {unlabeledResources? unlabeledResources.map((item, key) => <ListGroup.Item key={key} 
+                        action href={item.value}
+                        target="_blank"
+                        rel="noopener noreferrer">{item.id}</ListGroup.Item>): null }
                     </ListGroup>
                 </Tab>
 

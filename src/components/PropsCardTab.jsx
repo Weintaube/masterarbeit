@@ -408,7 +408,10 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
            
             <ListGroup>
                 {selectedRow.ids.map((id) => (
-                <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
+                <ListGroup.Item key={id} 
+                    action href={`https://orkg.org/property/${id}`} 
+                    target="_blank"
+                    rel="noopener noreferrer">
                     {id}
                 </ListGroup.Item>
                 ))}

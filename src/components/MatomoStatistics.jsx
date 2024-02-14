@@ -21,7 +21,7 @@ function MatomoStatistics() {
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
-
+  const colorLegend = ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered']; 
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -31,7 +31,7 @@ function MatomoStatistics() {
     fetchData();
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { //sets the maximum label of an edge as soon as data is fetched
     const edgeLabels = diagramData
       .filter(element => element.data.source && element.data.target)
       .map(edge => parseInt(edge.data.label || 0));
@@ -267,8 +267,8 @@ function MatomoStatistics() {
         'text-background-color': '#494949',
         'text-opacity': 0, //todo remove if labels should be visible all time
         'text-background-opacity': 0,
-        'line-color': (ele) => chroma.scale('OrRd').domain([0, maxLabel])(ele.data('label')).hex(),
-        'target-arrow-color': (ele) => chroma.scale('OrRd').domain([0, maxLabel])(ele.data('label')).hex(),
+        'line-color': (ele) => chroma.scale(colorLegend).domain([0, maxLabel])(ele.data('label')).hex(),
+        'target-arrow-color': (ele) => chroma.scale(colorLegend).domain([0, maxLabel])(ele.data('label')).hex(),
       }
     },
     {
@@ -331,116 +331,141 @@ function MatomoStatistics() {
       <Card >
             <Card.Body >
                   <Card.Title>Matomo Visitor Data</Card.Title>
-        {/*Date selection form*/}
-        <div>
-          <p>Please enter dates in the format YYYY-MM-DD.</p>
-          <Row>
-            <Col>
-              <Form.Check
-                type="checkbox"
-                checked={fetchOneDay}
-                onChange={handleCheckboxChange}
-                label="Fetch data only for (one day) the start date"
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col>
+        
+        <Row>
+          <Col xs={12} md={4}>
+          {/*Date selection form*/}
+          <div>
+            <p>Please enter dates in the format YYYY-MM-DD.</p>
+            <Row>
+              <Col>
+                <Form.Check
+                  type="checkbox"
+                  checked={fetchOneDay}
+                  onChange={handleCheckboxChange}
+                  label="Fetch data only for (one day) the start date"
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form.Group>
+                <Form.Label>Start Date:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col>
               <Form.Group>
-              <Form.Label>Start Date:</Form.Label>
+                <Form.Label>End Date:</Form.Label>
                 <Form.Control
                   type="text"
-                  value={startDate}
-                  onChange={handleStartDateChange}
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  disabled={fetchOneDay}
                 />
               </Form.Group>
-            </Col>
+              </Col>
 
-            <Col>
-            <Form.Group>
-              <Form.Label>End Date:</Form.Label>
-              <Form.Control
-                type="text"
-                value={endDate}
-                onChange={handleEndDateChange}
-                disabled={fetchOneDay}
-              />
-            </Form.Group>
-            </Col>
+              <Col>
+                <Button variant="primary" onClick={fetchData}> Fetch Data</Button>
+              </Col>
+            </Row>
+            <Row>
+              <h5>Modify the graph:</h5>
+              <Col>
+                <Form.Group>
+                  <Form.Label>Node Spacing:</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={nodeSpacing}
+                    onChange={(e) => setNodeSpacing(parseInt(e.target.value))}
+                  />
+                </Form.Group>
+              </Col>
 
-            <Col>
-              <Button variant="primary" onClick={fetchData}> Fetch Data</Button>
+              <Col>
+                <Form.Label>Select graph layout:</Form.Label>
+                <Form.Select 
+                  aria-label="selectlayout"
+                  value={layoutDiagram}
+                  onChange={(e)=>setLayoutDiagram(e.target.value)}>
+                  <option value="breadthfirst">breadthfirst</option>
+                  <option value="circle">circle</option>
+                  <option value="grid">grid</option>
+                  <option value="random">random</option>
+                </Form.Select>
             </Col>
-          </Row>
-          <Row>
-            <h5>Modify the graph:</h5>
-            <Col>
-              <Form.Group>
-                <Form.Label>Node Spacing:</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={nodeSpacing}
-                  onChange={(e) => setNodeSpacing(parseInt(e.target.value))}
+            </Row>
+            <Row>
+              <Col>
+                <Form.Check
+                  type="switch"
+                  id="toggleExternalLinks"
+                  label="Show External Links (how visitors exit the ORKG)"
+                  checked={showExternalLinks}
+                  onChange={toggleExternalLinks}
                 />
-              </Form.Group>
-            </Col>
-
-            <Col>
-              <Form.Label>Select graph layout:</Form.Label>
-              <Form.Select 
-                aria-label="selectlayout"
-                value={layoutDiagram}
-                onChange={(e)=>setLayoutDiagram(e.target.value)}>
-                <option value="breadthfirst">breadthfirst</option>
-                <option value="circle">circle</option>
-                <option value="grid">grid</option>
-                <option value="random">random</option>
-              </Form.Select>
+              </Col>
+            </Row>
+          </div>
           </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Check
-                type="switch"
-                id="toggleExternalLinks"
-                label="Show External Links (how visitors exit the ORKG)"
-                checked={showExternalLinks}
-                onChange={toggleExternalLinks}
+
+          {/*Right column for diagram*/}
+          <Col xs={12} md={8}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+            {colorLegend.map((color, index) => (
+              <div key={index} style={{ marginRight: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      backgroundColor: color,
+                      marginRight: '5px',
+                      border: '1px solid #ccc',
+                    }}
+                  />
+                  <span>{Math.round((maxLabel / colorLegend.length) * index)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+            {/*Cytoscape diagram*/}
+            {diagramData.length > 0 && (
+              <CytoscapeComponent
+                elements={elements}
+                layout={{name: layoutDiagram, //circle, cose?, grid
+                spacingFactor: nodeSpacing,
+                avoidOverlap: true,
+                circle:true
+                }}
+                style={{ width: '100%', height: '700px', display: 'block' }}
+                stylesheet={darkModeStyles}
+                cy={(cy) => {
+                  // Attach event listeners to the cy instance
+                  cy.on('mouseover', 'edge', handleMouseover);
+                  cy.on('mouseout', 'edge', handleMouseout);
+
+                  cy.nodes().forEach((node) =>{
+                    const regexExternal = /^(https?:\/\/|http:\/\/)/;
+                    if(node.data('label').match(regexExternal)){
+                      if (showExternalLinks) {
+                        node.removeClass('external-node');
+                      } else {
+                        node.addClass('external-node');
+                      }
+                    }
+                  })
+                }}
               />
+            )}
             </Col>
-          </Row>
-
-        </div>
-          
-        {/*Cytoscape diagram*/}
-        {diagramData.length > 0 && (
-          <CytoscapeComponent
-            elements={elements}
-            layout={{name: layoutDiagram, //circle, cose?, grid
-            spacingFactor: nodeSpacing,
-            avoidOverlap: true,
-            circle:true
-            }}
-            style={{ width: '100%', height: '800px', display: 'block' }}
-            stylesheet={darkModeStyles}
-            cy={(cy) => {
-              // Attach event listeners to the cy instance
-              cy.on('mouseover', 'edge', handleMouseover);
-              cy.on('mouseout', 'edge', handleMouseout);
-
-              cy.nodes().forEach((node) =>{
-                const regexExternal = /^(https?:\/\/|http:\/\/)/;
-                if(node.data('label').match(regexExternal)){
-                  if (showExternalLinks) {
-                    node.removeClass('external-node');
-                  } else {
-                    node.addClass('external-node');
-                  }
-                }
-              })
-            }}
-          />
-        )}
+         </Row>
         </Card.Body>
         </Card>
       </>

@@ -71,8 +71,8 @@ function App() {
       </Tab>
       <Tab eventKey="visit" title="Users">
         	<MatomoStatistics></MatomoStatistics>
-      Active members of an observatory in the last 6 months<br/>
-      Number of contributors (internal/external)<br/>
+      {/*Active members of an observatory in the last 6 months<br/>
+      Number of contributors (internal/external)<br/>*/}
       
         <Col><Templates/></Col>
         {/*<Col><Observatories/></Col>*/}
@@ -93,9 +93,6 @@ function App() {
           <Row>
             {/*<Col><OldTemplates/></Col>*/}
             <Col><EmptyComparisons/></Col>
-          </Row>
-          <Row>
-            <Col><StatementsPaper/></Col>
           </Row>
         </Row>
 

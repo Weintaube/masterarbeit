@@ -308,6 +308,38 @@ function MatomoStatistics() {
     console.log("toggle external/internal links");
   };
 
+  const calculateLabelRanges = () => {
+    const labelRanges = [];
+    const segmentCount = colorLegend.length;
+  
+    const segmentSize = Math.floor(maxLabel / segmentCount);
+    const remainder = maxLabel % segmentCount;
+  
+    for (let i = 0; i < segmentCount; i++) {
+      const startRange = i * segmentSize + Math.min(i, remainder);
+      const endRange = (i + 1) * segmentSize + Math.min(i + 1, remainder) - 1;
+  
+      if (i === segmentCount - 1) {
+        // Adjust the end range for the last segment
+        labelRanges.push({
+          start: startRange,
+          end: maxLabel,
+        });
+      } else {
+        labelRanges.push({
+          start: startRange,
+          end: endRange,
+        });
+      }
+    }
+  
+    return labelRanges;
+  };
+  
+  
+
+  const labelRanges = calculateLabelRanges();
+
   try {
     return (
       <>
@@ -417,6 +449,10 @@ function MatomoStatistics() {
 
           {/*Right column for diagram*/}
           <Col xs={12} md={8}>
+            {/*Color legend*/}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <span>Each segment of the legend represents the number of transitions taken from node to another.</span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
             {colorLegend.map((color, index) => (
               <div key={index} style={{ marginRight: '10px' }}>
@@ -430,7 +466,8 @@ function MatomoStatistics() {
                       border: '1px solid #ccc',
                     }}
                   />
-                  <span>{Math.round((maxLabel / colorLegend.length) * index)}</span>
+                  <span>{labelRanges[index].start} - {labelRanges[index].end}</span>
+                 {/*<span>{Math.round((maxLabel / colorLegend.length) * index)}</span>*/}
                 </div>
               </div>
             ))}

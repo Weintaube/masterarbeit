@@ -90,13 +90,10 @@ function MatomoStatistics() {
 
       data.forEach((object) => {
         const actionsData = object.actionDetails;
-        //console.log("matomo action data", actionsData);
 
         for (let i = 0; i < actionsData.length - 1; i++) {
           let currentAction = actionsData[i].subtitle;
           let nextAction = actionsData[i + 1].subtitle;
-          //console.log("matomo current action", currentAction);
-          //console.log("matomo next action", nextAction);
 
           if (currentAction === null || nextAction === null) {
             continue;
@@ -135,27 +132,31 @@ function MatomoStatistics() {
 
           if (currentActionPart !== nextActionPart) {
 
-            const sourceId = `node_${currentActionPart}`;
-            const targetId = `node_${nextActionPart}`;
+            const sourceId = `${currentActionPart}`;
+            const targetId = `${nextActionPart}`;
 
             const edgeId = `${sourceId}>${targetId}`;
 
             const nodeSource = {
               data: { id: sourceId,
-              label: currentActionPart
+              label: currentActionPart,
+              uri: currentAction
               },
             };
 
             const nodeTarget = {
               data: { id: targetId,
-                      label: nextActionPart
+                      label: nextActionPart,
+                      uri: nextAction
                     },
             };
 
             const edge = {
               data: { id: edgeId, 
                       source: sourceId, 
+                      sourceUri: currentAction,
                       target: targetId,
+                      targetUri: nextAction,
                       label: '1'},
             };
 
@@ -475,7 +476,7 @@ function MatomoStatistics() {
               <div style={{ marginTop: '20px' }}>
                 {clickedNodeInfo.clickedNode && (
                   <div>
-                    <h5>Clicked Node: {clickedNodeInfo.clickedNode.label}</h5>
+                    <h5>Clicked Node: <a href={clickedNodeInfo.clickedNode.uri} target="_blank" rel="noopener noreferrer">{clickedNodeInfo.clickedNode.label}</a></h5>
                   </div>
                 )}
 
@@ -494,7 +495,7 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
                             <tr key={index}>
-                              <td>{transition.target}</td>
+                              <td><a href={transition.targetUri} target="_blank" rel="noopener noreferrer">{transition.target}</a></td>
                               <td>{transition.label}</td>
                             </tr>
                           ))}
@@ -520,7 +521,7 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.incomingTransitions.map((transition, index) => (
                             <tr key={index}>
-                              <td>{transition.source}</td>
+                              <td><a href={transition.sourceUri} target="_blank" rel="noopener noreferrer">{transition.source}</a></td>
                               <td>{transition.label}</td>
                             </tr>
                           ))}

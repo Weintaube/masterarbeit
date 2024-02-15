@@ -47,11 +47,11 @@ function NavBar (){
       setEndpointLabel("DBpedia");
       setEndpointURL("https://dbpedia.org/sparql");
 
-    } else if (eventKey === "#wikidata") {
+    } /*else if (eventKey === "#wikidata") {
       setEndpointLabel("Wikidata");
       console.log("Wikidata selected");
       setEndpointURL(" https://query.wikidata.org/sparql");
-    }
+    }*/
   }
 
   return (
@@ -64,7 +64,7 @@ function NavBar (){
             <NavDropdown title="Choose Endpoint" id="basic-nav-dropdown" onSelect={handleSelect}>
               <NavDropdown.Item href="#orkg">ORKG</NavDropdown.Item>
               <NavDropdown.Item href="#dbpedia">DBpedia</NavDropdown.Item>
-              <NavDropdown.Item href="#wikidata">Wikidata</NavDropdown.Item>
+              {/*<NavDropdown.Item href="#wikidata">Wikidata</NavDropdown.Item>*/}
             </NavDropdown>
             <Navbar.Text href="#label">{endpointLabel}</Navbar.Text>
           </Nav>

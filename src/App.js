@@ -69,12 +69,11 @@ function App() {
           
         </Row>*/}
       </Tab>
-      <Tab eventKey="visit" title="Users">
+      <Tab eventKey="visit" title="Visitors">
         	<MatomoStatistics></MatomoStatistics>
       {/*Active members of an observatory in the last 6 months<br/>
       Number of contributors (internal/external)<br/>*/}
       
-        <Col><Templates/></Col>
         {/*<Col><Observatories/></Col>*/}
       </Tab>
       <Tab eventKey="insights" title="Insights">
@@ -93,6 +92,9 @@ function App() {
           <Row>
             {/*<Col><OldTemplates/></Col>*/}
             <Col><EmptyComparisons/></Col>
+          </Row>
+          <Row>
+            <Col><Templates/></Col>
           </Row>
         </Row>
 

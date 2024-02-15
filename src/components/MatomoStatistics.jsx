@@ -6,6 +6,7 @@ import { Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import chroma from 'chroma-js';
+import Table from 'react-bootstrap/Table';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
@@ -22,6 +23,11 @@ function MatomoStatistics() {
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
   const colorLegend = ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered']; 
+  const [clickedNodeInfo, setClickedNodeInfo] = useState({
+    clickedNode: null,
+    outgoingTransitions: [],
+    incomingTransitions: []
+  });
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -84,7 +90,7 @@ function MatomoStatistics() {
 
       data.forEach((object) => {
         const actionsData = object.actionDetails;
-        console.log("matomo action data", actionsData);
+        //console.log("matomo action data", actionsData);
 
         for (let i = 0; i < actionsData.length - 1; i++) {
           let currentAction = actionsData[i].subtitle;
@@ -336,9 +342,28 @@ function MatomoStatistics() {
     return labelRanges;
   };
   
-  
-
   const labelRanges = calculateLabelRanges();
+
+  const handleNodeClick = (event) => {
+    const clickedNode = event.target;
+    const nodeData = clickedNode.data();
+
+    // Retrieve incoming edges (transitions)
+    const incomingEdges = clickedNode.incomers('edge');
+    const incomingTransitions = incomingEdges.map(edge => edge.data());
+
+    // Retrieve outgoing edges (transitions)
+    const outgoingEdges = clickedNode.outgoers('edge');
+    const outgoingTransitions = outgoingEdges.map(edge => edge.data());
+
+    // Update the state with the clicked node information
+    setClickedNodeInfo({
+      clickedNode: nodeData,
+      incomingTransitions: incomingTransitions,
+      outgoingTransitions: outgoingTransitions
+    });
+  };
+
 
   try {
     return (
@@ -362,8 +387,7 @@ function MatomoStatistics() {
       )}
       <Card >
             <Card.Body >
-                  <Card.Title>Matomo Visitor Data</Card.Title>
-        
+              <Card.Title>Matomo Visitor Data</Card.Title> 
         <Row>
           <Col xs={12} md={4}>
           {/*Date selection form*/}
@@ -408,7 +432,7 @@ function MatomoStatistics() {
               </Col>
             </Row>
             <Row>
-              <h5>Modify the graph:</h5>
+              {/*<h5>Modify the graph:</h5>*/}
               <Col>
                 <Form.Group>
                   <Form.Label>Node Spacing:</Form.Label>
@@ -444,6 +468,70 @@ function MatomoStatistics() {
                 />
               </Col>
             </Row>
+
+            {/* Display information about the clicked node and its transitions */}
+            
+            
+              <div style={{ marginTop: '20px' }}>
+                {clickedNodeInfo.clickedNode && (
+                  <div>
+                    <h5>Clicked Node: {clickedNodeInfo.clickedNode.label}</h5>
+                  </div>
+                )}
+
+                {clickedNodeInfo.outgoingTransitions.length > 0 && (
+                  <>
+                    <h6>Outgoing Transitions:</h6>
+                    <div className="listgroupstyle listgroupcursor">
+                    <div className="table-container">
+                    <Table bordered hover >
+                    <thead>
+                      <tr>
+                        <th>Target node</th>
+                        <th>Number of transitions</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                          {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
+                            <tr key={index}>
+                              <td>{transition.target}</td>
+                              <td>{transition.label}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                      </Table>
+                      </div>
+                      </div>
+                    </>
+                )}
+
+                  {clickedNodeInfo.incomingTransitions.length > 0 && (
+                  <>
+                    <h6>Incoming Transitions:</h6>
+                    <div className="listgroupstyle listgroupcursor">
+                    <div className="table-container">
+                    <Table bordered hover >
+                    <thead>
+                      <tr>
+                        <th>Source node</th>
+                        <th>Number of transitions</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                          {clickedNodeInfo.incomingTransitions.map((transition, index) => (
+                            <tr key={index}>
+                              <td>{transition.source}</td>
+                              <td>{transition.label}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                      </Table>
+                      </div>
+                      </div>
+                    </>
+                )}
+                </div>            
+        
           </div>
           </Col>
 
@@ -485,6 +573,23 @@ function MatomoStatistics() {
                 stylesheet={darkModeStyles}
                 cy={(cy) => {
                   // Attach event listeners to the cy instance
+                  cy.on('tap', 'node', (event) => {
+                    const clickedNode = event.target;
+                    const nodeData = clickedNode.data();
+                    // Retrieve incoming edges (transitions)
+                    const incomingEdges = clickedNode.incomers('edge');
+                    const incomingTransitions = incomingEdges.map(edge => edge.data());
+                    
+                    // Retrieve outgoing edges (transitions)
+                    const outgoingEdges = clickedNode.outgoers('edge');
+                    const outgoingTransitions = outgoingEdges.map(edge => edge.data());
+
+                    console.log('Clicked Node:', nodeData);
+                    console.log('Incoming Transitions:', incomingTransitions);
+                    console.log('Outgoing Transitions:', outgoingTransitions);
+                    handleNodeClick(event);
+                  });
+
                   cy.on('mouseover', 'edge', handleMouseover);
                   cy.on('mouseout', 'edge', handleMouseout);
 

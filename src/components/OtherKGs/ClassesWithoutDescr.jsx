@@ -21,25 +21,15 @@ function ClassesWithoutDescr(){
         }
     `);
 
-    const wikidataQuery = encodeURIComponent(`
-        ${prefixes}  
-        SELECT ?entityTypeLabel (COUNT(?item) as ?count)
-        WHERE {
-        ?item wdt:P31 ?entityType.
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-        }
-        GROUP BY ?entityTypeLabel
-        ORDER BY DESC(?count)
-    `);
-
     const fetchSPARQLData = async () => {
         try {
             let query = null;
             if(endpointLabel === "DBpedia"){ //change query according to endpoint
                 query = dbpediaQuery;
-            }else if(endpointLabel == "Wikidata"){
-                query = wikidataQuery;
             }
+            /*else if(endpointLabel == "Wikidata"){
+                query = wikidataQuery;
+            }*/
             const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
             const response = await fetch(url);
         if(response.ok){ //Anfrage erfolgreich Statuscode 200

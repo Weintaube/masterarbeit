@@ -29,6 +29,7 @@ function MatomoStatistics() {
     incomingTransitions: []
   });
   const [cyInstance, setCyInstance] = useState(null);
+  const [hoveredColor, setHoveredColor] = useState(null);
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -277,7 +278,8 @@ function MatomoStatistics() {
           const segmentIndex = Math.floor(label / segmentSize);
           console.log("color legend index", colorLegend);
           console.log("color legend index", colorLegend[segmentIndex]);
-          return colorLegend[segmentIndex];
+          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3b3f3d' : colorLegend[segmentIndex];
+          //return colorLegend[segmentIndex];
         },
         'target-arrow-color': (ele) => {
           const label = parseInt(ele.data('label')) - 1;
@@ -327,40 +329,6 @@ function MatomoStatistics() {
     console.log("toggle external/internal links");
   };
 
-  const calculateLabelRanges = () => {
-    const labelRanges = [];
-    const distinctLabels = Array.from(new Set(diagramData.map(edge => parseInt(edge.data.label || 0)).filter(label => !isNaN(label))));
-
-    console.log("distinct labels", distinctLabels);
-    const segmentCount = Math.min(distinctLabels.length, colorLegend.length);
-    console.log("segment count", segmentCount);
-      
-    const segmentSize = Math.floor(maxLabel / segmentCount);
-    const remainder = maxLabel % segmentCount;
-  
-    for (let i = 1; i < segmentCount+1; i++) {
-      const startRange = i * segmentSize + Math.min(i, remainder);
-      const endRange = (i + 1) * segmentSize + Math.min(i + 1, remainder) - 1;
-  
-      if (i === segmentCount - 1) {
-        // Adjust the end range for the last segment
-        labelRanges.push({
-          start: startRange,
-          end: maxLabel,
-        });
-      } else {
-        labelRanges.push({
-          start: startRange,
-          end: endRange,
-        });
-      }
-    }
-    console.log("label ranges",labelRanges);
-    return labelRanges;
-  };
-  
-  const labelRanges = calculateLabelRanges();
-
   const handleNodeClick = (event) => {
     const clickedNode = event.target;
     const nodeData = clickedNode.data();
@@ -405,40 +373,44 @@ function MatomoStatistics() {
   };
   
   // Group edges by color and calculate label ranges
- // Group edges by color and calculate label ranges
-const groupedEdgesByColor = edgesData.reduce((acc, edge) => {
-  const label = parseInt(edge.data.label) -1;
+  // Group edges by color and calculate label ranges
+  const groupedEdgesByColor = edgesData.reduce((acc, edge) => {
+    const label = parseInt(edge.data.label) -1;
 
-  const segmentCount = colorLegend.length;
-  const segmentSize = Math.ceil(maxLabel / segmentCount);
+    const segmentCount = colorLegend.length;
+    const segmentSize = Math.ceil(maxLabel / segmentCount);
 
-  // Map the label to a segment based on the segment size
-  const segmentIndex = Math.floor(label / segmentSize);
+    // Map the label to a segment based on the segment size
+    const segmentIndex = Math.floor(label / segmentSize);
 
-  const color =  colorLegend[segmentIndex];
+    const color =  colorLegend[segmentIndex];
 
+    if (!acc[color]) {
+      acc[color] = {
+        labels: [],
+        minLabel: edge.data.label,
+        maxLabel: edge.data.label,
+      };
+    }
+    acc[color].labels.push(edge.data.label);
+    acc[color].minLabel = Math.min(acc[color].minLabel, edge.data.label);
+    acc[color].maxLabel = Math.max(acc[color].maxLabel, edge.data.label);
+    return acc;
+  }, {});
 
+  const sortedGroupedEdgesByColor = Object.fromEntries(
+    Object.entries(groupedEdgesByColor).sort(
+      ([colorA, dataA], [colorB, dataB]) => dataA.minLabel - dataB.minLabel
+    )
+  );
 
+  const handleLegendHover = (color) => {
+    setHoveredColor(color);
+  };
 
-  if (!acc[color]) {
-    acc[color] = {
-      labels: [],
-      minLabel: edge.data.label,
-      maxLabel: edge.data.label,
-    };
-  }
-  acc[color].labels.push(edge.data.label);
-  acc[color].minLabel = Math.min(acc[color].minLabel, edge.data.label);
-  acc[color].maxLabel = Math.max(acc[color].maxLabel, edge.data.label);
-  return acc;
-}, {});
-
-const sortedGroupedEdgesByColor = Object.fromEntries(
-  Object.entries(groupedEdgesByColor).sort(
-    ([colorA, dataA], [colorB, dataB]) => dataA.minLabel - dataB.minLabel
-  )
-);
-
+  const handleLegendLeave = () => {
+    setHoveredColor(null);
+  };
   try {
     return (
       <>
@@ -614,7 +586,16 @@ const sortedGroupedEdgesByColor = Object.fromEntries(
               {/*Color legend*/}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
               {Object.entries(sortedGroupedEdgesByColor).map(([color, { labels, minLabel, maxLabel }], index) => (
-                <div key={index} style={{ marginRight: '10px' }}>
+                <div
+                  key={index}
+                  style={{
+                    marginRight: '10px',
+                    cursor: 'pointer',
+                    opacity: hoveredColor && hoveredColor !== color ? '0.3' : '1',
+                  }}
+                  onMouseOver={() => handleLegendHover(color)}
+                  onMouseLeave={handleLegendLeave}
+                >
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div
                       style={{

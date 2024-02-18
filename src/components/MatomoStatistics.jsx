@@ -273,13 +273,21 @@ function MatomoStatistics() {
           const label = parseInt(ele.data('label')) - 1;
           const segmentCount = colorLegend.length;
           const segmentSize = Math.ceil(maxLabel / segmentCount);
-
+          // Map the label to a segment based on the segment size
+          const segmentIndex = Math.floor(label / segmentSize);
+          console.log("color legend index", colorLegend);
+          console.log("color legend index", colorLegend[segmentIndex]);
+          return colorLegend[segmentIndex];
+        },
+        'target-arrow-color': (ele) => {
+          const label = parseInt(ele.data('label')) - 1;
+          const segmentCount = colorLegend.length;
+          const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
           const segmentIndex = Math.min(Math.floor(label / segmentSize), segmentCount - 1);
 
           return colorLegend[segmentIndex];
         },
-        'target-arrow-color': (ele) => chroma.scale(colorLegend).domain([0, maxLabel])(ele.data('label')).hex(),
       }
     },
     {
@@ -405,7 +413,7 @@ const groupedEdgesByColor = edgesData.reduce((acc, edge) => {
   const segmentSize = Math.ceil(maxLabel / segmentCount);
 
   // Map the label to a segment based on the segment size
-  const segmentIndex = Math.min(Math.floor(label / segmentSize), segmentCount - 1);
+  const segmentIndex = Math.floor(label / segmentSize);
 
   const color =  colorLegend[segmentIndex];
 

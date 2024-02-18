@@ -196,12 +196,6 @@ function MatomoStatistics() {
         }
       });
 
-
-      /*const uniqueNodes = transformedData.filter((item, index, self) =>
-        index === self.findIndex((t) => t.data.id === item.data.id)
-      );
-      console.log("MATOMO Transformed", uniqueNodes);
-      setDiagramData(uniqueNodes);*/
       console.log("MATOMO Data transformed", transformedData);
       setDiagramData(transformedData);
 
@@ -275,7 +269,16 @@ function MatomoStatistics() {
         'text-background-color': '#494949',
         'text-opacity': 0, //todo remove if labels should be visible all time
         'text-background-opacity': 0,
-        'line-color': (ele) => chroma.scale(colorLegend).domain([0, maxLabel])(ele.data('label')).hex(),
+        'line-color': (ele) => {
+          const label = parseInt(ele.data('label')) - 1;
+          const segmentCount = colorLegend.length;
+          const segmentSize = Math.ceil(maxLabel / segmentCount);
+
+          // Map the label to a segment based on the segment size
+          const segmentIndex = Math.min(Math.floor(label / segmentSize), segmentCount - 1);
+
+          return colorLegend[segmentIndex];
+        },
         'target-arrow-color': (ele) => chroma.scale(colorLegend).domain([0, maxLabel])(ele.data('label')).hex(),
       }
     },
@@ -318,12 +321,16 @@ function MatomoStatistics() {
 
   const calculateLabelRanges = () => {
     const labelRanges = [];
-    const segmentCount = colorLegend.length;
-  
+    const distinctLabels = Array.from(new Set(diagramData.map(edge => parseInt(edge.data.label || 0)).filter(label => !isNaN(label))));
+
+    console.log("distinct labels", distinctLabels);
+    const segmentCount = Math.min(distinctLabels.length, colorLegend.length);
+    console.log("segment count", segmentCount);
+      
     const segmentSize = Math.floor(maxLabel / segmentCount);
     const remainder = maxLabel % segmentCount;
   
-    for (let i = 0; i < segmentCount; i++) {
+    for (let i = 1; i < segmentCount+1; i++) {
       const startRange = i * segmentSize + Math.min(i, remainder);
       const endRange = (i + 1) * segmentSize + Math.min(i + 1, remainder) - 1;
   
@@ -340,7 +347,7 @@ function MatomoStatistics() {
         });
       }
     }
-  
+    console.log("label ranges",labelRanges);
     return labelRanges;
   };
   
@@ -379,6 +386,50 @@ function MatomoStatistics() {
       cyInstance.center(node);
     }
   };
+
+  
+  const uniqueEdgeColors = Array.from(new Set(diagramData.map(edge => chroma.scale(colorLegend).domain([0, maxLabel])(edge.data.label).hex())));
+
+  const edgesData = diagramData.filter(edge => edge.data.source && edge.data.target);
+
+  const calculateEdgeColorForStyle = (label) => {
+    return chroma.scale(colorLegend).domain([0, maxLabel])(label).hex();
+  };
+  
+  // Group edges by color and calculate label ranges
+ // Group edges by color and calculate label ranges
+const groupedEdgesByColor = edgesData.reduce((acc, edge) => {
+  const label = parseInt(edge.data.label) -1;
+
+  const segmentCount = colorLegend.length;
+  const segmentSize = Math.ceil(maxLabel / segmentCount);
+
+  // Map the label to a segment based on the segment size
+  const segmentIndex = Math.min(Math.floor(label / segmentSize), segmentCount - 1);
+
+  const color =  colorLegend[segmentIndex];
+
+
+
+
+  if (!acc[color]) {
+    acc[color] = {
+      labels: [],
+      minLabel: edge.data.label,
+      maxLabel: edge.data.label,
+    };
+  }
+  acc[color].labels.push(edge.data.label);
+  acc[color].minLabel = Math.min(acc[color].minLabel, edge.data.label);
+  acc[color].maxLabel = Math.max(acc[color].maxLabel, edge.data.label);
+  return acc;
+}, {});
+
+const sortedGroupedEdgesByColor = Object.fromEntries(
+  Object.entries(groupedEdgesByColor).sort(
+    ([colorA, dataA], [colorB, dataB]) => dataA.minLabel - dataB.minLabel
+  )
+);
 
   try {
     return (
@@ -551,30 +602,28 @@ function MatomoStatistics() {
           </Col>
 
           {/*Right column for diagram*/}
-          <Col xs={12} md={8}>
-            {/*Color legend*/}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <span>Each segment of the legend represents the number of transitions taken from node to another.</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-            {colorLegend.map((color, index) => (
-              <div key={index} style={{ marginRight: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      backgroundColor: color,
-                      marginRight: '5px',
-                      border: '1px solid #ccc',
-                    }}
-                  />
-                  <span>{labelRanges[index].start} - {labelRanges[index].end}</span>
-                 {/*<span>{Math.round((maxLabel / colorLegend.length) * index)}</span>*/}
+            <Col xs={12} md={8}>
+              {/*Color legend*/}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              {Object.entries(sortedGroupedEdgesByColor).map(([color, { labels, minLabel, maxLabel }], index) => (
+                <div key={index} style={{ marginRight: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        backgroundColor: color,
+                        marginRight: '5px',
+                        border: '1px solid #ccc',
+                      }}
+                    />
+                    <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+
             {/*Cytoscape diagram*/}
             {diagramData.length > 0 && (
               <CytoscapeComponent
@@ -590,16 +639,6 @@ function MatomoStatistics() {
                   setCyInstance(cy);
                   // Attach event listeners to the cy instance
                   cy.on('tap', 'node', (event) => {
-                    const clickedNode = event.target;
-                    const nodeData = clickedNode.data();
-                    // Retrieve incoming edges (transitions)
-                    const incomingEdges = clickedNode.incomers('edge');
-                    const incomingTransitions = incomingEdges.map(edge => edge.data());
-                    
-                    // Retrieve outgoing edges (transitions)
-                    const outgoingEdges = clickedNode.outgoers('edge');
-                    const outgoingTransitions = outgoingEdges.map(edge => edge.data());
-
                     handleNodeClick(event);
                   });
 
@@ -609,6 +648,12 @@ function MatomoStatistics() {
                   cy.nodes().forEach((node) =>{
                     const regexExternal = /^(https?:\/\/|http:\/\/)/;
                     if(node.data('label').match(regexExternal)){
+                      node.on('click', () => {
+                        const nodeId = node.id();
+                        // Handle the click on the node label (you can customize this part)
+                        console.log(`Clicked on the label of node with ID: ${nodeId}`);
+                        // Perform any additional actions based on the clicked node
+                      });
                       if (showExternalLinks) {
                         node.removeClass('external-node');
                       } else {

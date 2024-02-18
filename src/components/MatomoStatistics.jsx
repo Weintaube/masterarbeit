@@ -28,6 +28,7 @@ function MatomoStatistics() {
     outgoingTransitions: [],
     incomingTransitions: []
   });
+  const [cyInstance, setCyInstance] = useState(null);
   
   const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
   const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
@@ -140,23 +141,23 @@ function MatomoStatistics() {
             const nodeSource = {
               data: { id: sourceId,
               label: currentActionPart,
-              uri: currentAction
+              uri: null
               },
             };
 
             const nodeTarget = {
               data: { id: targetId,
                       label: nextActionPart,
-                      uri: nextAction
+                      uri: null
                     },
             };
 
             const edge = {
               data: { id: edgeId, 
                       source: sourceId, 
-                      sourceUri: currentAction,
+                      sourceUri: null,
                       target: targetId,
-                      targetUri: nextAction,
+                      targetUri: null,
                       label: '1'},
             };
 
@@ -365,6 +366,19 @@ function MatomoStatistics() {
     });
   };
 
+  const centerOnNode = (nodeId) => { //for click on table that then centers on the corresponding node
+    if (cyInstance) {
+      const node = cyInstance.getElementById(nodeId);
+  
+      if (node.length === 0) {
+        console.warn(`Node with ID ${nodeId} not found`);
+        return;
+      }
+  
+      console.log("Center node", node);
+      cyInstance.center(node);
+    }
+  };
 
   try {
     return (
@@ -471,8 +485,6 @@ function MatomoStatistics() {
             </Row>
 
             {/* Display information about the clicked node and its transitions */}
-            
-            
               <div style={{ marginTop: '20px' }}>
                 {clickedNodeInfo.clickedNode && (
                   <div>
@@ -495,7 +507,8 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
                             <tr key={index}>
-                              <td><a href={transition.targetUri} target="_blank" rel="noopener noreferrer">{transition.target}</a></td>
+                              <td onClick={() => centerOnNode(transition.target)}>
+                                {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
                               <td>{transition.label}</td>
                             </tr>
                           ))}
@@ -521,7 +534,8 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.incomingTransitions.map((transition, index) => (
                             <tr key={index}>
-                              <td><a href={transition.sourceUri} target="_blank" rel="noopener noreferrer">{transition.source}</a></td>
+                              <td onClick={() => centerOnNode(transition.source)}>
+                                {transition.source}</td>
                               <td>{transition.label}</td>
                             </tr>
                           ))}
@@ -573,6 +587,7 @@ function MatomoStatistics() {
                 style={{ width: '100%', height: '700px', display: 'block' }}
                 stylesheet={darkModeStyles}
                 cy={(cy) => {
+                  setCyInstance(cy);
                   // Attach event listeners to the cy instance
                   cy.on('tap', 'node', (event) => {
                     const clickedNode = event.target;
@@ -585,9 +600,6 @@ function MatomoStatistics() {
                     const outgoingEdges = clickedNode.outgoers('edge');
                     const outgoingTransitions = outgoingEdges.map(edge => edge.data());
 
-                    console.log('Clicked Node:', nodeData);
-                    console.log('Incoming Transitions:', incomingTransitions);
-                    console.log('Outgoing Transitions:', outgoingTransitions);
                     handleNodeClick(event);
                   });
 

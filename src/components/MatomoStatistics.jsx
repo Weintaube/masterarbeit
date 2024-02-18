@@ -278,7 +278,7 @@ function MatomoStatistics() {
           const segmentIndex = Math.floor(label / segmentSize);
           console.log("color legend index", colorLegend);
           console.log("color legend index", colorLegend[segmentIndex]);
-          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3b3f3d' : colorLegend[segmentIndex];
+          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
           //return colorLegend[segmentIndex];
         },
         'target-arrow-color': (ele) => {
@@ -286,9 +286,10 @@ function MatomoStatistics() {
           const segmentCount = colorLegend.length;
           const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
-          const segmentIndex = Math.min(Math.floor(label / segmentSize), segmentCount - 1);
-
-          return colorLegend[segmentIndex];
+          const segmentIndex = Math.floor(label / segmentSize);
+          console.log("color legend index", colorLegend);
+          console.log("color legend index", colorLegend[segmentIndex]);
+          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
         },
       }
     },
@@ -584,6 +585,8 @@ function MatomoStatistics() {
           {/*Right column for diagram*/}
             <Col xs={12} md={8}>
               {/*Color legend*/}
+              
+              <p>The colors represent the number of transitions from one node to another which are accumulated in one edge.</p>
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
               {Object.entries(sortedGroupedEdgesByColor).map(([color, { labels, minLabel, maxLabel }], index) => (
                 <div
@@ -606,7 +609,7 @@ function MatomoStatistics() {
                         border: '1px solid #ccc',
                       }}
                     />
-                    <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`}</span>
+                    <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`} <br></br>({labels.length} {labels.length === 1 ? 'edge' : 'edges'})</span>
                   </div>
                 </div>
               ))}

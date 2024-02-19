@@ -16,6 +16,7 @@ function MatomoStatistics() {
   const [period, setPeriod] = useState('day'); //range, day
   const [fetchOneDay, setFetchOneDay] = useState(true); // State for the checkbox
   const [nodeSpacing, setNodeSpacing] = useState(6);
+  const [transitionThreshold, setTransitionThreshold] = useState(1);
   const [layoutDiagram, setLayoutDiagram] = useState('breadthfirst');
   const [labelPosition, setLabelPosition] = useState({ top: 0, left: 0 });
   const [isLabelVisible, setIsLabelVisible] = useState(false);
@@ -240,7 +241,7 @@ function MatomoStatistics() {
 
   // Create elements based on transformed data
   const elements = diagramData.map((node) => ({ data: node.data }));
-
+  const filteredElements = elements.filter(edge => edge.data.source && edge.data.target && parseInt(edge.data.label) >= transitionThreshold);
 
   //console.log("MATOMO diagram data mapped", elements);
 
@@ -305,6 +306,18 @@ function MatomoStatistics() {
       selector: '.external-node',
       style: {
         display: 'none', // Make external nodes invisible
+      }
+    },
+    {
+      selector: 'edge.below-threshold',
+      style: {
+        display: 'none',
+      }
+    },
+    {
+      selector: 'node.isolated-node',
+      style: {
+        'display': 'none',  // Hide nodes corresponding to edges below the threshold
       }
     },
   ];
@@ -514,6 +527,16 @@ function MatomoStatistics() {
                   onChange={toggleExternalLinks}
                 />
               </Col>
+              <Col>
+                <Form.Group>
+                    <Form.Label>Transition Threshold:</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={transitionThreshold}
+                      onChange={(e) => setTransitionThreshold(isNaN(parseInt(e.target.value)) ? 1 : parseInt(e.target.value))}
+                    />
+                  </Form.Group>
+              </Col>
             </Row>
 
             {/* Display information about the clicked node and its transitions */}
@@ -609,7 +632,9 @@ function MatomoStatistics() {
                         border: '1px solid #ccc',
                       }}
                     />
-                    <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`} <br></br>({labels.length} {labels.length === 1 ? 'edge' : 'edges'})</span>
+                    <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`} <br></br>
+                    ({labels.length === 1 ? 'edge' : 'edges'})
+                    </span>
                   </div>
                 </div>
               ))}
@@ -636,7 +661,7 @@ function MatomoStatistics() {
 
                   cy.on('mouseover', 'edge', handleMouseover);
                   cy.on('mouseout', 'edge', handleMouseout);
-
+                  
                   cy.nodes().forEach((node) =>{
                     const regexExternal = /^(https?:\/\/|http:\/\/)/;
                     if(node.data('label').match(regexExternal)){
@@ -653,6 +678,16 @@ function MatomoStatistics() {
                       }
                     }
                   })
+
+                  cy.edges().forEach((edge) => {
+                    const label = parseInt(edge.data('label'));
+                    if (label < transitionThreshold) {
+                      edge.addClass('below-threshold');
+                    } else {
+                      edge.removeClass('below-threshold');
+                    }
+                  });
+
                 }}
               />
             )}

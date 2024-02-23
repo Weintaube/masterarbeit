@@ -633,7 +633,7 @@ function MatomoStatistics() {
                       }}
                     />
                     <span>{minLabel === maxLabel ? `${minLabel}` : `${minLabel} - ${maxLabel}`} <br></br>
-                    ({labels.length === 1 ? 'edge' : 'edges'})
+                    ({labels.length === 1 ? `${labels.length} edge` : `${labels.length} edges` })
                     </span>
                   </div>
                 </div>

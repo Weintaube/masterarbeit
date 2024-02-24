@@ -7,6 +7,8 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import chroma from 'chroma-js';
 import Table from 'react-bootstrap/Table';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
@@ -425,6 +427,16 @@ function MatomoStatistics() {
   const handleLegendLeave = () => {
     setHoveredColor(null);
   };
+
+  const isExternalNode = (node) => {
+    const regexExternal = /^(https?:\/\/|http:\/\/)/;
+    return node.match(regexExternal);
+  };
+
+  const handleExternalLinkClick = (url) => { //open external link in new tab
+    window.open(url, '_blank');
+  };
+
   try {
     return (
       <>
@@ -555,6 +567,7 @@ function MatomoStatistics() {
                     <Table bordered hover >
                     <thead>
                       <tr>
+                        <th>External Link</th>
                         <th>Target node</th>
                         <th>Number of transitions</th>
                       </tr>
@@ -562,6 +575,15 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
                             <tr key={index}>
+                              <td>
+                                {isExternalNode(transition.target) && (
+                                  <FontAwesomeIcon
+                                    icon={faExternalLinkAlt}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => handleExternalLinkClick(transition.target)}
+                                    />
+                                )}
+                              </td>
                               <td onClick={() => centerOnNode(transition.target)}>
                                 {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
                               <td>{transition.label}</td>
@@ -582,6 +604,7 @@ function MatomoStatistics() {
                     <Table bordered hover >
                     <thead>
                       <tr>
+                        <th>External Link</th>
                         <th>Source node</th>
                         <th>Number of transitions</th>
                       </tr>
@@ -589,6 +612,15 @@ function MatomoStatistics() {
                       <tbody>
                           {clickedNodeInfo.incomingTransitions.map((transition, index) => (
                             <tr key={index}>
+                                <td>
+                                {isExternalNode(transition.source) && (
+                                  <FontAwesomeIcon
+                                    icon={faExternalLinkAlt}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => handleExternalLinkClick(transition.source)}
+                                    />
+                                )}
+                                </td>
                               <td onClick={() => centerOnNode(transition.source)}>
                                 {transition.source}</td>
                               <td>{transition.label}</td>

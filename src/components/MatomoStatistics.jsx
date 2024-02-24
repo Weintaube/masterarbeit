@@ -25,7 +25,18 @@ function MatomoStatistics() {
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
-  const colorLegend = ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered']; 
+
+  const colorSchemes = {
+    default: ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered'],
+    colorblindColorLegend : ['#08439A', '#3182bd', '#6baed6', '#CCB267', '#d95f0e', '#d73027'],
+    sunsetColorLegend :['#FCD229', '#E79204', '#E54F02', '#CE4242', '#971616', '#730303'],
+    greenColorLegend : ['#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'],
+    pinkPurpleColorLegend :['#fbb4b9', '#f768a1', '#c51b8a', '#7a0177', '#49006a', '#270048'],
+
+  };
+
+  const [colorLegend, setColorLegend] = useState(colorSchemes.default); 
+
   const [clickedNodeInfo, setClickedNodeInfo] = useState({
     clickedNode: null,
     outgoingTransitions: [],
@@ -300,7 +311,7 @@ function MatomoStatistics() {
       selector: ':selected',
       style: {
         'background-color': '#e86161', // Color for selected nodes
-        'line-color': '#e86161', // Color for selected edges'label': 'data(label)
+        'line-color': '#ffffff', // Color for selected edges'label': 'data(label)
         'target-arrow-color': '#e86161'
       }
     },
@@ -437,6 +448,11 @@ function MatomoStatistics() {
     window.open(url, '_blank');
   };
 
+  const handleColorSchemeChange = (scheme) => {
+    const newColorLegend = colorSchemes[scheme].map(color => color.toString());
+    setColorLegend(newColorLegend);
+  };
+
   try {
     return (
       <>
@@ -551,6 +567,36 @@ function MatomoStatistics() {
               </Col>
             </Row>
 
+            <Row>
+              {/* Dropdown for changing color scheme */}
+              <Dropdown>
+                <Dropdown.Toggle variant="secondary" id="colorSchemeDropdown">
+                  Select Color Scheme
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  {Object.keys(colorSchemes).map((scheme) => (
+                    <Dropdown.Item key={scheme} onClick={() => handleColorSchemeChange(scheme)}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {colorSchemes[scheme].map((color, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              backgroundColor: color,
+                              marginRight: '5px',
+                              border: '1px solid #ccc',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </Row>
+
             {/* Display information about the clicked node and its transitions */}
               <div style={{ marginTop: '20px' }}>
                 {clickedNodeInfo.clickedNode && (
@@ -567,7 +613,7 @@ function MatomoStatistics() {
                     <Table bordered hover >
                     <thead>
                       <tr>
-                        <th>External Link</th>
+                        <th>Link</th>
                         <th>Target node</th>
                         <th>Number of transitions</th>
                       </tr>
@@ -604,7 +650,7 @@ function MatomoStatistics() {
                     <Table bordered hover >
                     <thead>
                       <tr>
-                        <th>External Link</th>
+                        <th>Link</th>
                         <th>Source node</th>
                         <th>Number of transitions</th>
                       </tr>

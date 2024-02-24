@@ -59,22 +59,8 @@ function ResearchFields(){
                   }));
                 console.log("research fields end result", fieldsResult);
 
-                //const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers); //apply filter for first rendering
-                const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers);
-                
                 setResearchFieldsCount(fieldsResult);
-
-                // Set all data initially
-                /*setChartData({
-                    labels: filteredData.map((item) => item.research_field),
-                    datasets: [{
-                        label: "Number of papers in research field",
-                        data: filteredData.map((item) => item.paper_count),
-                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-                        borderColor: 'rgba(0,0,0,1)',
-                        borderWidth: 2
-                    }]
-                });*/
+                handleFilterChange();
             }else{
                 const errorData = await response.json();
                 console.error("Error while requesting SPARQL data:", errorData);
@@ -93,6 +79,7 @@ function ResearchFields(){
     },[])
 
     useEffect(()=>{
+        console.log("filter set chart data");
         setChartData({
             labels: researchFieldsCount.map((item) => item.research_field),
             datasets: [{
@@ -103,9 +90,11 @@ function ResearchFields(){
                 borderWidth: 2
             }]
         });
+        handleFilterChange();
     }, [researchFieldsCount]);
 
     const filterData = () => {
+        console.log("filter data according to min", minPapers);
         const filteredData = researchFieldsCount.filter((item) => {
             const paperCount = item.paper_count;
             const matchesSearchTerm = item.research_field.toLowerCase().includes(searchTerm.toLowerCase());
@@ -119,6 +108,7 @@ function ResearchFields(){
     }
     
     const handleFilterChange = () => {
+        console.log("handle filter change called");
         const filteredData = filterData();
         setChartData({
             labels: filteredData.map((item) => item.research_field),

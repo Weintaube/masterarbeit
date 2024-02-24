@@ -11,7 +11,7 @@ import {OverlayTrigger, Tooltip, Popover, Modal} from "react-bootstrap";
 function CommentsDB(){
     const [commentList, setCommentList] = useState([]); //list for keeping the ids which have a list of comments attached, sorted by resource id
     const [rawCommentList, setRawCommentList] = useState([]); //raw comments, each one in a row
-    const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison", "Statement"]); //todo think about how the statement can be implemented
+    const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison"]); //todo think about how the statement can be implemented
     const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness", "In-depth analysis", "Innovative Approach", "Reproducible Results"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
     const [activeTab, setActiveTab] = useState("table");

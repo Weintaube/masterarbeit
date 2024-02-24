@@ -138,8 +138,8 @@ function PropsCardTab(){
                 id="uncontrolled-tab-example"
                 className="mb-3"> 
                     <Tab eventKey="description" title="Missing descriptions">
-                        {propsWithoutDescr}% ({propsWithoutAkku}) of predicates are missing a description.
-                        <PropsList setSharedProps={setSharedProps}></PropsList>
+                    <span style={{ fontSize: '1.5em' }}>{propsWithoutDescr}%</span> ({propsWithoutAkku}) of predicates are missing a description.
+                    <PropsList setSharedProps={setSharedProps}></PropsList>
                     </Tab>
                     <Tab eventKey="duplicates" title="Duplicate predicates">
                         <DuplicatePredicates sharedPropertiesWithoutDescr={sharedPropertiesWithoutDescr}/>
@@ -182,7 +182,6 @@ function PropsList({setSharedProps}){
             console.log("Response (OK)",  response)
             const result = await response.json();
             console.log("List of properties without description");
-            //console.log(result.results.bindings[0].p);
             const uriList = [];
             console.log("size result", result.results.bindings.length);
             console.log(result.results.bindings[0]);
@@ -247,7 +246,7 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
     const fetchAllPages = async()=>{
         let allResults = [];
         let currentPage = 0;
-        let totalPages = 1; // Setze eine Anfangszahl
+        let totalPages = 1; 
 
         while (currentPage < totalPages) {
             try {
@@ -255,12 +254,12 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
       
                 if (response.ok) {
                     const result = await response.json();
-                    allResults = allResults.concat(result.content); // Füge die Ergebnisse der aktuellen Seite hinzu
-                    totalPages = result.totalPages; // Aktualisiere die Anzahl der Seiten
-                    currentPage++; // Gehe zur nächsten Seite
+                    allResults = allResults.concat(result.content); 
+                    totalPages = result.totalPages; 
+                    currentPage++; 
                 } else {
                     console.error(`Fehler beim Abrufen der Seite ${currentPage}`);
-                    break; // Stoppe die Schleife im Falle eines Fehlers
+                    break; 
                 }
             } catch (error) {
                 console.error(`Fehler beim Abrufen der Seite ${currentPage}: ${error}`);

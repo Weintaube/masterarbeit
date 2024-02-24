@@ -41,7 +41,7 @@ function App() {
 
   return (
     <div  data-bs-theme="dark">
-    <Container>
+    <Container fluid className="my-3 px-4">
       <NavBar/>
       {endpointLabel === "ORKG" ? (
         
@@ -77,14 +77,20 @@ function App() {
         {/*<Col><Observatories/></Col>*/}
       </Tab>
       <Tab eventKey="insights" title="Insights">
-        <ResearchFields></ResearchFields>
-      Depth of graph per paper<br/>
+        <Row>
+          <Col>
+            <ResearchFields/>
+          </Col>
+          <Col>
+            <StatementsPaper/>
+          </Col>
+        </Row>
+      {/*Depth of graph per paper<br/>
       Connectedness (how many connections to other papers exist through shared resources)<br/>
       Input is wrongly assigned as a resource<br/>
       Distribution of statements per entitiy<br/>
-      Number of statements per paper/from templates<br/>
+    Number of statements per paper/from templates<br/>*/}
 
-        <StatementsPaper/>
       </Tab>
       <Tab eventKey="content" title="Content">
         <Row>

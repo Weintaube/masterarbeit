@@ -93,7 +93,7 @@ function ResourcesCardTab(){
                     <ResourcesList></ResourcesList>
                 </Tab>*/}
                 <Tab eventKey="unused" title="Unused Resources">
-                    {(unusedResources.length/allResources.length * 100).toFixed(2)}% ({unusedResources.length}) of the resources are not being used.
+                    <span style={{ fontSize: '1.5em' }}>{(unusedResources.length/allResources.length * 100).toFixed(2)}% </span> ({unusedResources.length}) of the resources are not being used.
                 {/*<ListGroup className="listgroupstyle">
                     {unusedResources? unusedResources.map((item, key) => 
                     <ListGroup.Item key={key} action href={item.value}>{item.label}</ListGroup.Item>): null}
@@ -101,7 +101,7 @@ function ResourcesCardTab(){
                 </Tab>
 
                 <Tab eventKey="unlabeled" title="Unlabeled resources">
-                    {(unlabeledResources.length/allResources.length * 100).toFixed(2)}% ({unlabeledResources.length}) of the resources do not have a label.
+                    <span style={{ fontSize: '1.5em' }}>{(unlabeledResources.length/allResources.length * 100).toFixed(2)}%</span> ({unlabeledResources.length}) of the resources do not have a label.
                     <ListGroup className="listgroupstyle">
                         {unlabeledResources? unlabeledResources.map((item, key) => <ListGroup.Item key={key} 
                         action href={item.value}

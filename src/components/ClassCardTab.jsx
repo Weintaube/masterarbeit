@@ -96,7 +96,7 @@ function ClassCardTab(){
                     id="uncontrolled-tab-example"
                     className="mb-3">
                     <Tab eventKey="description" title="Missing descriptions">
-                        {classesWithoutDescr}% ({classesWithoutAkku}) of classes are missing a description.
+                        <span style={{ fontSize: '1.5em' }}>{classesWithoutDescr}%</span> ({classesWithoutAkku}) of classes are missing a description.
                         <ClassList/>
                     </Tab>
                 </Tabs>

@@ -60,7 +60,20 @@ function ResearchFields(){
                 console.log("research fields end result", fieldsResult);
 
                 //const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers); //apply filter for first rendering
-                setResearchFieldsCount(fieldsResult); //list is sorted
+                const filteredData = fieldsResult.filter((item) => item.paper_count >= minPapers);
+                setResearchFieldsCount(filteredData);
+
+                // Set all data initially
+                setChartData({
+                    labels: filteredData.map((item) => item.research_field),
+                    datasets: [{
+                        label: "Number of papers in research field",
+                        data: filteredData.map((item) => item.paper_count),
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        borderColor: 'rgba(0,0,0,1)',
+                        borderWidth: 2
+                    }]
+                });
             }else{
                 const errorData = await response.json();
                 console.error("Error while requesting SPARQL data:", errorData);

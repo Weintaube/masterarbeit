@@ -98,8 +98,6 @@ function App() {
           <Row>
             {/*<Col><OldTemplates/></Col>*/}
             <Col><EmptyComparisons/></Col>
-          </Row>
-          <Row>
             <Col><Templates/></Col>
           </Row>
         </Row>

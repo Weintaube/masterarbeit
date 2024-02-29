@@ -455,7 +455,7 @@ function MatomoStatistics() {
 
   try {
     return (
-      <>
+      <div>
       {isLabelVisible && (
         <div
           id="edgeLabelDiv"
@@ -473,7 +473,7 @@ function MatomoStatistics() {
           {hoveredEdgeLabel}
         </div>
       )}
-      <Card >
+      <Card>
             <Card.Body >
               <Card.Title>Matomo Visitor Data</Card.Title> 
         <Row>
@@ -604,80 +604,84 @@ function MatomoStatistics() {
                     <h5>Clicked Node: <a href={clickedNodeInfo.clickedNode.uri} target="_blank" rel="noopener noreferrer">{clickedNodeInfo.clickedNode.label}</a></h5>
                   </div>
                 )}
-
-                {clickedNodeInfo.outgoingTransitions.length > 0 && (
-                  <>
-                    <h6>Outgoing Transitions:</h6>
-                    <div className="listgroupstyle listgroupcursor">
-                    <div className="table-container">
-                    <Table bordered hover >
-                    <thead>
-                      <tr>
-                        <th>Link</th>
-                        <th>Target node</th>
-                        <th>Number of transitions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                          {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
-                            <tr key={index}>
-                              <td>
-                                {isExternalNode(transition.target) && (
-                                  <FontAwesomeIcon
-                                    icon={faExternalLinkAlt}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => handleExternalLinkClick(transition.target)}
-                                    />
-                                )}
-                              </td>
-                              <td onClick={() => centerOnNode(transition.target)}>
-                                {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
-                              <td>{transition.label}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                      </Table>
-                      </div>
-                      </div>
-                    </>
-                )}
-
-                  {clickedNodeInfo.incomingTransitions.length > 0 && (
-                  <>
-                    <h6>Incoming Transitions:</h6>
-                    <div className="listgroupstyle listgroupcursor">
-                    <div className="table-container">
-                    <Table bordered hover >
-                    <thead>
-                      <tr>
-                        <th>Link</th>
-                        <th>Source node</th>
-                        <th>Number of transitions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                          {clickedNodeInfo.incomingTransitions.map((transition, index) => (
-                            <tr key={index}>
+                <Row>
+                  <Col xs={6}>
+                    {clickedNodeInfo.outgoingTransitions.length > 0 && (
+                    <>
+                      <h6>Outgoing Transitions:</h6>
+                      <div className="listgroupstyle listgroupcursor">
+                      <div className="table-container">
+                      <Table bordered hover style={{ width: '100%' }}>
+                      <thead>
+                        <tr>
+                          <th>Link</th>
+                          <th>Target node</th>
+                          <th>Number of transitions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
+                              <tr key={index}>
                                 <td>
-                                {isExternalNode(transition.source) && (
-                                  <FontAwesomeIcon
-                                    icon={faExternalLinkAlt}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => handleExternalLinkClick(transition.source)}
-                                    />
-                                )}
+                                  {isExternalNode(transition.target) && (
+                                    <FontAwesomeIcon
+                                      icon={faExternalLinkAlt}
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => handleExternalLinkClick(transition.target)}
+                                      />
+                                  )}
                                 </td>
-                              <td onClick={() => centerOnNode(transition.source)}>
-                                {transition.source}</td>
-                              <td>{transition.label}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                      </Table>
-                      </div>
-                      </div>
-                    </>
-                )}
+                                <td onClick={() => centerOnNode(transition.target)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
+                                  {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
+                                <td>{transition.label}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                        </Table>
+                        </div>
+                        </div>
+                      </>
+                    )}   
+                  </Col>
+                  <Col xs={6}>
+                    {clickedNodeInfo.incomingTransitions.length > 0 && (
+                    <>
+                      <h6>Incoming Transitions:</h6>
+                      <div className="listgroupstyle listgroupcursor">
+                      <div className="table-container">
+                      <Table bordered hover >
+                      <thead>
+                        <tr>
+                          <th>Link</th>
+                          <th>Source node</th>
+                          <th>Number of transitions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {clickedNodeInfo.incomingTransitions.map((transition, index) => (
+                              <tr key={index}>
+                                  <td>
+                                  {isExternalNode(transition.source) && (
+                                    <FontAwesomeIcon
+                                      icon={faExternalLinkAlt}
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => handleExternalLinkClick(transition.source)}
+                                      />
+                                  )}
+                                  </td>
+                                <td onClick={() => centerOnNode(transition.source)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
+                                  {transition.source}</td>
+                                <td>{transition.label}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                        </Table>
+                        </div>
+                        </div>
+                      </>
+                    )}
+                  </Col>
+                </Row>
                 </div>            
         
           </div>
@@ -685,10 +689,11 @@ function MatomoStatistics() {
 
           {/*Right column for diagram*/}
             <Col xs={12} md={8}>
-              {/*Color legend*/}
+              {/*Color legend todo make tooltip out of it*/}
               
-              <p>The colors represent the number of transitions from one node to another which are accumulated in one edge.</p>
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}><p>The colors represent the number of transitions from one node to another which are accumulated in one edge.</p></div>
+              
+              <div style={{ display: 'flex', justifyContent: 'center'}}>
               {Object.entries(sortedGroupedEdgesByColor).map(([color, { labels, minLabel, maxLabel }], index) => (
                 <div
                   key={index}
@@ -728,11 +733,10 @@ function MatomoStatistics() {
                 avoidOverlap: true,
                 circle:true
                 }}
-                style={{ width: '100%', height: '700px', display: 'block' }}
+                style={{ width: '100%', height: '65vh', display: 'block' }}
                 stylesheet={darkModeStyles}
                 cy={(cy) => {
                   setCyInstance(cy);
-                  // Attach event listeners to the cy instance
                   cy.on('tap', 'node', (event) => {
                     handleNodeClick(event);
                   });
@@ -745,9 +749,7 @@ function MatomoStatistics() {
                     if(node.data('label').match(regexExternal)){
                       node.on('click', () => {
                         const nodeId = node.id();
-                        // Handle the click on the node label (you can customize this part)
                         console.log(`Clicked on the label of node with ID: ${nodeId}`);
-                        // Perform any additional actions based on the clicked node
                       });
                       if (showExternalLinks) {
                         node.removeClass('external-node');
@@ -773,7 +775,7 @@ function MatomoStatistics() {
          </Row>
         </Card.Body>
         </Card>
-      </>
+      </div>
     );
   } catch (error) {
     console.error("Error rendering Cytoscape component:", error);
@@ -782,88 +784,3 @@ function MatomoStatistics() {
 }
 
 export default MatomoStatistics;
-
-
-/*
-
-{selectedEdge.length > 0 && (
-        <div style={{ textAlign: "center", margin: "10px" }}>
-          Selected edge {selectedEdge.id} with source node {selectedEdge.source} and target {selectedEdge.target} has {selectedEdge.label} transitions
-        </div>
-        )}
-
-cy={(cy) => {
-              cy.on("select", handleSelect);
-            }}
-
-   const transformedData = [];
-
-          data.forEach((object) => {
-            const actionsData = object.actionDetails;
-          
-            for (let i = 0; i < actionsData.length - 1; i++) {
-              let currentAction = actionsData[i].subtitle;
-              let nextAction = actionsData[i + 1].subtitle;
-          
-              let currentActionPart = currentAction;
-              let nextActionPart = nextAction;
-          
-              const regex =  /orkg\.org\/([^\/]+)/;
-              const currentMatch = currentAction.match(regex);
-              const nextMatch = nextAction.match(regex);
-          
-              if (currentAction === "https://www.orkg.org/") {
-                  currentActionPart = "ORKG main";
-              } else if (currentMatch) {
-                  currentActionPart = currentMatch[1];
-                  if(currentActionPart == "u"){
-                    currentActionPart = "user";
-                  }
-              }
-          
-              if (nextAction === "https://www.orkg.org/") {
-                  nextActionPart = "ORKG main";
-              } else if (nextMatch) {
-                  nextActionPart = nextMatch[1];
-                  if(nextActionPart == "u"){
-                    nextActionPart = "user";
-                  }
-              }
-
-              if (currentActionPart !== nextActionPart) {
-              // Create a new object with source, target, and weight
-              const transition = {
-                source: currentActionPart,
-                target: nextActionPart || '',
-                weight: 1, // Default weight is 1
-              };
-        
-              // Check if a similar transition already exists in the list
-              const existingTransition = transformedData.find(
-                (t) => t.source === transition.source && t.target === transition.target
-              );
-        
-              if (existingTransition) { // If it exists, increment the weight
-                existingTransition.weight += 1;
-
-              } else { // If it doesn't exist, add the new transition to the list
-                transformedData.push(transition);
-              }
-            }
-              
-            }
-          });
-            
-          console.log("MATOMO Transformed", transformedData); //todo make changeable .filter(item=> item.weight > 2)
-          setSankeyData(transformedData); //.filter(item=> item.weight > 2)
-
-
-<Sankey 
-      id="sankey"
-      dataSource={data}
-      sourceField="source"
-      targetField="target"
-      weightField="weight"
-      paletteExtensionMode="extrapolate"
-      theme="Blue Light Compact"
-    />*/

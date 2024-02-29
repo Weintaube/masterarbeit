@@ -127,6 +127,7 @@ function EmptyComparisons(){
                             var filledCells = 0
                             var numberPredicates = 0
                             var allContributions = result.payload.thing.config.contributions.length;
+                            console.log("comparisons nunmber contributions", allContributions);
 
                             predicates = result.payload.thing.data.predicates; 
                             predicates.forEach(predicate =>{
@@ -213,25 +214,18 @@ function EmptyComparisons(){
     }, [comparisonCells, sortCriteria]);
 
     
-    const currentElements = sortedComparisonCells.slice(indexOfFirstElement, indexOfLastElement);
-    
-    const handlePrevPage = () => {
-        setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
-    };
-    
-    const handleNextPage = () => {
-        setCurrentPage((prevPage) =>
-            prevPage < maxPages ? prevPage + 1 : prevPage
-        );
-    };
+    const currentElements = sortedComparisonCells;
 
 
     return( <>
     <Card >
         <Card.Body >
             <Card.Title>Comparisons</Card.Title>
-            <p>Here you can see statistics about the comparison usage.</p>
-            <Table striped bordered hover>
+            <p>Here you can see statistics about the comparison usage. All comparisons: {currentElements.length}. </p>
+            
+            <div className="comparisonlist listgroupcursor">
+            <div className="table-container">
+            <Table striped bordered hover style={{ maxWidth: '100%', overflowY: 'hidden' }}>
             <thead>
             <tr>
             <th>Comparison label</th>
@@ -332,15 +326,8 @@ function EmptyComparisons(){
                 )}
             </tbody>
             </Table>
-            <Row>
-                <Col>Currently page {currentPage} from {maxPages} </Col>
-                <Col>
-                    <Pagination>
-                        <Pagination.Prev onClick={handlePrevPage}/>
-                        <Pagination.Next onClick={handleNextPage} />
-                    </Pagination>     
-                </Col>
-            </Row>
+            </div>
+            </div>
         </Card.Body>
         </Card>
         </>

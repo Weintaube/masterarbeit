@@ -97,8 +97,8 @@ function App() {
           {/*<Col><Contributors/></Col>*/}
           <Row>
             {/*<Col><OldTemplates/></Col>*/}
-            <Col><EmptyComparisons/></Col>
-            <Col><Templates/></Col>
+            <Col md={7}><EmptyComparisons/></Col>
+            <Col md={5}><Templates/></Col>
           </Row>
         </Row>
 

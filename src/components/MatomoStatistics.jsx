@@ -12,6 +12,7 @@ import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
+  const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths
   const [selectedEdge, setSelectedEdge] = useState([]); //todo make label that shows current edge with source, target and label
   const [startDate, setStartDate] = useState('today'); // State for start date
   const [endDate, setEndDate] = useState('');
@@ -62,6 +63,108 @@ function MatomoStatistics() {
     setMaxLabel(max || 0);
   }, [diagramData]);
 
+  useEffect(()=>{
+    /*
+    TEST WITH DUMMY DATA
+    const userData = [
+      ['pageA', 'pageB', 'pageC'],
+      ['pageD', 'pageB', 'pageA', 'pageB'],
+      // Add more users or sequences as needed
+    ];
+    
+    // Set parameters
+    const minSubSequenceLength = 2;
+    
+    // Call the sequential pattern mining algorithm
+    console.log("matomo algorithm START");
+    const result = sequentialPatternMining(userData, minSubSequenceLength);*/
+  
+    const userPathsInputAlgo = [];
+    const regex = /orkg\.org\/([^\/]+)/; //TODO change the way the urls are cutted?
+    const regexContribution = /^contribution-editor/;
+    console.log("algo raw data", rawData);
+    rawData.forEach((user) =>{
+      let userPath = [];
+      user.actionDetails.forEach((page) =>{
+        let pageUrl = page.subtitle;
+
+        let matching = pageUrl.match(regex);
+
+        if(pageUrl === "https://www.orkg.org/"){
+          pageUrl = "ORKG main";
+        }else if(matching){ //something with orkg
+          pageUrl = matching[1];
+          if(matching[1] === "u"){
+            pageUrl = "user";
+            
+          }else if(matching[1].match(regexContribution)){
+            pageUrl = "contribution editor";
+          }
+        }
+
+        userPath.push(pageUrl);
+      })
+      userPathsInputAlgo.push(...[userPath]);
+    });
+
+    console.log("algo paths", userPathsInputAlgo);
+
+    const minSubSequenceLength = 2;
+    const resultAlgo = sequentialPatternMining(userPathsInputAlgo, minSubSequenceLength);
+    console.log("result algorithm matomo data", resultAlgo);
+
+  }, [rawData]);
+
+  function prefixSpanAlgorithm(sequence, minSubSequenceLength, prefix, uniquePatterns) {
+    //console.log("algo start prefix", prefix);
+    //console.log("algo start sequence", sequence);
+    let userFrequentPatterns = [];
+
+    if (prefix && prefix.length >= minSubSequenceLength) {
+        const uniquePatternString = JSON.stringify([...prefix]);
+        if (!uniquePatterns.has(uniquePatternString)) {
+            uniquePatterns.add(uniquePatternString);
+            userFrequentPatterns.push([...prefix]);
+        }
+    }
+
+    for (let i = 0; i < sequence.length; i++) {
+        let currentElement = sequence[i];
+        let remainingSequence = sequence.slice(i + 1);
+
+        prefix = prefix ? prefix.concat(currentElement) : [currentElement];
+
+        /*console.log("algo new prefix", prefix);
+        console.log("algo current element", currentElement);
+        console.log("algo new subsequence", remainingSequence);*/
+
+        let subPatterns = prefixSpanAlgorithm(remainingSequence, minSubSequenceLength, prefix, uniquePatterns);
+        //console.log("algo subpattern after call", subPatterns);
+        userFrequentPatterns.push(...subPatterns);
+    }
+
+    if (prefix && prefix.length > 0 && sequence.length === 0) {
+        let newPrefix = prefix.slice(1);
+        //console.log("algo prefix new prefix", prefix, newPrefix);
+        let subPatterns = prefixSpanAlgorithm([], minSubSequenceLength, newPrefix, uniquePatterns);
+        //console.log("algo subpattern after call (empty subsequence)", subPatterns);
+        userFrequentPatterns.push(...subPatterns);
+    }
+
+    return userFrequentPatterns;
+  }
+
+  function sequentialPatternMining(data, minSubSequenceLength) {
+      let allFrequentPatterns = [];
+      data.forEach((user) => {
+          let uniquePatterns = new Set();
+          let userFrequentPatterns = prefixSpanAlgorithm(user, minSubSequenceLength, null, uniquePatterns);
+          allFrequentPatterns.push(...userFrequentPatterns);
+      });
+
+      return allFrequentPatterns;
+  }
+  
   const fetchData = async () => {
     const matomoParams = {
       idSite: siteID,
@@ -100,6 +203,7 @@ function MatomoStatistics() {
         console.error('Matomo API request failed:', response.status, response.statusText);
       }
       const data = await response.json();
+      setRawData(data);
       console.log("MATOMO DATA", data);
 
       const transformedData = [];
@@ -745,7 +849,7 @@ function MatomoStatistics() {
                   cy.on('mouseout', 'edge', handleMouseout);
                   
                   cy.nodes().forEach((node) =>{
-                    const regexExternal = /^(https?:\/\/|http:\/\/)/;
+                    const regexExternal = /^(https?:\/\/|http:\/\/)/; //TODO change as the raw data has a flag: type "outlink"
                     if(node.data('label').match(regexExternal)){
                       node.on('click', () => {
                         const nodeId = node.id();

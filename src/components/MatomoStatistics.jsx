@@ -85,9 +85,10 @@ function MatomoStatistics() {
     console.log("algo raw data", rawData);
     rawData.forEach((user) =>{
       let userPath = [];
+      let previousPage = null;
+
       user.actionDetails.forEach((page) =>{
         let pageUrl = page.subtitle;
-
         let matching = pageUrl.match(regex);
 
         if(pageUrl === "https://www.orkg.org/"){
@@ -102,67 +103,71 @@ function MatomoStatistics() {
           }
         }
 
-        userPath.push(pageUrl);
+        if (pageUrl !== previousPage) { //TODO no duplicate sequential pages, intended???
+          userPath.push(pageUrl);
+          previousPage = pageUrl;
+        }
+        //userPath.push(pageUrl);
       })
       userPathsInputAlgo.push(...[userPath]);
     });
 
     console.log("algo paths", userPathsInputAlgo);
 
-    const minSubSequenceLength = 2;
-    const resultAlgo = sequentialPatternMining(userPathsInputAlgo, minSubSequenceLength);
+    const resultAlgo = sequentialPatternMining(userPathsInputAlgo);
+    const minPathLength = 2; //TODO make variable
+    const uniqueResult = pathsWithOccurences(resultAlgo, minPathLength);
+
+
     console.log("result algorithm matomo data", resultAlgo);
+    console.log("result unique algorithm data", uniqueResult);
 
   }, [rawData]);
 
-  function prefixSpanAlgorithm(sequence, minSubSequenceLength, prefix, uniquePatterns) {
-    //console.log("algo start prefix", prefix);
-    //console.log("algo start sequence", sequence);
-    let userFrequentPatterns = [];
-
-    if (prefix && prefix.length >= minSubSequenceLength) {
-        const uniquePatternString = JSON.stringify([...prefix]);
-        if (!uniquePatterns.has(uniquePatternString)) {
-            uniquePatterns.add(uniquePatternString);
-            userFrequentPatterns.push([...prefix]);
-        }
-    }
-
-    for (let i = 0; i < sequence.length; i++) {
-        let currentElement = sequence[i];
-        let remainingSequence = sequence.slice(i + 1);
-
-        prefix = prefix ? prefix.concat(currentElement) : [currentElement];
-
-        /*console.log("algo new prefix", prefix);
-        console.log("algo current element", currentElement);
-        console.log("algo new subsequence", remainingSequence);*/
-
-        let subPatterns = prefixSpanAlgorithm(remainingSequence, minSubSequenceLength, prefix, uniquePatterns);
-        //console.log("algo subpattern after call", subPatterns);
-        userFrequentPatterns.push(...subPatterns);
-    }
-
-    if (prefix && prefix.length > 0 && sequence.length === 0) {
-        let newPrefix = prefix.slice(1);
-        //console.log("algo prefix new prefix", prefix, newPrefix);
-        let subPatterns = prefixSpanAlgorithm([], minSubSequenceLength, newPrefix, uniquePatterns);
-        //console.log("algo subpattern after call (empty subsequence)", subPatterns);
-        userFrequentPatterns.push(...subPatterns);
-    }
-
-    return userFrequentPatterns;
+  function pathsWithOccurences(resultAlgo, minPathLength) {
+    const uniquePaths = [];
+  
+    resultAlgo.forEach((path) => {
+      // Check if the path already exists in uniquePaths
+      const existingPath = uniquePaths.find((item) => arraysEqual(item.path, path));
+  
+      if (existingPath) {
+        existingPath.occurrences++;
+      } else {
+        uniquePaths.push({ path, occurrences: 1 });
+      }
+    });
+  
+    // Filter paths based on the minimum length
+    return uniquePaths.filter((item) => item.path.length >= minPathLength);
   }
+  
+  // Helper function to compare arrays
+  function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+  }
+  
 
-  function sequentialPatternMining(data, minSubSequenceLength) {
-      let allFrequentPatterns = [];
-      data.forEach((user) => {
-          let uniquePatterns = new Set();
-          let userFrequentPatterns = prefixSpanAlgorithm(user, minSubSequenceLength, null, uniquePatterns);
-          allFrequentPatterns.push(...userFrequentPatterns);
-      });
-
-      return allFrequentPatterns;
+  function sequentialPatternMining(data) {
+    let allFrequentPatterns = [];
+  
+    // Iterate over each user's sequence
+    data.forEach((userSequence) => {
+      // Iterate over each page in the sequence
+      for (let i = 0; i < userSequence.length; i++) {
+        for (let j = i + 1; j <= userSequence.length; j++) {
+          // Extract subsequence
+          const subSequence = userSequence.slice(i, j);
+          allFrequentPatterns.push(...[subSequence]); 
+        }
+      }
+    });
+  
+    return allFrequentPatterns;
   }
   
   const fetchData = async () => {

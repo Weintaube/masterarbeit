@@ -13,6 +13,8 @@ import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
   const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths
+  const [uniquePaths, setUniquePaths] = useState([]);
+  const [filterPaths, setFilteredPaths] = useState([]);
   const [selectedEdge, setSelectedEdge] = useState([]); //todo make label that shows current edge with source, target and label
   const [startDate, setStartDate] = useState('today'); // State for start date
   const [endDate, setEndDate] = useState('');
@@ -26,6 +28,10 @@ function MatomoStatistics() {
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
+  const [minPathLength, setMinPathLength] = useState(2);
+  const [maxPathLength, setMaxPathLength] = useState(10); // Set your initial maximum length
+  const [minOccurrences, setMinOccurrences] = useState(5);
+  //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
     default: ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered'],
@@ -62,7 +68,7 @@ function MatomoStatistics() {
     const max = Math.max(...edgeLabels);
     setMaxLabel(max || 0);
   }, [diagramData]);
-
+  
   useEffect(()=>{
     /*
     TEST WITH DUMMY DATA
@@ -116,13 +122,37 @@ function MatomoStatistics() {
 
     const resultAlgo = sequentialPatternMining(userPathsInputAlgo);
     const minPathLength = 2; //TODO make variable
+    const maxPathLength = 5; //TODO make variable
+    const minOccurences = 4; //TODO make variable
     const uniqueResult = pathsWithOccurences(resultAlgo, minPathLength);
-
-
+    setUniquePaths(uniqueResult);
+    
     console.log("result algorithm matomo data", resultAlgo);
     console.log("result unique algorithm data", uniqueResult);
 
+    //const filteredPaths = uniqueResult.filter((item) => item.path.length >= minPathLength && item.path.length <= maxPathLength && item.occurrences >= minOccurences);
+    //console.log("result algo filtered min 2 max 5", filteredPaths);
+
   }, [rawData]);
+
+  useEffect(() => {
+    // Inline filtering function
+    const filterPaths = (paths) => {
+      return paths.filter(item => (
+        item.path.length >= minPathLength &&
+        item.path.length <= maxPathLength &&
+        item.occurrences >= minOccurrences
+      ));
+    };
+
+    // Apply filters whenever rawData, minPathLength, maxPathLength, or minOccurrences change
+    //const resultAlgo = sequentialPatternMining(userPathsInputAlgo);
+    //const filteredResult = filterPaths(resultAlgo);
+    const filteredResult = filterPaths(uniquePaths); // Change this line
+
+    setFilteredPaths(filteredResult);
+
+  }, [rawData, minPathLength, maxPathLength, minOccurrences]);
 
   function pathsWithOccurences(resultAlgo, minPathLength) {
     const uniquePaths = [];
@@ -586,6 +616,8 @@ function MatomoStatistics() {
             <Card.Body >
               <Card.Title>Matomo Visitor Data</Card.Title> 
         <Row>
+        <Col xs={16} md={9}>
+        <Row>
           <Col xs={12} md={4}>
           {/*Date selection form*/}
           <div>
@@ -881,6 +913,67 @@ function MatomoStatistics() {
               />
             )}
             </Col>
+         </Row>
+         </Col>
+
+
+         <Col xs={10} md={3}>
+         <h2>Frequent Paths</h2>
+          <Row>
+            <Form.Group controlId="minPathLength">
+              <Form.Label>Minimum Path Length:</Form.Label>
+              <Form.Control
+                type="number"
+                value={minPathLength}
+                onChange={(e) => setMinPathLength(parseInt(e.target.value))}
+              />
+            </Form.Group>
+          </Row>
+          <Row>
+            <Form.Group controlId="maxPathLength">
+              <Form.Label>Maximum Path Length:</Form.Label>
+              <Form.Control
+                type="number"
+                value={maxPathLength}
+                onChange={(e) => setMaxPathLength(parseInt(e.target.value))}
+              />
+            </Form.Group>
+          </Row>
+          <Row>
+            <Form.Group controlId="minOccurrences">
+              <Form.Label>Minimum Occurrences:</Form.Label>
+              <Form.Control
+                type="number"
+                value={minOccurrences}
+                onChange={(e) => setMinOccurrences(parseInt(e.target.value))}
+              />
+            </Form.Group>
+          </Row>
+
+        <div className="pathgroupstyle">
+        <div className="table-container">
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Path</th>
+                  <th>Length</th>
+                  <th>Occurrences</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filterPaths.map((item, index) => (
+                  <tr key={index}>
+                    <td style={{ overflow: 'hidden', wordBreak: 'break-all'}}>{item.path.join(' -> ')}</td>
+                    <td>{item.path.length}</td>
+                    <td>{item.occurrences}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            </div>
+          </div>
+         
+         </Col>
          </Row>
         </Card.Body>
         </Card>

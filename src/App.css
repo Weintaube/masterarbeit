@@ -13,6 +13,12 @@
   overflow: auto;
 }
 
+.pathgroupstyle{
+  max-height: 400px;
+  max-width: 420px;
+  overflow: auto;
+}
+
 .templatelist{
   max-height: 450px;
   max-width: 400px;

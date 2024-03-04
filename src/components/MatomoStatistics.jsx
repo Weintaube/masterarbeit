@@ -28,9 +28,9 @@ function MatomoStatistics() {
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
-  const [minPathLength, setMinPathLength] = useState(2);
+  const [minPathLength, setMinPathLength] = useState(3);
   const [maxPathLength, setMaxPathLength] = useState(10); // Set your initial maximum length
-  const [minOccurrences, setMinOccurrences] = useState(5);
+  const [minOccurrences, setMinOccurrences] = useState(3);
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
@@ -616,7 +616,7 @@ function MatomoStatistics() {
             <Card.Body >
               <Card.Title>Matomo Visitor Data</Card.Title> 
         <Row>
-        <Col xs={16} md={9}>
+        <Col xs={16} md={10}>
         <Row>
           <Col xs={12} md={4}>
           {/*Date selection form*/}
@@ -691,7 +691,7 @@ function MatomoStatistics() {
                 <Form.Check
                   type="switch"
                   id="toggleExternalLinks"
-                  label="Show External Links (how visitors exit the ORKG)"
+                  label="Show External Links"
                   checked={showExternalLinks}
                   onChange={toggleExternalLinks}
                 />
@@ -917,7 +917,7 @@ function MatomoStatistics() {
          </Col>
 
 
-         <Col xs={10} md={3}>
+         <Col xs={10} md={2}>
          <h2>Frequent Paths</h2>
           <Row>
             <Form.Group controlId="minPathLength">

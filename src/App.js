@@ -112,10 +112,10 @@ function App() {
         <>
         <Row>
           <Col>
-            <ClassesWithoutDescr/>
+            <PropertiesWithoutDescr/>
           </Col>
           <Col>
-            <PropertiesWithoutDescr/>
+            <ClassesWithoutDescr/>
           </Col>
         </Row>
         </>

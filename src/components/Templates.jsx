@@ -188,7 +188,7 @@ function Templates() {
         <Card >
             <Card.Body >
                 <Card.Title>Templates</Card.Title>
-                <p>Here you can statistics about the template usage.</p>
+                <p>Here you can see statistics about the template usage.</p>
 
                 <Row>
                     <Col>

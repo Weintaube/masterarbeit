@@ -2,13 +2,13 @@
 import { useEffect, useState } from "react";
 import CytoscapeComponent from 'react-cytoscapejs';
 import Card from 'react-bootstrap/Card';
-import { Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Row, Col, Dropdown, DropdownButton , Accordion, Tab, Tabs, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import chroma from 'chroma-js';
 import Table from 'react-bootstrap/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLinkAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
@@ -613,16 +613,25 @@ function MatomoStatistics() {
         </div>
       )}
       <Card>
-            <Card.Body >
-              <Card.Title>Matomo Visitor Data</Card.Title> 
+        <Card.Body >
+          <Card.Title>Matomo Visitor Data</Card.Title> 
+          <Tabs 
+            defaultActiveKey="graph"
+            id="uncontrolled-tab-example"
+            className="mb-3">
+            <Tab eventKey="graph" title="Network Graph">
+              
         <Row>
         <Col xs={16} md={10}>
         <Row>
-          <Col xs={12} md={4}>
-          {/*Date selection form*/}
-          <div>
-            <p>Please enter dates in the format YYYY-MM-DD.</p>
+          {/*left part of card*/}
+          <Col xs={10} md={3}>
+          <Accordion defaultActiveKey="0">
+          <Accordion.Item eventKey="modify_data">
+            <Accordion.Header>Change the graph data</Accordion.Header>
+            <Accordion.Body>
             <Row>
+            <p>Please enter dates in the format <br></br>YYYY-MM-DD.</p>
               <Col>
                 <Form.Check
                   type="checkbox"
@@ -633,7 +642,7 @@ function MatomoStatistics() {
               </Col>
             </Row>
             <Row>
-              <Col>
+              <Row>
                 <Form.Group>
                 <Form.Label>Start Date:</Form.Label>
                   <Form.Control
@@ -642,9 +651,9 @@ function MatomoStatistics() {
                     onChange={handleStartDateChange}
                   />
                 </Form.Group>
-              </Col>
+              </Row>
 
-              <Col>
+              <Row className="mb-3">
               <Form.Group>
                 <Form.Label>End Date:</Form.Label>
                 <Form.Control
@@ -654,26 +663,23 @@ function MatomoStatistics() {
                   disabled={fetchOneDay}
                 />
               </Form.Group>
-              </Col>
+              </Row>
 
-              <Col>
-                <Button variant="primary" onClick={fetchData}> Fetch Data</Button>
-              </Col>
+              <Row>
+                <Col>
+                <Button className="d-inline-block mx-auto" variant="primary" onClick={fetchData}> Fetch Data</Button>
+                </Col>
+              </Row>
             </Row>
-            <Row>
-              {/*<h5>Modify the graph:</h5>*/}
-              <Col>
-                <Form.Group>
-                  <Form.Label>Node Spacing:</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={nodeSpacing}
-                    onChange={(e) => setNodeSpacing(parseInt(e.target.value))}
-                  />
-                </Form.Group>
-              </Col>
+            </Accordion.Body>
+            </Accordion.Item>
 
-              <Col>
+            <Accordion.Item>
+              <Accordion.Header>Modify the graph</Accordion.Header>
+              <Accordion.Body>
+
+              <Row>
+                <Form.Group>
                 <Form.Label>Select graph layout:</Form.Label>
                 <Form.Select 
                   aria-label="selectlayout"
@@ -684,8 +690,31 @@ function MatomoStatistics() {
                   <option value="grid">grid</option>
                   <option value="random">random</option>
                 </Form.Select>
-            </Col>
-            </Row>
+                </Form.Group>
+              </Row>
+
+              <Row>
+                <Form.Group>
+                  <Form.Label>Node Spacing:</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={nodeSpacing}
+                    onChange={(e) => setNodeSpacing(parseInt(e.target.value))}
+                  />
+                </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                <Form.Group>
+                    <Form.Label>Transition Threshold:</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={transitionThreshold}
+                      onChange={(e) => setTransitionThreshold(isNaN(parseInt(e.target.value)) ? 1 : parseInt(e.target.value))}
+                    />
+                  </Form.Group>
+              </Row>
+
             <Row>
               <Col>
                 <Form.Check
@@ -696,144 +725,33 @@ function MatomoStatistics() {
                   onChange={toggleExternalLinks}
                 />
               </Col>
-              <Col>
-                <Form.Group>
-                    <Form.Label>Transition Threshold:</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={transitionThreshold}
-                      onChange={(e) => setTransitionThreshold(isNaN(parseInt(e.target.value)) ? 1 : parseInt(e.target.value))}
-                    />
-                  </Form.Group>
-              </Col>
             </Row>
-
-            <Row>
-              {/* Dropdown for changing color scheme */}
-              <Dropdown>
-                <Dropdown.Toggle variant="secondary" id="colorSchemeDropdown">
-                  Select Color Scheme
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  {Object.keys(colorSchemes).map((scheme) => (
-                    <Dropdown.Item key={scheme} onClick={() => handleColorSchemeChange(scheme)}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {colorSchemes[scheme].map((color, index) => (
-                          <div
-                            key={index}
-                            style={{
-                              width: '20px',
-                              height: '20px',
-                              backgroundColor: color,
-                              marginRight: '5px',
-                              border: '1px solid #ccc',
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </Row>
-
-            {/* Display information about the clicked node and its transitions */}
-              <div style={{ marginTop: '20px' }}>
-                {clickedNodeInfo.clickedNode && (
-                  <div>
-                    <h5>Clicked Node: <a href={clickedNodeInfo.clickedNode.uri} target="_blank" rel="noopener noreferrer">{clickedNodeInfo.clickedNode.label}</a></h5>
-                  </div>
-                )}
-                <Row>
-                  <Col xs={6}>
-                    {clickedNodeInfo.outgoingTransitions.length > 0 && (
-                    <>
-                      <h6>Outgoing Transitions:</h6>
-                      <div className="listgroupstyle listgroupcursor">
-                      <div className="table-container">
-                      <Table bordered hover style={{ width: '100%' }}>
-                      <thead>
-                        <tr>
-                          <th>Link</th>
-                          <th>Target node</th>
-                          <th>Number of transitions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
-                              <tr key={index}>
-                                <td>
-                                  {isExternalNode(transition.target) && (
-                                    <FontAwesomeIcon
-                                      icon={faExternalLinkAlt}
-                                      style={{ cursor: 'pointer' }}
-                                      onClick={() => handleExternalLinkClick(transition.target)}
-                                      />
-                                  )}
-                                </td>
-                                <td onClick={() => centerOnNode(transition.target)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
-                                  {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
-                                <td>{transition.label}</td>
-                              </tr>
-                            ))}
-                        </tbody>
-                        </Table>
-                        </div>
-                        </div>
-                      </>
-                    )}   
-                  </Col>
-                  <Col xs={6}>
-                    {clickedNodeInfo.incomingTransitions.length > 0 && (
-                    <>
-                      <h6>Incoming Transitions:</h6>
-                      <div className="listgroupstyle listgroupcursor">
-                      <div className="table-container">
-                      <Table bordered hover >
-                      <thead>
-                        <tr>
-                          <th>Link</th>
-                          <th>Source node</th>
-                          <th>Number of transitions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {clickedNodeInfo.incomingTransitions.map((transition, index) => (
-                              <tr key={index}>
-                                  <td>
-                                  {isExternalNode(transition.source) && (
-                                    <FontAwesomeIcon
-                                      icon={faExternalLinkAlt}
-                                      style={{ cursor: 'pointer' }}
-                                      onClick={() => handleExternalLinkClick(transition.source)}
-                                      />
-                                  )}
-                                  </td>
-                                <td onClick={() => centerOnNode(transition.source)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
-                                  {transition.source}</td>
-                                <td>{transition.label}</td>
-                              </tr>
-                            ))}
-                        </tbody>
-                        </Table>
-                        </div>
-                        </div>
-                      </>
-                    )}
-                  </Col>
-                </Row>
-                </div>            
-        
-          </div>
+            </Accordion.Body>
+            </Accordion.Item>
+            </Accordion>
+          
           </Col>
 
-          {/*Right column for diagram*/}
-            <Col xs={12} md={8}>
+          {/*middle column for diagram*/}
+            <Col xs={14} md={9}>
               {/*Color legend todo make tooltip out of it*/}
-              
-              <div style={{ display: 'flex', justifyContent: 'center' }}><p>The colors represent the number of transitions from one node to another which are accumulated in one edge.</p></div>
-              
+              <Row className="justify-content-center">
+              <Col xs={1} md={1}>
+              <OverlayTrigger
+                placement="right"
+                overlay={
+                  <Tooltip id="tooltip-info" data-bs-theme="dark">
+                    The colors represent the number of transitions from one node to another. Multiple transitions with same source and target node are accumulated in one edge. 
+                    You can hover over an edge to see the exact number of transitions.
+                    You can also click on a node to see outgoing and incoming transitions.
+                  </Tooltip>
+                }
+              >
+              <FontAwesomeIcon icon={faInfoCircle} style={{ color: '#007bff', marginRight: '5px' }} />
+              </OverlayTrigger>
+              </Col>
+
+              <Col xs={8} md={6}>
               <div style={{ display: 'flex', justifyContent: 'center'}}>
               {Object.entries(sortedGroupedEdgesByColor).map(([color, { labels, minLabel, maxLabel }], index) => (
                 <div
@@ -863,6 +781,38 @@ function MatomoStatistics() {
                 </div>
               ))}
             </div>
+            </Col>
+
+            <Col xs={3} md={2}>
+            {/* Dropdown for changing color scheme */}
+            <Dropdown>
+                <Dropdown.Toggle variant="secondary" id="colorSchemeDropdown">
+                  Select Color Scheme
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  {Object.keys(colorSchemes).map((scheme) => (
+                    <Dropdown.Item key={scheme} onClick={() => handleColorSchemeChange(scheme)}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {colorSchemes[scheme].map((color, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              backgroundColor: color,
+                              marginRight: '5px',
+                              border: '1px solid #ccc',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
+            </Row>
 
 
             {/*Cytoscape diagram*/}
@@ -918,8 +868,98 @@ function MatomoStatistics() {
 
 
          <Col xs={10} md={2}>
-         <h2>Frequent Paths</h2>
-          <Row>
+          {/* Display information about the clicked node and its transitions */}
+          <div>
+                {clickedNodeInfo.clickedNode && (
+                  <div>
+                    <h5>Clicked Node: <a href={clickedNodeInfo.clickedNode.uri} target="_blank" rel="noopener noreferrer">{clickedNodeInfo.clickedNode.label}</a></h5>
+                  </div>
+                )}
+                <Row>
+                    {clickedNodeInfo.outgoingTransitions.length > 0 && (
+                    <>
+                      <h6>Outgoing Transitions:</h6>
+                      <div className="clickednodelist listgroupcursor">
+                      <div className="table-container">
+                      <Table bordered hover style={{ width: '100%' }}>
+                      <thead>
+                        <tr>
+                          <th>Link</th>
+                          <th>Target node</th>
+                          <th>Number of transitions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
+                              <tr key={index}>
+                                <td>
+                                  {isExternalNode(transition.target) && (
+                                    <FontAwesomeIcon
+                                      icon={faExternalLinkAlt}
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => handleExternalLinkClick(transition.target)}
+                                      />
+                                  )}
+                                </td>
+                                <td onClick={() => centerOnNode(transition.target)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
+                                  {transition.target}</td> {/*<a href={transition.targetUri} target="_blank" rel="noopener noreferrer">*/}
+                                <td>{transition.label}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                        </Table>
+                        </div>
+                        </div>
+                      </>
+                    )}   
+                    </Row>
+                  <Row>
+                    {clickedNodeInfo.incomingTransitions.length > 0 && (
+                    <>
+                      <h6>Incoming Transitions:</h6>
+                      <div className="clickednodelist listgroupcursor">
+                      <div className="table-container">
+                      <Table bordered hover >
+                      <thead>
+                        <tr>
+                          <th>Link</th>
+                          <th>Source node</th>
+                          <th>Number of transitions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {clickedNodeInfo.incomingTransitions.map((transition, index) => (
+                              <tr key={index}>
+                                  <td>
+                                  {isExternalNode(transition.source) && (
+                                    <FontAwesomeIcon
+                                      icon={faExternalLinkAlt}
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => handleExternalLinkClick(transition.source)}
+                                      />
+                                  )}
+                                  </td>
+                                <td onClick={() => centerOnNode(transition.source)} style={{ overflow: 'hidden', wordBreak: 'break-all'}}>
+                                  {transition.source}</td>
+                                <td>{transition.label}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                        </Table>
+                        </div>
+                        </div>
+                      </>
+                    )}
+                  </Row>
+                </div> 
+          </Col>
+          </Row>
+          </Tab>
+
+
+         <Tab eventKey="paths" title="Frequent Paths">
+          <Row className="mb-3">
+            <Col>
             <Form.Group controlId="minPathLength">
               <Form.Label>Minimum Path Length:</Form.Label>
               <Form.Control
@@ -928,8 +968,8 @@ function MatomoStatistics() {
                 onChange={(e) => setMinPathLength(parseInt(e.target.value))}
               />
             </Form.Group>
-          </Row>
-          <Row>
+            </Col>
+            <Col>
             <Form.Group controlId="maxPathLength">
               <Form.Label>Maximum Path Length:</Form.Label>
               <Form.Control
@@ -938,8 +978,8 @@ function MatomoStatistics() {
                 onChange={(e) => setMaxPathLength(parseInt(e.target.value))}
               />
             </Form.Group>
-          </Row>
-          <Row>
+          </Col>
+          <Col>
             <Form.Group controlId="minOccurrences">
               <Form.Label>Minimum Occurrences:</Form.Label>
               <Form.Control
@@ -948,6 +988,7 @@ function MatomoStatistics() {
                 onChange={(e) => setMinOccurrences(parseInt(e.target.value))}
               />
             </Form.Group>
+          </Col>
           </Row>
 
         <div className="pathgroupstyle">
@@ -972,12 +1013,12 @@ function MatomoStatistics() {
             </Table>
             </div>
           </div>
-         
-         </Col>
-         </Row>
+        </Tab>
+        </Tabs>
         </Card.Body>
         </Card>
       </div>
+
     );
   } catch (error) {
     console.error("Error rendering Cytoscape component:", error);

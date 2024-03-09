@@ -31,6 +31,7 @@ function MatomoStatistics() {
   const [minPathLength, setMinPathLength] = useState(3);
   const [maxPathLength, setMaxPathLength] = useState(10); // Set your initial maximum length
   const [minOccurrences, setMinOccurrences] = useState(3);
+  const [selectedPath, setSelectedPath] = useState(null);
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
@@ -91,28 +92,30 @@ function MatomoStatistics() {
     console.log("algo raw data", rawData);
     rawData.forEach((user) =>{
       let userPath = [];
-      let previousPage = null;
+      //let previousPage = null;
 
       user.actionDetails.forEach((page) =>{
         let pageUrl = page.subtitle;
-        let matching = pageUrl.match(regex);
+        let pageUrlCut = page.subtitle;
+        let matching = pageUrlCut.match(regex);
 
-        if(pageUrl === "https://www.orkg.org/"){
-          pageUrl = "ORKG main";
+        if(pageUrlCut === "https://www.orkg.org/"){
+          pageUrlCut = "ORKG main";
         }else if(matching){ //something with orkg
-          pageUrl = matching[1];
+          pageUrlCut = matching[1];
           if(matching[1] === "u"){
-            pageUrl = "user";
+            pageUrlCut = "user";
             
           }else if(matching[1].match(regexContribution)){
-            pageUrl = "contribution editor";
+            pageUrlCut = "contribution editor";
           }
         }
 
-        if (pageUrl !== previousPage) { //TODO no duplicate sequential pages, intended???
-          userPath.push(pageUrl);
-          previousPage = pageUrl;
-        }
+        //if (pageUrl !== previousPage) { //TODO no duplicate sequential pages, intended???
+        //userPath.push({url: pageUrl, cutoff: pageUrlCut});
+        userPath.push(pageUrlCut);
+          //previousPage = pageUrl;
+        //}
         //userPath.push(pageUrl);
       })
       userPathsInputAlgo.push(...[userPath]);
@@ -121,10 +124,7 @@ function MatomoStatistics() {
     console.log("algo paths", userPathsInputAlgo);
 
     const resultAlgo = sequentialPatternMining(userPathsInputAlgo);
-    const minPathLength = 2; //TODO make variable
-    const maxPathLength = 5; //TODO make variable
-    const minOccurences = 4; //TODO make variable
-    const uniqueResult = pathsWithOccurences(resultAlgo, minPathLength);
+    const uniqueResult = pathsWithOccurences(resultAlgo);
     setUniquePaths(uniqueResult);
     
     console.log("result algorithm matomo data", resultAlgo);
@@ -145,22 +145,27 @@ function MatomoStatistics() {
       ));
     };
 
-    // Apply filters whenever rawData, minPathLength, maxPathLength, or minOccurrences change
     //const resultAlgo = sequentialPatternMining(userPathsInputAlgo);
     //const filteredResult = filterPaths(resultAlgo);
     const filteredResult = filterPaths(uniquePaths); // Change this line
-
     setFilteredPaths(filteredResult);
 
   }, [rawData, minPathLength, maxPathLength, minOccurrences]);
 
-  function pathsWithOccurences(resultAlgo, minPathLength) {
+  function pathsWithOccurences(resultAlgo) {
     const uniquePaths = [];
   
     resultAlgo.forEach((path) => {
       // Check if the path already exists in uniquePaths
       const existingPath = uniquePaths.find((item) => arraysEqual(item.path, path));
   
+      /*if (existingPath) {
+        // Add the full URLs to the existing path
+        existingPath.fullPaths.push(...path.fullPaths);
+      } else {
+        // Create a new path entry
+        uniquePaths.push({ path: path.path, fullPaths: path.fullPaths });
+      }*/
       if (existingPath) {
         existingPath.occurrences++;
       } else {
@@ -168,9 +173,9 @@ function MatomoStatistics() {
       }
     });
   
-    // Filter paths based on the minimum length
-    return uniquePaths.filter((item) => item.path.length >= minPathLength);
+    return uniquePaths;
   }
+  
   
   // Helper function to compare arrays
   function arraysEqual(arr1, arr2) {
@@ -198,6 +203,20 @@ function MatomoStatistics() {
     });
   
     return allFrequentPatterns;
+  }
+
+  function handleRowClick(clickedPath) {
+    const originalUrls = getOriginalUrlsForPath(clickedPath); 
+    setSelectedPath({ path: clickedPath, originalUrls });
+  
+    // Example: setModalShow(true);
+  }
+  
+  function getOriginalUrlsForPath(cutOffPath) {
+    // You need to implement the logic to retrieve the original URLs based on the cut-off path
+    // This could involve searching through your raw data
+    // Return an array of original URLs associated with the cut-off path
+    // Example: return rawData.filter(user => arraysEqual(user.actionDetails.map(page => extractRelevantUrl(page.subtitle)), cutOffPath));
   }
   
   const fetchData = async () => {
@@ -285,7 +304,7 @@ function MatomoStatistics() {
 
           }
 
-          if (currentActionPart !== nextActionPart) {
+          //if (currentActionPart !== nextActionPart) {
 
             const sourceId = `${currentActionPart}`;
             const targetId = `${nextActionPart}`;
@@ -346,7 +365,7 @@ function MatomoStatistics() {
             } else { // If it doesn't exist, add the new edge to the list
               transformedData.push(edge);
             }
-          }
+          //}
         }
       });
 
@@ -878,7 +897,7 @@ function MatomoStatistics() {
                 <Row>
                     {clickedNodeInfo.outgoingTransitions.length > 0 && (
                     <>
-                      <h6>Outgoing Transitions:</h6>
+                      <h6>Outgoing Transitions ({clickedNodeInfo.outgoingTransitions.reduce((total, transition) => total + parseInt(transition.label, 10), 0)}):</h6>
                       <div className="clickednodelist listgroupcursor">
                       <div className="table-container">
                       <Table bordered hover style={{ width: '100%' }}>
@@ -916,7 +935,7 @@ function MatomoStatistics() {
                   <Row>
                     {clickedNodeInfo.incomingTransitions.length > 0 && (
                     <>
-                      <h6>Incoming Transitions:</h6>
+                      <h6>Incoming Transitions ({clickedNodeInfo.incomingTransitions.reduce((total, transition) => total + parseInt(transition.label, 10), 0)}):</h6>
                       <div className="clickednodelist listgroupcursor">
                       <div className="table-container">
                       <Table bordered hover >
@@ -1003,7 +1022,7 @@ function MatomoStatistics() {
               </thead>
               <tbody>
                 {filterPaths.map((item, index) => (
-                  <tr key={index}>
+                  <tr key={index} onClick={() => handleRowClick(item.path)}>
                     <td style={{ overflow: 'hidden', wordBreak: 'break-all'}}>{item.path.join(' -> ')}</td>
                     <td>{item.path.length}</td>
                     <td>{item.occurrences}</td>

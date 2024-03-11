@@ -11,7 +11,7 @@ import {OverlayTrigger, Tooltip, Popover, Modal} from "react-bootstrap";
 function CommentsDB(){
     const [commentList, setCommentList] = useState([]); //list for keeping the ids which have a list of comments attached, sorted by resource id
     const [rawCommentList, setRawCommentList] = useState([]); //raw comments, each one in a row
-    const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison"]); //todo think about how the statement can be implemented
+    //const [typeInstances, setTypeInstances] = useState(["Paper", "Comparison"]); //todo think about how the statement can be implemented
     const [typeComments, setTypeComments, ] = useState(["Accuracy questioned", "Bad modeling", "Lacking completeness", "In-depth analysis", "Innovative Approach", "Reproducible Results"]);  //todo add custom option
     const [validated, setValidated] = useState(false);
     const [activeTab, setActiveTab] = useState("table");
@@ -26,70 +26,76 @@ function CommentsDB(){
           event.preventDefault();
           event.stopPropagation();
         }
-        setValidated(true);
+        //setValidated(true);
 
-        if (form.checkValidity()) {
+        //if (form.checkValidity()) {
             const formData = new FormData(form);
-
-            const typeOfResource = formData.get('formTypeRes');
+            
+            const resourceUrl = formData.get('formURL');
             const typeOfComment = formData.get('formTypeComment');
-            const resourceId = formData.get('formID');
             const commentDescription = formData.get('formComment');
+            console.log(resourceUrl, typeOfComment, commentDescription);
 
             try{
-                let resultAPI = {};
-                let isIDValid = true;
+                const urlParts = resourceUrl.split('/');
+                const typeOfResource = urlParts[3] || null; // Assuming the type is the fourth part of the URL
+                const resourceId = urlParts[4] || null; // Assuming the ID is the last part of the URL
+                let apiTitle = null;
+                console.log("db extract", typeOfResource, resourceId);
 
-                if(typeOfResource === "Paper"){
-                    const response = await fetch(`https://orkg.org/api/papers/${resourceId}`);
-                    console.log("comment list fired", response);
+                if(typeOfResource && resourceId){ //try to fetch data
+                    let response;
+                    if(typeOfResource === "paper"){
+                        response = await fetch(`https://orkg.org/api/papers/${resourceId}`);
+                    }else if(typeOfResource === "comparison"){
+                        response = await fetch(`https://orkg.org/api/comparisons/${resourceId}`);
+                    }else if(typeOfResource === "class"){
+                        response = await fetch(`https://orkg.org/api/classes/${resourceId}`);
+                    }else if(typeOfResource === "template"){
+                        response = await fetch(`https://orkg.org/api/templates/${resourceId}`);
+                    }else if(typeOfResource === "u"){ //user
+                        response = await fetch(`https://orkg.org/api/contributors/${resourceId}`);
+                    }else if(typeOfResource === "observatory"){
+                        response = await fetch(`https://orkg.org/api/observatories/${resourceId}`);
+                    } //research field, research problem, visualization, lists, predicates, statements
 
-                    if (response.ok) {
+                    if(response && response.ok){
                         const result = await response.json();
-                        console.log("comment list fetch", result);
-                        resultAPI = { uri: `https://orkg.org/paper/${resourceId}`, title: result.title };
-                    } else {
-                        console.log('Error fetching paper data.');
-                        isIDValid = false;
-                    }
-                } else if (typeOfResource === 'Comparison') {
-                    const response = await fetch(`https://orkg.org/api/comparisons/${resourceId}/`);
-                    if (response.ok) {
-                        const result = await response.json();
-                        resultAPI = { uri: `https://orkg.org/comparison/${resourceId}`, title: result.title };
-                    } else {
-                        console.log('Error fetching comparison data.');
-                        isIDValid = false;
+                        if(typeOfResource === "paper" || typeOfResource === "comparison"){
+                            apiTitle = result.title;
+                        }else if(typeOfResource === "class" || typeOfResource === "template"){
+                            apiTitle = result.label;
+                        }else if(typeOfResource === "u"){ //user
+                            apiTitle = result.display_name;
+                        }else if(typeOfResource === "observatory"){
+                            apiTitle = result.name;
+                        }
                     }
                 }
 
-                if(isIDValid){
-                    const newComment = {
-                        typeRes: typeOfResource,
-                        uri: resultAPI.uri,
-                        title: resultAPI.title,
-                        resourceId: resourceId,
-                        description: commentDescription,                
-                        typeComm: typeOfComment,
-                    };
-                    console.log("Comment list new", newComment);
-        
-                    /*setCommentList([...commentList, newComment]);
-                    console.log("comment list", commentList);*/
-                    postComment(newComment);
-                    setValidated(false);
-                    setActiveTab('table');
-                    form.reset();
-                }else{
-                    console.log("comments id not valid");
-                    form.elements['formID'].setCustomValidity('ID not valid');  
-                      
-                }
+                const newComment = {
+                    typeRes: typeOfResource,
+                    uri: resourceUrl,
+                    title: apiTitle,
+                    resourceId: resourceId,
+                    description: commentDescription,                
+                    typeComm: typeOfComment,
+                };
+
+                console.log("Comment list new", newComment);
+    
+                /*setCommentList([...commentList, newComment]);
+                console.log("comment list", commentList);*/
+                postComment(newComment);
+                //setValidated(false);
+                setActiveTab('table');
+                form.reset();
+               
                 form.reportValidity();
             }catch(error){
                 console.error("Error fetching data", error);
             }
-        }
+        //}
       };
 
     const postComment = async(comment)=>{
@@ -150,8 +156,8 @@ function CommentsDB(){
                 const commentsByResource = {};
     
                 result.forEach(comment => {
-                    if (!commentsByResource[comment.resourceId]) {
-                        commentsByResource[comment.resourceId] = {
+                    if (!commentsByResource[comment.uri]) {
+                        commentsByResource[comment.uri] = {
                             typeRes: comment.typeRes,
                             uri: comment.uri,
                             title: comment.title,
@@ -160,7 +166,7 @@ function CommentsDB(){
                         };
                     }
     
-                    commentsByResource[comment.resourceId].comments.push(comment);
+                    commentsByResource[comment.uri].comments.push(comment);
                 });
     
                 setCommentList(commentsByResource);
@@ -263,7 +269,7 @@ function CommentsDB(){
             id="uncontrolled-tab-example"
             className="mb-3"> 
                 <Tab eventKey="table" title="All comments">
-                Here you can make comments about papers or comparisons which should be improved.
+                Here you can make qualified comments about everything in the ORKG.
                 <Table striped bordered hover>
                     <thead>
                         <tr>
@@ -284,7 +290,7 @@ function CommentsDB(){
                                     overlay={<Popover data-bs-theme="dark">
                                         <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
                                         <Popover.Body>
-                                            {item.typeRes} with ID {item.resourceId}<br></br>
+                                            {item.typeRes}<br></br>
                                             <Button variant="danger" onClick={() => handleDeleteRow(item)} key={`delete-${item.resourceId}`}>Delete</Button>
                                         </Popover.Body>
                                     </Popover>}
@@ -292,9 +298,8 @@ function CommentsDB(){
                                     <td> {item.typeRes} </td>
                                 </OverlayTrigger>
 
-                                <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title}</a> </td>
-                                <td> {item.resourceId} </td>
-
+                                <td> <a href={item.uri} target="_blank" rel="noopener noreferrer">{item.title? item.title: item.uri}</a> </td>
+                                <td>{item.resourceId}</td>
                                 {/* Edit Button */}
                                 <td>
                                     {item.comments.map((comment, commentIndex) => (
@@ -316,21 +321,9 @@ function CommentsDB(){
 
                 <Tab eventKey="addcomment" title="Add a comment">
                     <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3" controlId="formTypeRes">
-                            <Form.Label>Type of resource</Form.Label>
-                            <Form.Select name="formTypeRes">
-                                {typeInstances.map((type, index) => (
-                                    <option key={index}>{type}</option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formID">
-                            <Form.Label>ID</Form.Label>
-                            <Form.Control name="formID" type="text" placeholder="Enter ID of resource" required onChange={handleInputChange}/>
-                            <Form.Control.Feedback type="invalid">
-                                Please enter an ID.
-                            </Form.Control.Feedback>
+                        <Form.Group className="mb-3" controlId="formURL">
+                            <Form.Label>URL</Form.Label>
+                            <Form.Control name="formURL" type="text" placeholder="Enter URL of a ORKG page" required onChange={handleInputChange}/>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formTypeComment">
@@ -344,10 +337,7 @@ function CommentsDB(){
 
                         <Form.Group className="mb-3" controlId="formComment">
                             <Form.Label>Description</Form.Label>
-                            <Form.Control name="formComment" as="textarea" required/>
-                            <Form.Control.Feedback type="invalid">
-                                Please enter a description to specify your comment about the resource.
-                            </Form.Control.Feedback>
+                            <Form.Control name="formComment" as="textarea"/>
                         </Form.Group>
 
                         <Button variant="primary" type="submit">

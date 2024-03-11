@@ -11,9 +11,9 @@ class Comment(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    typeRes: Mapped[str] = mapped_column(String(40))
-    resourceId: Mapped[str] = mapped_column(String(40))  # or int?
-    uri:Mapped[str] = mapped_column(String(100), nullable=True) #fix null
+    typeRes: Mapped[str] = mapped_column(String(40), nullable=True)
+    resourceId: Mapped[str] = mapped_column(String(40), nullable=True)  # or int?
+    uri:Mapped[str] = mapped_column(String(100)) #fix null
     title:Mapped[str] = mapped_column(String(100), nullable=True) #fix null
 
     typeComm: Mapped[str] = mapped_column(String(40))

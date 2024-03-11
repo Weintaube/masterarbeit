@@ -99,11 +99,8 @@ function EmptyComparisons(){
                             //for the trivial case, that I have a fitting predicate list with UI
                             var emptyCellCount = 0
                             var allContributions = result.payload.thing.config.contributions.length;
-                            console.log("comparison raw result", result);
-                            console.log("comparison predicates", predicates);
                             predicates.forEach(predicate =>{ //loop through array of predicates listed in the table UI 
                                 if (table[predicate] && Array.isArray(table[predicate])) { //because some props are merged
-                                    console.log("comparison table[predicate]", item.key, table[predicate]);
                                     table[predicate].forEach(element =>{ // run through list of predicates (more than in UI), check if they contain the predicate
                                         if(element && element.length > 0 && Object.keys(element[0]).length === 0){
                                             emptyCellCount = emptyCellCount+1;
@@ -121,7 +118,6 @@ function EmptyComparisons(){
                                 properties: predicates.length,
                                 contributions: allContributions
                             }
-                            console.log("new item", newItem);
                             newCompList.push(newItem);
     
 
@@ -130,7 +126,6 @@ function EmptyComparisons(){
                             var filledCells = 0
                             var numberPredicates = 0
                             var allContributions = result.payload.thing.config.contributions.length;
-                            console.log("comparisons nunmber contributions", allContributions);
 
                             predicates = result.payload.thing.data.predicates; 
                             predicates.forEach(predicate =>{

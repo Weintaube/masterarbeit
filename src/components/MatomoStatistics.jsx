@@ -8,8 +8,7 @@ import Button from 'react-bootstrap/Button';
 import chroma from 'chroma-js';
 import Table from 'react-bootstrap/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLinkAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-
+import { faExternalLinkAlt, faInfoCircle, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 function MatomoStatistics() {
   const [diagramData, setDiagramData] = useState([]);
   const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths
@@ -28,10 +27,14 @@ function MatomoStatistics() {
   const [hoveredEdgeLabel, setHoveredEdgeLabel] = useState(''); 
   const [showExternalLinks, setShowExternalLinks] = useState(true);
   const [maxLabel, setMaxLabel] = useState(0); //the maximum number of transitions of an edge for the color gradient
-  const [minPathLength, setMinPathLength] = useState(3);
-  const [maxPathLength, setMaxPathLength] = useState(10); // Set your initial maximum length
-  const [minOccurrences, setMinOccurrences] = useState(3);
+  const [minPathLength, setMinPathLength] = useState(0);
+  const [maxPathLength, setMaxPathLength] = useState(Math.max(...filterPaths.map(path => path.path.length))); // Set your initial maximum length
+  const [minOccurrences, setMinOccurrences] = useState(0);
+  const [maxOccurrences, setMaxOccurrences] = useState(Math.max(...filterPaths.map(path => path.occurrences)));
   const [selectedPath, setSelectedPath] = useState(null);
+  const [incomingSortCriteria, setIncomingSortCriteria] = useState({ column: '', order: 'asc' }); 
+  const [outgoingSortCriteria, setOutgoingSortCriteria] = useState({ column: '', order: 'asc' }); 
+  const [frequentPathsSortCriteria, setFrequentPathsSortCriteria] = useState({column: '', order:'asc'});
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
@@ -141,7 +144,8 @@ function MatomoStatistics() {
       return paths.filter(item => (
         item.path.length >= minPathLength &&
         item.path.length <= maxPathLength &&
-        item.occurrences >= minOccurrences
+        item.occurrences >= minOccurrences &&
+        item.occurrences <= maxOccurrences
       ));
     };
 
@@ -150,7 +154,7 @@ function MatomoStatistics() {
     const filteredResult = filterPaths(uniquePaths); // Change this line
     setFilteredPaths(filteredResult);
 
-  }, [rawData, minPathLength, maxPathLength, minOccurrences]);
+  }, [rawData, minPathLength, maxPathLength, minOccurrences, maxOccurrences]);
 
   function pathsWithOccurences(resultAlgo) {
     const uniquePaths = [];
@@ -448,8 +452,6 @@ function MatomoStatistics() {
           const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
           const segmentIndex = Math.floor(label / segmentSize);
-          console.log("color legend index", colorLegend);
-          console.log("color legend index", colorLegend[segmentIndex]);
           return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
           //return colorLegend[segmentIndex];
         },
@@ -459,8 +461,6 @@ function MatomoStatistics() {
           const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
           const segmentIndex = Math.floor(label / segmentSize);
-          console.log("color legend index", colorLegend);
-          console.log("color legend index", colorLegend[segmentIndex]);
           return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
         },
       }
@@ -610,6 +610,69 @@ function MatomoStatistics() {
     const newColorLegend = colorSchemes[scheme].map(color => color.toString());
     setColorLegend(newColorLegend);
   };
+
+  const handleSort = (column, tableType) => {
+    const sortState = tableType === 'frequentPaths' ? frequentPathsSortCriteria : 
+      tableType === 'outgoing' ? outgoingSortCriteria : incomingSortCriteria;
+  
+    if (sortState.column === column) {
+      if (tableType === 'frequentPaths') {
+        setFrequentPathsSortCriteria({
+          ...sortState,
+          order: sortState.order === 'asc' ? 'desc' : 'asc'
+        });
+      } else if (tableType === 'outgoing') {
+        setOutgoingSortCriteria({
+          ...sortState,
+          order: sortState.order === 'asc' ? 'desc' : 'asc'
+        });
+      } else {
+        setIncomingSortCriteria({
+          ...sortState,
+          order: sortState.order === 'asc' ? 'desc' : 'asc'
+        });
+      }
+    } else {
+      if (tableType === 'frequentPaths') {
+        setFrequentPathsSortCriteria({
+          column,
+          order: 'asc'
+        });
+      } else if (tableType === 'outgoing') {
+        setOutgoingSortCriteria({
+          column,
+          order: 'asc'
+        });
+      } else {
+        setIncomingSortCriteria({
+          column,
+          order: 'asc'
+        });
+      }
+    }
+    console.log("sort state", sortState);
+  };  
+
+    const sortedOutgoingTransitions = clickedNodeInfo.outgoingTransitions.slice().sort((a, b) => {
+      const order = outgoingSortCriteria.order === 'asc' ? 1 : -1;
+      return order * (parseInt(a.label) - parseInt(b.label));
+    });
+    
+    const sortedIncomingTransitions = clickedNodeInfo.incomingTransitions.slice().sort((a, b) => {
+      const order = incomingSortCriteria.order === 'asc' ? 1 : -1;
+      return order * (parseInt(a.label) - parseInt(b.label));
+    });
+
+    const sortedFrequentPaths = filterPaths.slice().sort((a, b) => {
+      if (frequentPathsSortCriteria.column === 'occurrences') {
+        const order = frequentPathsSortCriteria.order === 'asc' ? 1 : -1;
+        return order * (a.occurrences - b.occurrences);
+      } else if (frequentPathsSortCriteria.column === 'pathLength') {
+        const order = frequentPathsSortCriteria.order === 'asc' ? 1 : -1;
+        return order * (a.path.length - b.path.length);
+      }
+      return 0;
+    });    
 
   try {
     return (
@@ -905,11 +968,26 @@ function MatomoStatistics() {
                         <tr>
                           <th>Link</th>
                           <th>Target node</th>
-                          <th>Number of transitions</th>
+                          <th>Number of transitions
+                            <button onClick={() => handleSort('outgoingTransitions', 'outgoing')}>
+                                {outgoingSortCriteria.column === 'outgoingTransitions' ? (
+                                    outgoingSortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                              </button>
+                          </th>
                         </tr>
                         </thead>
                         <tbody>
-                            {clickedNodeInfo.outgoingTransitions.map((transition, index) => (
+                            {sortedOutgoingTransitions.map((transition, index) => (
                               <tr key={index}>
                                 <td>
                                   {isExternalNode(transition.target) && (
@@ -943,11 +1021,26 @@ function MatomoStatistics() {
                         <tr>
                           <th>Link</th>
                           <th>Source node</th>
-                          <th>Number of transitions</th>
+                          <th>Number of transitions
+                            <button onClick={() => handleSort('incomingTransitions', 'incoming')}>
+                                {incomingSortCriteria.column === 'incomingTransitions' ? (
+                                    incomingSortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                              </button>
+                          </th>
                         </tr>
                         </thead>
                         <tbody>
-                            {clickedNodeInfo.incomingTransitions.map((transition, index) => (
+                            {sortedIncomingTransitions.map((transition, index) => (
                               <tr key={index}>
                                   <td>
                                   {isExternalNode(transition.source) && (
@@ -995,6 +1088,7 @@ function MatomoStatistics() {
                 type="number"
                 value={maxPathLength}
                 onChange={(e) => setMaxPathLength(parseInt(e.target.value))}
+                placeholder={`maximal path length of ${Math.max(...uniquePaths.map(path => path.path.length))}`}
               />
             </Form.Group>
           </Col>
@@ -1008,6 +1102,17 @@ function MatomoStatistics() {
               />
             </Form.Group>
           </Col>
+          <Col>
+            <Form.Group controlId="maxOccurrences">
+              <Form.Label>Maximum Occurrences:</Form.Label>
+              <Form.Control
+                type="number"
+                value={maxOccurrences}
+                onChange={(e) => setMaxOccurrences(parseInt(e.target.value))}
+                placeholder={`maximum of ${Math.max(...uniquePaths.map(path => path.occurrences))} occurences`}
+              />
+            </Form.Group>
+          </Col>
           </Row>
 
         <div className="pathgroupstyle">
@@ -1016,12 +1121,42 @@ function MatomoStatistics() {
               <thead>
                 <tr>
                   <th>Path</th>
-                  <th>Length</th>
-                  <th>Occurrences</th>
+                  <th>Length
+                     <button onClick={() => handleSort('pathLength', 'frequentPaths')}>
+                      {frequentPathsSortCriteria.column === 'pathLength' ? (
+                        frequentPathsSortCriteria.order === 'asc' ? (
+                          <FontAwesomeIcon icon={faArrowUp} />
+                        ) : (
+                          <FontAwesomeIcon icon={faArrowDown} />
+                        )
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faArrowUp} />
+                          <FontAwesomeIcon icon={faArrowDown} />
+                        </>
+                      )}
+                    </button>           
+                  </th>
+                  <th>Occurrences
+                    <button onClick={() => handleSort('occurrences','frequentPaths')}>
+                      {frequentPathsSortCriteria.column === 'occurrences' ? (
+                        frequentPathsSortCriteria.order === 'asc' ? (
+                          <FontAwesomeIcon icon={faArrowUp} />
+                        ) : (
+                          <FontAwesomeIcon icon={faArrowDown} />
+                        )
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faArrowUp} />
+                          <FontAwesomeIcon icon={faArrowDown} />
+                        </>
+                      )}
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filterPaths.map((item, index) => (
+                {sortedFrequentPaths.map((item, index) => (
                   <tr key={index} onClick={() => handleRowClick(item.path)}>
                     <td style={{ overflow: 'hidden', wordBreak: 'break-all'}}>{item.path.join(' -> ')}</td>
                     <td>{item.path.length}</td>

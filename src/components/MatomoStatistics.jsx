@@ -9,7 +9,13 @@ import chroma from 'chroma-js';
 import Table from 'react-bootstrap/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt, faInfoCircle, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+//import config from './config';
+
 function MatomoStatistics() {
+  const matomoAPIurl = process.env.REACT_APP_MATOMO_ENDPOINT;
+  const matomoAPIToken = process.env.REACT_APP_MATOMO_API_TOKEN;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
   const [diagramData, setDiagramData] = useState([]);
   const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths
   const [uniquePaths, setUniquePaths] = useState([]);
@@ -56,8 +62,6 @@ function MatomoStatistics() {
   const [cyInstance, setCyInstance] = useState(null);
   const [hoveredColor, setHoveredColor] = useState(null);
   
-  const TOKEN = '2f1a8c6a07609a76907dd8111dff26ed';
-  const matomoEndpoint = 'https://support.tib.eu/piwik/index.php';
   const siteID = 29;
 
   useEffect(() => {
@@ -231,7 +235,7 @@ function MatomoStatistics() {
       format: 'JSON',
       module: 'API',
       method: 'Live.getLastVisitsDetails',
-      token_auth: TOKEN,
+      token_auth: matomoAPIToken,
       expanded: 1,
       filter_limit: -1
     };
@@ -245,7 +249,7 @@ function MatomoStatistics() {
     
     try {
       const headers = new Headers();
-      headers.append('Origin', 'http://localhost:3000');
+      headers.append('Origin', frontendURL);
       headers.append('X-Requested-With', 'XMLHttpRequest');
 
       const requestOptions = {
@@ -253,9 +257,9 @@ function MatomoStatistics() {
         headers: headers,
       };
       const queryParams = new URLSearchParams(matomoParams).toString();
-      const matomoURL = `${matomoEndpoint}?${queryParams}`;
+      const matomoURL = `${matomoAPIurl}?${queryParams}`;
 
-      const response = await fetch(`http://localhost:5000/matomo?url=${encodeURIComponent(matomoURL)}`, requestOptions);
+      const response = await fetch(`${config.requestsEndpoint}/matomo?url=${encodeURIComponent(matomoURL)}`, requestOptions);
 
       if (!response.ok) {
         console.error('Matomo API request failed:', response.status, response.statusText);

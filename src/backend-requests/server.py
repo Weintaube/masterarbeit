@@ -9,7 +9,7 @@ import json
 ssl._create_default_https_context = ssl._create_unverified_context
 
 app = Flask(__name__)
-CORS(app, resources={r"/matomo": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 #CORS(app)
 
 

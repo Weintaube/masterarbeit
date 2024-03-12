@@ -1,0 +1,19 @@
+version: '3'
+services:
+  react-app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-database
+      - backend-requests
+
+  backend-database:
+    build: ./src/backend-database
+    ports:
+      - "8001:8001"
+
+  backend-requests:
+    build: ./src/backend-requests
+    ports:
+      - "5000:5000"

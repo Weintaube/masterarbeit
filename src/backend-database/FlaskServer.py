@@ -14,7 +14,8 @@ app = Flask("CommentDB")
 app.app_context().push()
 
 # setup CORS
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+#CORS(app)
 
 # setup flask-alchemy db connection
 db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'ORKGComments.db')

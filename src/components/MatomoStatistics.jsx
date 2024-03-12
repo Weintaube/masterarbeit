@@ -15,6 +15,8 @@ function MatomoStatistics() {
   const matomoAPIurl = process.env.REACT_APP_MATOMO_ENDPOINT;
   const matomoAPIToken = process.env.REACT_APP_MATOMO_API_TOKEN;
   const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+  const requestsBackendURL = process.env.REACT_APP_REQUESTS_URL;
+  console.log("matomo keys", matomoAPIurl, frontendURL);
 
   const [diagramData, setDiagramData] = useState([]);
   const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths
@@ -259,7 +261,7 @@ function MatomoStatistics() {
       const queryParams = new URLSearchParams(matomoParams).toString();
       const matomoURL = `${matomoAPIurl}?${queryParams}`;
 
-      const response = await fetch(`${config.requestsEndpoint}/matomo?url=${encodeURIComponent(matomoURL)}`, requestOptions);
+      const response = await fetch(`${requestsBackendURL}/matomo?url=${encodeURIComponent(matomoURL)}`, requestOptions);
 
       if (!response.ok) {
         console.error('Matomo API request failed:', response.status, response.statusText);

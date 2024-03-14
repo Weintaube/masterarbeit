@@ -852,7 +852,6 @@ function MatomoStatistics() {
                   <Tooltip id="tooltip-info" data-bs-theme="dark">
                     The colors represent the number of transitions from one node to another. Multiple transitions with same source and target node are accumulated in one edge. 
                     You can hover over an edge to see the exact number of transitions.
-                    You can also click on a node to see outgoing and incoming transitions.
                   </Tooltip>
                 }
               >
@@ -998,9 +997,13 @@ function MatomoStatistics() {
          <Col xs={10} md={2}>
           {/* Display information about the clicked node and its transitions */}
           <div>
-                {clickedNodeInfo.clickedNode && (
+                {clickedNodeInfo.clickedNode ? (
                   <div>
                     <h5>Clicked Node: <a href={clickedNodeInfo.clickedNode.uri} target="_blank" rel="noopener noreferrer">{clickedNodeInfo.clickedNode.label}</a></h5>
+                  </div>
+                ):(
+                  <div>
+                    <p>No node selected.</p>
                   </div>
                 )}
                 <Row>

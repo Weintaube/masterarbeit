@@ -679,6 +679,8 @@ function MatomoStatistics() {
     const highlightedStyle = {
       'background-color': '#ff6666', // Change to any color you prefer
       'line-color': '#ff6666', // Change to any color you prefer
+      'target-arrow-color': '#ff6666', // Change to any color you prefer
+      'source-arrow-color': '#ff6666', // Change to any color you prefer
     };
 
   try {

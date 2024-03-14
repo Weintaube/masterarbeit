@@ -35,6 +35,7 @@ function MatomoStatistics() {
   const [incomingSortCriteria, setIncomingSortCriteria] = useState({ column: '', order: 'asc' }); 
   const [outgoingSortCriteria, setOutgoingSortCriteria] = useState({ column: '', order: 'asc' }); 
   const [frequentPathsSortCriteria, setFrequentPathsSortCriteria] = useState({column: '', order:'asc'});
+  const [activeTab, setActiveTab] = useState("graph");
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
@@ -100,23 +101,25 @@ function MatomoStatistics() {
       user.actionDetails.forEach((page) =>{
         let pageUrl = page.subtitle;
         let pageUrlCut = page.subtitle;
-        let matching = pageUrlCut.match(regex);
+        if(pageUrl != null){
+          let matching = pageUrlCut.match(regex);
 
-        if(pageUrlCut === "https://www.orkg.org/"){
-          pageUrlCut = "ORKG main";
-        }else if(matching){ //something with orkg
-          pageUrlCut = matching[1];
-          if(matching[1] === "u"){
-            pageUrlCut = "user";
-            
-          }else if(matching[1].match(regexContribution)){
-            pageUrlCut = "contribution editor";
+          if(pageUrlCut === "https://www.orkg.org/"){
+            pageUrlCut = "ORKG main";
+          }else if(matching){ //something with orkg
+            pageUrlCut = matching[1];
+            if(matching[1] === "u"){
+              pageUrlCut = "user";
+              
+            }else if(matching[1].match(regexContribution)){
+              pageUrlCut = "contribution editor";
+            }
           }
-        }
 
         //if (pageUrl !== previousPage) { //TODO no duplicate sequential pages, intended???
         //userPath.push({url: pageUrl, cutoff: pageUrlCut});
-        userPath.push(pageUrlCut);
+          userPath.push(pageUrlCut);
+        }
           //previousPage = pageUrl;
         //}
         //userPath.push(pageUrl);
@@ -209,19 +212,19 @@ function MatomoStatistics() {
     return allFrequentPatterns;
   }
 
-  function handleRowClick(clickedPath) {
-    const originalUrls = getOriginalUrlsForPath(clickedPath); 
-    setSelectedPath({ path: clickedPath, originalUrls });
-  
-    // Example: setModalShow(true);
+  function handlePathRowClick(clickedPath) {
+    setSelectedPath(null);
+    console.log("matomo path", clickedPath);
+    let pathWithEdges = [];
+    for(let i = 0; i< clickedPath.path.length-1; i++){
+      pathWithEdges.push(clickedPath.path[i]); //add node 
+      pathWithEdges.push(`${clickedPath.path[i]}>${clickedPath.path[i+1]}`); //add path
+    }
+    pathWithEdges.push(clickedPath.path[clickedPath.path.length-1]);
+    setSelectedPath({nodePath: clickedPath.path, path: pathWithEdges, occurrences: clickedPath.occurrences});
+    setActiveTab("graph");
   }
   
-  function getOriginalUrlsForPath(cutOffPath) {
-    // You need to implement the logic to retrieve the original URLs based on the cut-off path
-    // This could involve searching through your raw data
-    // Return an array of original URLs associated with the cut-off path
-    // Example: return rawData.filter(user => arraysEqual(user.actionDetails.map(page => extractRelevantUrl(page.subtitle)), cutOffPath));
-  }
   
   const fetchData = async () => {
     const matomoParams = {
@@ -558,7 +561,6 @@ function MatomoStatistics() {
   };
   
   // Group edges by color and calculate label ranges
-  // Group edges by color and calculate label ranges
   const groupedEdgesByColor = edgesData.reduce((acc, edge) => {
     const label = parseInt(edge.data.label) -1;
 
@@ -674,6 +676,11 @@ function MatomoStatistics() {
       return 0;
     });    
 
+    const highlightedStyle = {
+      'background-color': '#ff6666', // Change to any color you prefer
+      'line-color': '#ff6666', // Change to any color you prefer
+    };
+
   try {
     return (
       <div>
@@ -699,6 +706,8 @@ function MatomoStatistics() {
           <Card.Title>Matomo Visitor Data</Card.Title> 
           <Tabs 
             defaultActiveKey="graph"
+            activeKey={activeTab}
+            onSelect={(k) => setActiveTab(k)}
             id="uncontrolled-tab-example"
             className="mb-3">
             <Tab eventKey="graph" title="Network Graph">
@@ -811,12 +820,28 @@ function MatomoStatistics() {
             </Accordion.Body>
             </Accordion.Item>
             </Accordion>
+
+            <div>
+            {selectedPath ? (
+              <div>
+                <h5>Selected Path:</h5>
+                <p>{selectedPath.nodePath.join(' -> ')}</p>
+                <p>With occurences: {selectedPath.occurrences}</p>
+                <Form>
+                  <Button className="d-inline-block mx-auto" variant="primary" onClick={() => setSelectedPath(null)}>Clear Selected Path</Button>
+                </Form>
+              </div>
+            ): (
+              <div>
+                <p>No path selected.</p>
+              </div>
+            )}
+          </div>
           
           </Col>
 
           {/*middle column for diagram*/}
             <Col xs={14} md={9}>
-              {/*Color legend todo make tooltip out of it*/}
               <Row className="justify-content-center">
               <Col xs={1} md={1}>
               <OverlayTrigger
@@ -930,6 +955,16 @@ function MatomoStatistics() {
                         node.addClass('external-node');
                       }
                     }
+
+                    if (selectedPath && selectedPath.path && selectedPath.path.includes(node.id())) {
+                      node.style(highlightedStyle);
+                    } else {
+                      node.removeStyle();
+                      if(selectedPath && selectedPath.path && !selectedPath.path.includes(node.id())){
+                        node.style({opacity: '0.2'});
+                      }
+                    }
+
                   })
 
                   cy.edges().forEach((edge) => {
@@ -938,6 +973,15 @@ function MatomoStatistics() {
                       edge.addClass('below-threshold');
                     } else {
                       edge.removeClass('below-threshold');
+                    }
+
+                    if (selectedPath && selectedPath.path && selectedPath.path.includes(edge.id())) {
+                      edge.style(highlightedStyle);
+                    } else {
+                      edge.removeStyle();
+                      if(selectedPath && selectedPath.path && !selectedPath.path.includes(edge.id())){
+                        edge.style({opacity: '0.2'});
+                      }
                     }
                   });
 
@@ -1157,7 +1201,7 @@ function MatomoStatistics() {
               </thead>
               <tbody>
                 {sortedFrequentPaths.map((item, index) => (
-                  <tr key={index} onClick={() => handleRowClick(item.path)}>
+                  <tr key={index} onClick={() => handlePathRowClick(item)}> 
                     <td style={{ overflow: 'hidden', wordBreak: 'break-all'}}>{item.path.join(' -> ')}</td>
                     <td>{item.path.length}</td>
                     <td>{item.occurrences}</td>

@@ -16,4 +16,5 @@ COPY . .
 # EXPOSE 8001
 
 # Command to run your application
-CMD ["python", "FlaskServer.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "FlaskServer:app"]
+

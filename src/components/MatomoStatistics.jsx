@@ -16,7 +16,6 @@ function MatomoStatistics() {
   const matomoAPIToken = process.env.REACT_APP_MATOMO_API_TOKEN;
   const frontendURL = process.env.REACT_APP_FRONTEND_URL;
   const requestsBackendURL = process.env.REACT_APP_REQUESTS_URL;
-  console.log("matomo keys", matomoAPIurl, frontendURL);
 
   const [diagramData, setDiagramData] = useState([]);
   const [rawData, setRawData] = useState([]); //raw data of the matomo visitor paths

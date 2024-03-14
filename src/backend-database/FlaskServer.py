@@ -32,7 +32,6 @@ def all_comments():
         return CommentSchema(many=True).dump(comments), 200
 
 @app.route("/comments/<id>", methods=["GET", "POST", "DELETE"])
-@app.route("/comments/<id>", methods=["GET", "POST", "DELETE"])
 def one_comment(id):
     """ Get, post or delete a Comment. """
     if request.method == "POST":

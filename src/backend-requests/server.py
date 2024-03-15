@@ -9,8 +9,7 @@ import json
 ssl._create_default_https_context = ssl._create_unverified_context
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, methods=['GET'])
-#CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def build_preflight_response():
     response = make_response()
@@ -20,7 +19,6 @@ def build_preflight_response():
     return response
 
 @app.route('/sparql', methods=['GET'])
-@cross_origin()
 def sparql():
     if request.method == 'OPTIONS': 
         return build_preflight_response()
@@ -45,7 +43,6 @@ def sparql():
 
             headers = {
                 'Accept': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000'
             }
             response = requests.get(format_url, headers=headers)
 
@@ -76,7 +73,6 @@ def sparql():
             return {'error': str(e)}, 500
     
 @app.route('/matomo', methods=['GET'])
-@cross_origin(origin='*')
 def matomo():
     try:
         # Forward the request to Matomo

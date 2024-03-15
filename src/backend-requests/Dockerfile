@@ -16,4 +16,4 @@ COPY . .
 # EXPOSE 8002
 
 # Command to run your application
-CMD ["gunicorn", "--bind", "0.0.0.0:8002", "server:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "--access-logfile=-", "--error-logfile=-", "server:app"]

@@ -11,18 +11,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-def build_preflight_response():
-    response = make_response()
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add('Access-Control-Allow-Headers', "*")
-    response.headers.add('Access-Control-Allow-Methods', "*")
-    return response
-
 @app.route('/sparql', methods=['GET'])
 def sparql():
-    if request.method == 'OPTIONS': 
-        return build_preflight_response()
-    else:
         try:
             #print("REQUEST incoming sparql")
             #print(request)

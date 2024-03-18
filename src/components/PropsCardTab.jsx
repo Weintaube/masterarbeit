@@ -19,6 +19,9 @@ import { select } from "d3";
 
 function PropsCardTab(){
     
+    const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+    const requestsBackendURL = process.env.REACT_APP_REQUESTS_URL;
+
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [endpointLabel, , ] = store.useState("endpointLabel");
     const [propsWithoutDescr, setPropsWithout] = useState(0);
@@ -34,7 +37,7 @@ function PropsCardTab(){
     const [sharedPropertiesWithoutDescr, setSharedProps] = useState([]);
 
     const getPage = async function(pageno=1){
-        const results = await fetch(sparqlendpointURL+`/predicates/?page=${pageno}&limit=20`).
+        const results = await fetch(sparqlendpointURL+`/predicates/?page=${pageno}&limit=20`). //Todo change???
         then(resp=>{
             return resp.json();
         });
@@ -80,7 +83,7 @@ function PropsCardTab(){
             console.log("before fetch");
 
         
-      const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
+      const url = `${requestsBackendURL}/sparql?url=${sparqlendpointURL}&query=${query}`;
       //const url2 = `https://orkg.org/triplestore?query=`+query;  
       const response = await fetch(url);
       //const response = await fetch('https://orkg.org/api/statements/');
@@ -176,7 +179,7 @@ function PropsList({setSharedProps}){
 
             console.log("before fetch");
         
-        const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
+        const url = `${requestsBackendURL}/sparql?url=${sparqlendpointURL}&query=${query}`;
         const response = await fetch(url);
         if(response.ok){ //Anfrage erfolgreich Statuscode 200
             console.log("Response (OK)",  response)

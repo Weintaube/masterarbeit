@@ -14,7 +14,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route('/sparql', methods=['GET'])
 def sparql():
         try:
-            #print("REQUEST incoming sparql")
+            print("REQUEST incoming sparql")
             #print(request)
             #query = request.args.get('query')
             url = request.args.get('url')
@@ -28,22 +28,19 @@ def sparql():
             encoded_query = urllib.parse.quote(query)
             #url = f'https://orkg.org/triplestore?query={encoded_query}'
             format_url = f'{url}?query={encoded_query}'
-            #print("Anfrage URL ")
-            #print(format_url)
+            print("Anfrage URL ")
+            print(format_url)
 
             headers = {
                 'Accept': 'application/json',
             }
             response = requests.get(format_url, headers=headers)
-
+            print("sparql response", response)
             if response.status_code == 200:
                 try:
-                    #print("ANTWORT ERHALTEN:")
-                    #print(response.content)
                     data = response.json()
-                    # Jetzt kannst du die Daten weiterverarbeiten
                 except json.JSONDecodeError as e:
-                    print("Fehler beim Dekodieren der JSON-Antwort:", str(e))
+                    print("Fehler x beim Dekodieren der JSON-Antwort:", str(e))
             else:
                 print("Fehler beim Senden der Anfrage. Statuscode:", response.status_code)
 
@@ -74,10 +71,10 @@ def matomo():
         }
         response = requests.get(matomo_url, headers=headers)
         print("MATOMO URL")
-        print(response)
+        #print(response)
         if response.status_code == 200:
             data = response.json()
-            print(data)
+            #print(data)
             return data
         else:
             return {'error': 'Matomo request failed.'}, response.status_code

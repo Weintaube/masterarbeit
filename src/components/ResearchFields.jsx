@@ -11,6 +11,9 @@ Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function ResearchFields(){
 
+    const requestsBackendURL = process.env.REACT_APP_REQUESTS_URL;
+    const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
     const [sparqlendpointURL, , ] = store.useState("sparqlendpointURL");
     const [prefixes, , ] = store.useState("endpointPrefixes");
     const [researchFieldsCount, setResearchFieldsCount] = useState([]);
@@ -45,9 +48,18 @@ function ResearchFields(){
             GROUP BY ?research_field
             ORDER BY DESC(?count) 
             `);
+            const headers = new Headers();
+            headers.append('Origin', frontendURL);
+
+            const requestOptions = {
+                method: 'GET',
+                headers: headers,
+            };
         
-            const url = `http://localhost:5000/sparql?url=${sparqlendpointURL}&query=${query}`;
-            const response = await fetch(url);
+            const url = `${requestsBackendURL}/sparql?url=${sparqlendpointURL}&query=${query}`;
+            console.log("sparql research fields", url);
+            const response = await fetch(url, requestOptions);
+            console.log("sparql response research", response);
             console.log(response);
 
             if(response.ok){

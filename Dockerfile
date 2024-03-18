@@ -17,4 +17,5 @@ COPY . .
 EXPOSE 3000
 
 # Command to run your application
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
+CMD ["sh", "-c", "npm start 1>> /dev/stdout 2>> /dev/stderr"]

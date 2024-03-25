@@ -9,20 +9,59 @@ import Plot from 'react-plotly.js';
 function StatementsPaper(){
 
     const [dummyData, setDummyData] = useState([]);
-    const [minStatements, setMinStatements] = useState(0);
-    const [maxStatements, setMaxStatements] = useState(20); //TODO get max number from data
+    const [minStatements, setMinStatements] = useState(20);
+    const [maxStatements, setMaxStatements] = useState(30); 
+    const [totalMaxStatements, setTotalMaxStatements] = useState();
+    const [allPapersWithStatements, setAllPapersWithStatements] = useState([]);
 
-    useEffect(()=>{
+    useEffect(() => {
+        const fetchData = async () => {
+          const result = await fetchAllPages();
+          console.log("all papersw with statements", result);
+          setAllPapersWithStatements(result);
+          const maxStatements = result.reduce((max, paper) => Math.max(max, paper.count), 0);
+          setTotalMaxStatements(maxStatements);
+        };
+    
         fetchData();
-    });
+    }, []);
 
     useEffect(() => {
         generateDummyData();
     }, []);
 
+    const fetchAllPages = async()=>{
+        console.log("fetch all pages");
+        let allResults = [];
+        let currentPage = 0;
+        let totalPages = 1; 
+
+        while (currentPage < totalPages) {
+            try {
+                const response = await fetch(`https://incubating.orkg.org/api/papers/statement-counts/?page=${currentPage}&size=2500`);
+      
+                if (response.ok) {
+                    const result = await response.json();
+                    //console.log(result);
+                    allResults = allResults.concat(result.content); // Füge die Ergebnisse der aktuellen Seite hinzu
+                    totalPages = result.totalPages; // Aktualisiere die Anzahl der Seiten
+                    currentPage++; // Gehe zur nächsten Seite
+                } else {
+                    console.error(`Fehler beim Abrufen der Seite ${currentPage}`);
+                    break; 
+                }
+            } catch (error) {
+                console.error(`Fehler beim Abrufen der Seite ${currentPage}: ${error}`);
+                break; 
+            }
+        }
+        console.log("all pages undoc", allResults);
+        return allResults;
+    }
+
     const fetchData = async()=>{
         try{
-            const response = await fetch(''); //https://orkg.org/api/statements/R659268/bundle?maxLevel=2
+            const response = await fetch('https://incubating.orkg.org/api/papers/statement-counts'); //https://orkg.org/api/statements/R659268/bundle?maxLevel=2
             if(response.ok){ //Anfrage erfolgreich Statuscode 200
                 console.log("Response (OK)",  response)
                 const result = await response.json();
@@ -74,14 +113,14 @@ function StatementsPaper(){
     };
 
     const calculateAverageStatements = () => {
-        const totalStatements = dummyData.reduce((sum, paper) => sum + paper.statement_count, 0);
-        const averageStatements = dummyData.length > 0 ? totalStatements / dummyData.length : 0;
+        const totalStatements = allPapersWithStatements.reduce((sum, paper) => sum + paper.count, 0);
+        const averageStatements = allPapersWithStatements.length > 0 ? totalStatements / allPapersWithStatements.length : 0;
         return averageStatements.toFixed(2); 
     };
 
     const getTopAndBottomPapers = () => {
-        const sortedData = [...dummyData].sort(
-            (a, b) => b.statement_count - a.statement_count
+        const sortedData = [...allPapersWithStatements].sort(
+            (a, b) => b.count - a.count
         );
 
         const top10 = sortedData.slice(0, 10);
@@ -91,26 +130,27 @@ function StatementsPaper(){
     };
 
     const filterPapersByStatementCount = () => {
-        return dummyData.filter((paper) => {
-          const statementCount = paper.statement_count;
+        return allPapersWithStatements.filter((paper) => {
+          const statementCount = paper.count;
           return statementCount >= minStatements && statementCount <= maxStatements;
         });
     };
 
     const countPapersWithAtLeastStatements = () => {
-        const papersWithAtLeastStatements = dummyData.filter(paper => paper.statement_count >= 20);
-        const percentage = (papersWithAtLeastStatements.length / dummyData.length) * 100;
+        const papersWithAtLeastStatements = allPapersWithStatements.filter(paper => paper.count >= 20);
+        const percentage = (papersWithAtLeastStatements.length / allPapersWithStatements.length) * 100;
         return { absolute: papersWithAtLeastStatements.length, percentage: percentage.toFixed(2) };
     };
 
     const countDisplayedPapers = () =>{
         const displayedPapers = filterPapersByStatementCount();
-        const percentage = (displayedPapers.length / dummyData.length) * 100;
+        const percentage = (displayedPapers.length / allPapersWithStatements.length) * 100;
         console.log("papers absolute", displayedPapers.length);
         return {absolute: displayedPapers.length, percentage: percentage.toFixed(2)};
     }
 
     const renderPaperList = (papers) => {
+        console.log("paper", papers);
         return (
             <Table striped bordered hover>
                 <thead>
@@ -121,9 +161,9 @@ function StatementsPaper(){
                 </thead>
                 <tbody>
                     {papers.map((item, index) => (
-                    <tr>
-                        <td>{item.paper.title}</td> {/*<td><a href={template.user_uri} target="_blank" rel="noopener noreferrer">{template.author}</a></td>*/}
-                        <td>{item.statement_count}</td>
+                    <tr key={index}>
+                        <td><a href={`https://incubating.orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
+                        <td>{item.count}</td>
                     </tr>
                     ))}
                 </tbody>
@@ -133,10 +173,39 @@ function StatementsPaper(){
 
     const { top10, bottom10} = getTopAndBottomPapers();
 
-    const boxPlotData = generateBoxPlotData(dummyData);
+    const boxPlotData = generateBoxPlotData(allPapersWithStatements);
 
     function generateBoxPlotData(data) {
-        const values = data.map((paper) => paper.statement_count);
+        const values = data.map((paper) => paper.count);
+    
+        // Calculate the quartiles
+        const quartiles = calculateQuartiles(values);
+    
+        // Calculate the interquartile range (IQR)
+        const IQR = quartiles.upper - quartiles.lower;
+    
+        // Calculate the fences
+        const lowerFence = quartiles.lower - 1.5 * IQR;
+        const upperFence = quartiles.upper + 1.5 * IQR;
+    
+        return [{
+            x: values,
+            type: 'box',
+            boxpoints: 'outliers', 
+            jitter: 0.3,
+            pointpos: -1.8,
+            marker: { color: 'rgba(75, 192, 192, 0.8)' },
+            orientation: 'h',
+            hoverinfo: 'x',
+            name: '',
+            // Set the lower and upper fences
+            lowerfence: lowerFence,
+            upperfence: upperFence
+        }];
+    }
+    
+    function generateBoxPlotData(data) {
+        const values = data.map((paper) => paper.count);
     
         return [{
             x: values, // Switched x and y for the box trace
@@ -149,7 +218,9 @@ function StatementsPaper(){
             hoverinfo: 'x',
             name: '',
         }];
-    }
+    }  
+    
+    const xAxisRange = [0, 1500];   
     
     return(
         <>
@@ -177,6 +248,7 @@ function StatementsPaper(){
                                     title: "Number of statements",
                                     titlefont: { color: 'white' }, 
                                     tickfont: { color: 'white' },
+                                    range: xAxisRange
                                 },
                                 yaxis: {
                                     title: "Papers",
@@ -225,6 +297,7 @@ function StatementsPaper(){
                                         type="number"
                                         value={maxStatements}
                                         onChange={(e) => setMaxStatements(parseInt(e.target.value))}
+                                        placeholder={`total of ${totalMaxStatements} statements per Paper`}
                                     />
                                 </Form.Group>
                             </Col>
@@ -232,7 +305,7 @@ function StatementsPaper(){
 
                         <Row>
                             <Col>
-                                <div className="templatelist listgroupcursor">
+                                <div className="paperlist listgroupcursor">
                                     <div className="table-container">
                                         {renderPaperList(filterPapersByStatementCount())}
                                     </div>

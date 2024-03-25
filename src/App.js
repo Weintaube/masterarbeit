@@ -78,12 +78,8 @@ function App() {
       </Tab>
       <Tab eventKey="insights" title="Insights">
         <Row>
-          <Col>
-            <ResearchFields/>
-          </Col>
-          <Col>
-            <StatementsPaper/>
-          </Col>
+          <Col md={6}><ResearchFields/></Col>
+          <Col md={6}><StatementsPaper/></Col>
         </Row>
       {/*Depth of graph per paper<br/>
       Connectedness (how many connections to other papers exist through shared resources)<br/>

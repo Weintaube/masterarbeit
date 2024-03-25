@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
 import { ListGroup, Row, Col, Form, Tab, Tabs} from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 import Plot from 'react-plotly.js';
 
@@ -9,10 +11,13 @@ import Plot from 'react-plotly.js';
 function StatementsPaper(){
 
     const [dummyData, setDummyData] = useState([]);
-    const [minStatements, setMinStatements] = useState(20);
-    const [maxStatements, setMaxStatements] = useState(30); 
+    const [minStatements, setMinStatements] = useState();
+    const [maxStatements, setMaxStatements] = useState(); 
     const [totalMaxStatements, setTotalMaxStatements] = useState();
     const [allPapersWithStatements, setAllPapersWithStatements] = useState([]);
+    const [sortedData, setSortedData] = useState([]);
+    const [sortCriteria, setSortCriteria] = useState({ column: '', order: 'asc' }); 
+    const [filteredData, setFilteredData] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -21,14 +26,21 @@ function StatementsPaper(){
           setAllPapersWithStatements(result);
           const maxStatements = result.reduce((max, paper) => Math.max(max, paper.count), 0);
           setTotalMaxStatements(maxStatements);
+          setFilteredData(result);
+          sortData(result);
         };
     
         fetchData();
     }, []);
 
     useEffect(() => {
-        generateDummyData();
-    }, []);
+        //generateDummyData();
+        handleFilter();
+    }, [minStatements, maxStatements]);
+
+    useEffect(() =>{
+        sortData(filteredData);
+    }, [sortCriteria]);
 
     const fetchAllPages = async()=>{
         console.log("fetch all pages");
@@ -129,12 +141,51 @@ function StatementsPaper(){
         return { top10, bottom10};
     };
 
-    const filterPapersByStatementCount = () => {
-        return allPapersWithStatements.filter((paper) => {
-          const statementCount = paper.count;
-          return statementCount >= minStatements && statementCount <= maxStatements;
+    const sortData = (data) => {
+        console.log("sort data before", data);
+        const sorted = [...data].sort((a, b) => {
+            if (sortCriteria.order === 'asc') {
+                return a.count - b.count;
+            } else {
+                return b.count - a.count
+            }
         });
+        console.log("sort data after", sorted);
+        setSortedData(sorted);
     };
+    
+    const handleSort = (column) => {
+        let sortedFilteredData = [...filteredData]; // Make a copy of the filtered data
+        if (sortCriteria.column === column) {
+            // Toggle sorting order
+            sortedFilteredData.reverse();
+            setSortCriteria({
+                ...sortCriteria,
+                order: sortCriteria.order === 'asc' ? 'desc' : 'asc'
+            });
+        } else {
+            // Sort the filtered data based on the selected column
+            sortedFilteredData.sort((a, b) => {
+                if (column === 'count') {
+                    return sortCriteria.order === 'asc' ? a.count - b.count : b.count - a.count;
+                }
+                // Add additional conditions for sorting based on other columns if needed
+            });
+            setSortCriteria({
+                column,
+                order: 'asc'
+            });
+        }
+        setFilteredData(sortedFilteredData); // Update the filtered data with the sorted result
+    };   
+    
+    const handleFilter = () => {
+        const filtered = allPapersWithStatements.filter(paper => {
+            return paper.count >= minStatements && paper.count <= maxStatements;
+        });
+        setFilteredData(filtered);
+    };
+    
 
     const countPapersWithAtLeastStatements = () => {
         const papersWithAtLeastStatements = allPapersWithStatements.filter(paper => paper.count >= 20);
@@ -143,12 +194,48 @@ function StatementsPaper(){
     };
 
     const countDisplayedPapers = () =>{
-        const displayedPapers = filterPapersByStatementCount();
+        const displayedPapers = filteredData.length;
         const percentage = (displayedPapers.length / allPapersWithStatements.length) * 100;
         console.log("papers absolute", displayedPapers.length);
         return {absolute: displayedPapers.length, percentage: percentage.toFixed(2)};
     }
 
+    const renderFilteredPaperList = (papers) => {
+        return(
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>Paper</th>
+                        <th>Statements
+                            <button onClick={() => handleSort('count')}>
+                                {sortCriteria.column === 'count' ? (
+                                    sortCriteria.order === 'asc' ? (
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    )
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </>
+                                )}
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {papers.map((item, index) => (
+                    <tr key={index}>
+                        <td><a href={`https://incubating.orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
+                        <td>{item.count}</td>
+                    </tr>
+                    ))}
+                </tbody>
+            </Table>
+        )
+    }
+    
     const renderPaperList = (papers) => {
         console.log("paper", papers);
         return (
@@ -297,7 +384,7 @@ function StatementsPaper(){
                                         type="number"
                                         value={maxStatements}
                                         onChange={(e) => setMaxStatements(parseInt(e.target.value))}
-                                        placeholder={`total of ${totalMaxStatements} statements per Paper`}
+                                        placeholder={`maximum of ${totalMaxStatements} statements`}
                                     />
                                 </Form.Group>
                             </Col>
@@ -307,7 +394,7 @@ function StatementsPaper(){
                             <Col>
                                 <div className="paperlist listgroupcursor">
                                     <div className="table-container">
-                                        {renderPaperList(filterPapersByStatementCount())}
+                                        {renderFilteredPaperList(filteredData)}
                                     </div>
                                 </div>
                             </Col>

@@ -215,7 +215,8 @@ function PropsList({setSharedProps}){
     //{propertiesList.map(item => <ListGroup.Item>{item.key}</ListGroup.Item>)}
     return(
         <ListGroup className="listgroupstyle">
-            {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value}>{item.label}</ListGroup.Item>): null}
+            {propertiesList? propertiesList.map(item => <ListGroup.Item key={item.key} action href={item.value} target="_blank"
+                    rel="noopener noreferrer">{item.label}</ListGroup.Item>): null}
         </ListGroup>
     );
 }
@@ -305,7 +306,8 @@ function DuplicatePredicates({sharedPropertiesWithoutDescr}){
         const content = (
             <ListGroup>
             {item.ids.map(id => (
-                <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`}>
+                <ListGroup.Item key={id} action href={`https://orkg.org/property/${id}`} target="_blank"
+                rel="noopener noreferrer">
                 {id}
                 </ListGroup.Item>
             ))}

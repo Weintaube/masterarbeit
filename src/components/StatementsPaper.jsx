@@ -11,8 +11,8 @@ import Plot from 'react-plotly.js';
 function StatementsPaper(){
 
     const [dummyData, setDummyData] = useState([]);
-    const [minStatements, setMinStatements] = useState();
-    const [maxStatements, setMaxStatements] = useState(); 
+    const [minStatements, setMinStatements] = useState(20);
+    const [maxStatements, setMaxStatements] = useState(30); 
     const [totalMaxStatements, setTotalMaxStatements] = useState();
     const [allPapersWithStatements, setAllPapersWithStatements] = useState([]);
     const [sortedData, setSortedData] = useState([]);
@@ -24,10 +24,14 @@ function StatementsPaper(){
           const result = await fetchAllPages();
           console.log("all papersw with statements", result);
           setAllPapersWithStatements(result);
-          const maxStatements = result.reduce((max, paper) => Math.max(max, paper.count), 0);
-          setTotalMaxStatements(maxStatements);
-          setFilteredData(result);
-          sortData(result);
+          const totalmaxStatements = result.reduce((max, paper) => Math.max(max, paper.count), 0);
+          setTotalMaxStatements(totalmaxStatements);
+          const filteredResult = result.filter(paper => paper.count >= minStatements && paper.count <= maxStatements);
+          console.log("initial minStatements:", minStatements);
+          console.log("initial maxStatements:", maxStatements);
+          console.log("inital filtered papers", filteredResult);
+          setFilteredData(filteredResult);
+          sortData(filteredResult);
         };
     
         fetchData();
@@ -193,12 +197,13 @@ function StatementsPaper(){
         return { absolute: papersWithAtLeastStatements.length, percentage: percentage.toFixed(2) };
     };
 
-    const countDisplayedPapers = () =>{
+    const countDisplayedPapers = () => {
         const displayedPapers = filteredData.length;
-        const percentage = (displayedPapers.length / allPapersWithStatements.length) * 100;
-        console.log("papers absolute", displayedPapers.length);
-        return {absolute: displayedPapers.length, percentage: percentage.toFixed(2)};
+        const percentage = (displayedPapers / allPapersWithStatements.length) * 100;
+        console.log("papers absolute", displayedPapers);
+        return {absolute: displayedPapers, percentage: percentage.toFixed(2)};
     }
+       
 
     const renderFilteredPaperList = (papers) => {
         return(

@@ -39,7 +39,7 @@ function MatomoStatistics() {
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
-    default: ['#8c83c9', 'dodgerblue', 'lightseagreen', '#e7e232', 'peru', '#990033'],
+    default: ['#8c83c9', 'dodgerblue', 'lightseagreen', '#e4de1b', 'peru', '#990033'],
     //colorblindColorLegend : ['#08439A', '#3182bd', '#6baed6', '#CCB267', '#d95f0e', '#d73027'],
     //sunsetColorLegend :['#FCD229', '#E79204', '#E54F02', '#CE4242', '#971616', '#730303'],
     greenColorLegend : ['#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'],
@@ -455,7 +455,7 @@ function MatomoStatistics() {
           const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
           const segmentIndex = Math.floor(label / segmentSize);
-          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
+          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#bfc0c0' : colorLegend[segmentIndex];
           //return colorLegend[segmentIndex];
         },
         'target-arrow-color': (ele) => {
@@ -464,7 +464,7 @@ function MatomoStatistics() {
           const segmentSize = Math.ceil(maxLabel / segmentCount);
           // Map the label to a segment based on the segment size
           const segmentIndex = Math.floor(label / segmentSize);
-          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#3e3f3f' : colorLegend[segmentIndex];
+          return hoveredColor && colorLegend[segmentIndex] !== hoveredColor ? '#bfc0c0' : colorLegend[segmentIndex];
         },
       }
     },
@@ -677,10 +677,10 @@ function MatomoStatistics() {
     });    
 
     const highlightedStyle = {
-      'background-color': '#ff6666', // Change to any color you prefer
-      'line-color': '#ff6666', // Change to any color you prefer
-      'target-arrow-color': '#ff6666', // Change to any color you prefer
-      'source-arrow-color': '#ff6666', // Change to any color you prefer
+      'background-color': '#e86161', 
+      'line-color': '#e86161', 
+      'target-arrow-color': '#e86161', 
+      'source-arrow-color': '#e86161', 
     };
 
   try {

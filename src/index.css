@@ -6,8 +6,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --bs-body-bg: black !important;
-  --bs-body-color:white;
+  --bs-body-bg: #dbdde5 !important;
+  --bs-link-color: #80869b !important;
+  --bs-nav-link-color: #80869b !important; 
+  --bs-nav-tabs-border-color:  black !important;
 }
 
 code {

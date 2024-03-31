@@ -40,7 +40,7 @@ function App() {
   const [endpointLabel] = store.useState("endpointLabel");
 
   return (
-    <div  data-bs-theme="dark">
+    <div  data-bs-theme="light" >
     <Container fluid className="my-3 px-4">
       <NavBar/>
       {endpointLabel === "ORKG" ? (

@@ -39,9 +39,9 @@ function MatomoStatistics() {
   //const [maxOccurences, setMaxOccurrences] = useState();
 
   const colorSchemes = {
-    default: ['darkslateblue', 'dodgerblue', 'lightseagreen', 'khaki', 'peru', 'orangered'],
-    colorblindColorLegend : ['#08439A', '#3182bd', '#6baed6', '#CCB267', '#d95f0e', '#d73027'],
-    sunsetColorLegend :['#FCD229', '#E79204', '#E54F02', '#CE4242', '#971616', '#730303'],
+    default: ['#8c83c9', 'dodgerblue', 'lightseagreen', '#e7e232', 'peru', '#990033'],
+    //colorblindColorLegend : ['#08439A', '#3182bd', '#6baed6', '#CCB267', '#d95f0e', '#d73027'],
+    //sunsetColorLegend :['#FCD229', '#E79204', '#E54F02', '#CE4242', '#971616', '#730303'],
     greenColorLegend : ['#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'],
     pinkPurpleColorLegend :['#fbb4b9', '#f768a1', '#c51b8a', '#7a0177', '#49006a', '#270048'],
 
@@ -427,12 +427,12 @@ function MatomoStatistics() {
     {
       selector: 'node',
       style: {
-        'background-color': '#FFFFFF', // Dark background color for nodes
+        'background-color': '#80869b', // Dark background color for nodes
         'label': 'data(label)',
         'text-wrap': 'wrap',
         'text-max-width': '10px',
-        'color': '#e86161', // Text color for nodes
-        'text-background-color': '#494949',
+        'color': 'black', // Text color for nodes
+        'text-background-color': 'lightgrey',
         'text-background-opacity': 1  ,
       }
     },
@@ -472,7 +472,7 @@ function MatomoStatistics() {
       selector: ':selected',
       style: {
         'background-color': '#e86161', // Color for selected nodes
-        'line-color': '#ffffff', // Color for selected edges'label': 'data(label)
+        'line-color': '#e86161', // Color for selected edges'label': 'data(label)
         'target-arrow-color': '#e86161'
       }
     },
@@ -693,7 +693,7 @@ function MatomoStatistics() {
             position: 'absolute',
             top: labelPosition.top,
             left: labelPosition.left,
-            backgroundColor: 'grey',
+            backgroundColor: 'lightgrey',
             padding: '5px',
             border: '1px solid #ccc',
             borderRadius: '5px',
@@ -894,7 +894,7 @@ function MatomoStatistics() {
             <Col xs={3} md={2}>
             {/* Dropdown for changing color scheme */}
             <Dropdown>
-                <Dropdown.Toggle variant="secondary" id="colorSchemeDropdown">
+                <Dropdown.Toggle variant="primary" id="colorSchemeDropdown">
                   Select Color Scheme
                 </Dropdown.Toggle>
 

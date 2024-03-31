@@ -202,8 +202,7 @@ function StatementsPaper(){
         const percentage = (displayedPapers / allPapersWithStatements.length) * 100;
         console.log("papers absolute", displayedPapers);
         return {absolute: displayedPapers, percentage: percentage.toFixed(2)};
-    }
-       
+    }       
 
     const renderFilteredPaperList = (papers) => {
         return(
@@ -338,17 +337,15 @@ function StatementsPaper(){
                             layout={{
                                 xaxis: {
                                     title: "Number of statements",
-                                    titlefont: { color: 'white' }, 
-                                    tickfont: { color: 'white' },
+                                    titlefont: { color: 'black' }, 
+                                    tickfont: { color: 'black' },
                                     range: xAxisRange
                                 },
                                 yaxis: {
                                     title: "Papers",
-                                    titlefont: { color: 'white' }, 
-                                    tickfont: { color: 'white' },
+                                    titlefont: { color: 'black' }, 
+                                    tickfont: { color: 'black' },
                                 },
-                                paper_bgcolor: 'rgba(0, 0, 0, 0.7)',
-                                plot_bgcolor: 'rgba(0, 0, 0, 0.7)'
                             }}
                         />
 

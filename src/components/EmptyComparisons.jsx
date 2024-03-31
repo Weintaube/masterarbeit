@@ -219,7 +219,7 @@ function EmptyComparisons(){
     <Card >
         <Card.Body >
             <Card.Title>Comparisons</Card.Title>
-            <p>Here you can see statistics about the comparison usage. All comparisons: {currentElements.length}. </p>
+            <p>Here you can see statistics about the comparison modeling. All comparisons: {currentElements.length}. </p>
             
             <div className="comparisonlist listgroupcursor">
             <div className="table-container">

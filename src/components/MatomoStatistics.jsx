@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import CytoscapeComponent from 'react-cytoscapejs';
 import Card from 'react-bootstrap/Card';
-import { Row, Col, Dropdown, DropdownButton , Accordion, Tab, Tabs, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { Row, Col, Dropdown, DropdownButton , Accordion, Tab, Tabs, Tooltip, OverlayTrigger, Alert} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import chroma from 'chroma-js';
@@ -17,6 +17,7 @@ function MatomoStatistics() {
   const [selectedEdge, setSelectedEdge] = useState([]); //todo make label that shows current edge with source, target and label
   const [startDate, setStartDate] = useState('today'); // State for start date
   const [endDate, setEndDate] = useState('');
+  const [isValidFormat, setIsValidFormat] = useState(true);
   const [period, setPeriod] = useState('day'); //range, day
   const [fetchOneDay, setFetchOneDay] = useState(true); // State for the checkbox
   const [nodeSpacing, setNodeSpacing] = useState(6);
@@ -227,6 +228,11 @@ function MatomoStatistics() {
   
   
   const fetchData = async () => {
+    
+    if(!validateDates(startDate, endDate)){
+      return;
+    }
+
     const matomoParams = {
       idSite: siteID,
       period: period,
@@ -397,11 +403,51 @@ function MatomoStatistics() {
   };
 
   const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
+    const value = event.target.value;
+    setStartDate(value);
+    //validateDates(value, endDate);
   };
 
   const handleEndDateChange = (event) => {
-    setEndDate(event.target.value);
+    const value = event.target.value;
+    setEndDate(value);
+    //validateDates(startDate, value);
+  };
+
+  const validateDates = (start, end) => {
+    // Regular expression to match the format YYYY-MM-DD
+    const dateFormatRegex = /^(?:\d{4}-\d{2}-\d{2}|\d{4}-(?:0[1-9]|1[0-2])|today|yesterday)$/;
+    console.log(start, end);
+
+     // Check if start date is empty string or not in the correct format
+    if (start.trim() === '' || !dateFormatRegex.test(start.trim())) {
+      setIsValidFormat(false);
+      console.log("validate false");
+      return false;
+    }
+
+    // Check if end date is empty and the end date input field is disabled
+    if (end.trim() === '' && fetchOneDay) {
+      setIsValidFormat(true);
+      console.log("validate true");
+      return true;
+    }
+
+    // Check if end date is not empty string and not in the correct format
+    if (end.trim() !== '' && !dateFormatRegex.test(end.trim())) {
+      setIsValidFormat(false);
+      console.log("validate false");
+      return false;
+    }
+
+    // If both start and end dates are in the correct format or the end date is empty and disabled
+    setIsValidFormat(true);
+    console.log("validate true");
+    return true;
+  };
+
+  const handleInputFocus = () => {
+    setIsValidFormat(true);
   };
 
   const handleCheckboxChange = (event) => {
@@ -441,6 +487,7 @@ function MatomoStatistics() {
       style: {
         'line-color': '#dbdde5', // Color of edges Todo change 
         'target-arrow-color': '#dbdde5', // Color of arrowheads on edges
+        'width': '4px',
         'target-arrow-shape': 'triangle',
         'curve-style': 'bezier',
         'label': 'data(label)',
@@ -742,6 +789,7 @@ function MatomoStatistics() {
                     type="text"
                     value={startDate}
                     onChange={handleStartDateChange}
+                    onFocus={handleInputFocus}
                   />
                 </Form.Group>
               </Row>
@@ -754,8 +802,12 @@ function MatomoStatistics() {
                   value={endDate}
                   onChange={handleEndDateChange}
                   disabled={fetchOneDay}
+                  onFocus={handleInputFocus}
                 />
               </Form.Group>
+              {!isValidFormat && (
+                <Alert variant="danger">Please enter valid date formats (YYYY-MM-DD) for both start and end dates.</Alert>
+              )}
               </Row>
 
               <Row>

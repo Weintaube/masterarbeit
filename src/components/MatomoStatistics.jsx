@@ -855,7 +855,12 @@ function MatomoStatistics() {
                     <Form.Control
                       type="number"
                       value={transitionThreshold}
-                      onChange={(e) => setTransitionThreshold(isNaN(parseInt(e.target.value)) ? 1 : parseInt(e.target.value))}
+                      onChange={(e) => {
+                        const newValue = e.target.value.trim();
+                        if (newValue === '' || !isNaN(parseInt(newValue))) {
+                          setTransitionThreshold(newValue === '' ? '' : parseInt(newValue));
+                        }
+                      }}
                     />
                   </Form.Group>
               </Row>

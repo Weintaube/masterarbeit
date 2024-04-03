@@ -61,7 +61,7 @@ function NavBar (){
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <NavDropdown title="Choose Endpoint" id="basic-nav-dropdown" onSelect={handleSelect}>
+            <NavDropdown title="Choose KG" id="basic-nav-dropdown" onSelect={handleSelect}>
               <NavDropdown.Item href="#orkg">ORKG</NavDropdown.Item>
               <NavDropdown.Item href="#dbpedia">DBpedia</NavDropdown.Item>
               {/*<NavDropdown.Item href="#wikidata">Wikidata</NavDropdown.Item>*/}

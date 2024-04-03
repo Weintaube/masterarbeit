@@ -16,7 +16,6 @@ function Templates() {
     const [sortCriteriaTemplates, setSortCriteriaTemplates] = useState({ column: '', order: 'asc' }); 
     const [selectedAuthor, setSelectedAuthor] = useState(null);
     const [selectedAuthorTemplates, setSelectedAuthorTemplates] = useState([]);
-    const [sortCriteriaFilter, setSortCriteriaFilter] = useState({ column: 'count', order: 'desc' });
 
     useEffect(() => {
         fetchData();
@@ -189,7 +188,7 @@ function Templates() {
         <Card >
             <Card.Body >
                 <Card.Title>Templates</Card.Title>
-                <p>Here you can see statistics about the template usage.</p>
+                <p>Here you can see who created which template.</p>
 
                 <Row>
                     <Col>

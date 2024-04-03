@@ -11,6 +11,30 @@ body {
   --bs-nav-link-color: #80869b !important; 
 }
 
+:root {
+  --bs-link-color-rgb: 232, 97, 97; /* Your desired link color in RGB */
+}
+
+a {
+  color: #e86161 !important;
+  text-decoration: none !important;
+}
+
+a:hover,
+a:focus {
+  /* Your hover/focus link color */
+  color: var(--bs-link-color-rgb) !important;
+}
+
+.nav-link {
+  color: #80869b !important; /* Your desired link color */
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  color: #e86161 !important; /* Your desired link color on hover/focus */
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

@@ -48,6 +48,7 @@ function Templates() {
                 for (let page = 0; page < totalPages; page++) {
                     const pageResponse = await fetch(`https://orkg.org/api/templates?page=${page}`);
                     const pageResult = await pageResponse.json();
+                    console.log("template", pageResult);
 
                     // Sort the results based on the current sort criteria
                     updatedResults.push(

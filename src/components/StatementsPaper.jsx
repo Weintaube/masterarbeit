@@ -54,7 +54,7 @@ function StatementsPaper(){
 
         while (currentPage < totalPages) {
             try {
-                const response = await fetch(`https://incubating.orkg.org/api/papers/statement-counts/?page=${currentPage}&size=2500`);
+                const response = await fetch(`https://orkg.org/api/papers/statement-counts/?page=${currentPage}&size=2500`);
       
                 if (response.ok) {
                     const result = await response.json();
@@ -77,7 +77,7 @@ function StatementsPaper(){
 
     const fetchData = async()=>{
         try{
-            const response = await fetch('https://incubating.orkg.org/api/papers/statement-counts'); //https://orkg.org/api/statements/R659268/bundle?maxLevel=2
+            const response = await fetch('https://orkg.org/api/papers/statement-counts'); //https://orkg.org/api/statements/R659268/bundle?maxLevel=2
             if(response.ok){ //Anfrage erfolgreich Statuscode 200
                 console.log("Response (OK)",  response)
                 const result = await response.json();
@@ -231,7 +231,7 @@ function StatementsPaper(){
                 <tbody>
                     {papers.map((item, index) => (
                     <tr key={index}>
-                        <td><a href={`https://incubating.orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
+                        <td><a href={`https://orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
                         <td>{item.count}</td>
                     </tr>
                     ))}
@@ -253,7 +253,7 @@ function StatementsPaper(){
                 <tbody>
                     {papers.map((item, index) => (
                     <tr key={index}>
-                        <td><a href={`https://incubating.orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
+                        <td><a href={`https://orkg.org/paper/${item.id}`} target="_blank" rel="noopener noreferrer">{item.title?item.title:item.id}</a></td>
                         <td>{item.count}</td>
                     </tr>
                     ))}

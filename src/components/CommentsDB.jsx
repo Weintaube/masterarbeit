@@ -287,7 +287,7 @@ function CommentsDB(){
                                     trigger="click"
                                     rootClose="true"
                                     key={`Delete Popover${item.resourceId}`}
-                                    overlay={<Popover data-bs-theme="dark">
+                                    overlay={<Popover>
                                         <Popover.Header as="h3">{`Do you want to delete this item?`}</Popover.Header>
                                         <Popover.Body>
                                             {item.typeRes}<br></br>
@@ -306,7 +306,7 @@ function CommentsDB(){
                                         <OverlayTrigger
                                             placement="top"
                                             key={`tooltip-${item.resourceId}-${commentIndex}`}
-                                            overlay={<Tooltip data-bs-theme="dark" id={`tooltip-${item.resourceId}-${commentIndex}`}>{comment.description}</Tooltip>}
+                                            overlay={<Tooltip id={`tooltip-${item.resourceId}-${commentIndex}`}>{comment.description}</Tooltip>}
                                         >
                                             {/* Updated line: Added data-id attribute for identifying the comment */}
                                             <Button onClick={() => handleEditModalShow(comment)} className={`btn-${comment.typeComm.toLowerCase().replace(/\s+/g, '-')}`} data-id={comment.id}>{comment.typeComm}</Button>
